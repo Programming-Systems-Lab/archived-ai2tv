@@ -38,6 +38,7 @@ public class AI2TVPlugin extends ComponentPlugin {
     private RootFactory factory;
 
     byte[] diagramByteArray;    // cache of the serialized LittleJIL ai2tv diagram
+    private boolean publishedExecAgentAsset;
 
     private static class ResourceTablePredicate implements UnaryPredicate {
         public boolean execute(Object o) {
@@ -61,9 +62,9 @@ public class AI2TVPlugin extends ComponentPlugin {
             throw new FileNotFoundException(filename);
         }
 
-        diagramByteArray = new byte[(int)file.length()];
+        diagramByteArray = new byte[(int) file.length()];
 
-        BufferedInputStream bufIn =  new BufferedInputStream(new FileInputStream(file));
+        BufferedInputStream bufIn = new BufferedInputStream(new FileInputStream(file));
         bufIn.read(diagramByteArray);
         bufIn.close();
 
@@ -86,8 +87,17 @@ public class AI2TVPlugin extends ComponentPlugin {
         factory.addPropertyGroupFactory(new PropertyGroupFactory());
 
         // set the Prototypes for ClientAssets
-        ClientAsset clientProto = (ClientAsset)factory.createPrototype(ClientAsset.class, "ClientProto");
+        ClientAsset clientProto = (ClientAsset) factory.createPrototype(ClientAsset.class, "ClientProto");
         prototypeRegistryService.cachePrototype("ClientProto", clientProto);
+
+        // set the Prototypes for ExecClassAgentAssets
+        factory.addPropertyGroupFactory(new psl.workflakes.littlejil.assets.PropertyGroupFactory());
+        {
+            ExecClassAgentAsset prototype = (ExecClassAgentAsset)
+                    factory.createPrototype(ExecClassAgentAsset.class, "ExecClassAgentProto");
+
+            prototypeRegistryService.cachePrototype("ExecClassAgent", prototype);
+        }
 
     }
 
@@ -96,17 +106,6 @@ public class AI2TVPlugin extends ComponentPlugin {
         resourceTableSubscription = (IncrementalSubscription) blackboard.subscribe(new ResourceTablePredicate());
         reportAssetSubscription = (IncrementalSubscription) blackboard.subscribe(new ReportAssetPredicate());
 
-        ExecClassAgentAsset asset = (ExecClassAgentAsset) factory.createInstance("ExecClassAgent");
-        NewExecutorPG executorPG = (NewExecutorPG) factory.createPropertyGroup("ExecutorPG");
-        executorPG.setCapabilities("any");
-
-        NewClassPG classPG = (NewClassPG) factory.createPropertyGroup("ClassPG");
-        //classPG.setClassName("psl.workflakes.littlejil.TaskExecutorInternalPlugin$DummyExecutableTask");
-        classPG.setClassName("psl.ai2tv.workflow.WFHelperFunctions");
-        asset.setExecutorPG(executorPG);
-        asset.setClassPG(classPG);
-
-        blackboard.publishAdd(asset);
 
     }
 
@@ -127,6 +126,24 @@ public class AI2TVPlugin extends ComponentPlugin {
 
             logger.info("got new ReportAsset");
             PluginUtil.Timing.addTimestamp("got report");
+
+            // if we haven't published the ExecAgent asset yet, do so now
+            if (!publishedExecAgentAsset) {
+                ExecClassAgentAsset asset = (ExecClassAgentAsset) factory.createInstance("ExecClassAgent");
+                NewExecutorPG executorPG = (NewExecutorPG) factory.createPropertyGroup("ExecutorPG");
+                executorPG.setCapabilities("any");
+
+                NewClassPG classPG = (NewClassPG) factory.createPropertyGroup("ClassPG");
+                //classPG.setClassName("psl.workflakes.littlejil.TaskExecutorInternalPlugin$DummyExecutableTask");
+                classPG.setClassName("psl.ai2tv.workflow.WFHelperFunctions");
+                asset.setExecutorPG(executorPG);
+                asset.setClassPG(classPG);
+
+                blackboard.publishAdd(asset);
+
+                publishedExecAgentAsset = true;
+
+            }
 
             // instantiate a new ai2tv LittleJIL diagram
             ObjectInputStream objIn = null;
@@ -199,22 +216,19 @@ public class AI2TVPlugin extends ComponentPlugin {
 
                 logger.debug("FindBase got clients " + clients + ", base=" + baseClient);
 
-            }
-            else if (method.equals("EvaluateClient")) {
+            } else if (method.equals("EvaluateClient")) {
 
                 ClientAsset baseClient = (ClientAsset) inParams.get("baseClient");
                 ClientAsset client = (ClientAsset) inParams.get("clients");
 
                 logger.debug("EvaluateClient got client=" + client + ", base=" + baseClient);
 
-            }
-            else if (method.equals("AdaptClient")) {
+            } else if (method.equals("AdaptClient")) {
 
                 ClientAsset client = (ClientAsset) inParams.get("clients");
                 logger.debug("AdaptClients got client: " + client);
 
-            }
-            else {
+            } else {
 
                 logger.debug("unknown method " + method);
             }
