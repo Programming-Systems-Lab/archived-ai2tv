@@ -365,7 +365,7 @@ equivalent content to several clients with diverse resources by
 adjusting the compression level assigned to each client while the user
 is watching the video.  Thus for our purposes, synchronization of
 video boils down to showing semantically equivalent frames for a given
-time (see figure ???).
+time.
 
 To adjust the clients in response to the changing environment, we use
 an autonomic controller to maintain the synchronization of the group
@@ -390,8 +390,15 @@ the context of ai2tv, Workflakes coordinates the adjustment of the
 compression level assigned to each client along the hierarchy of the
 ai2tv video.
 
-(???FIGURE: semantic compression )
-(???FIGURE: key frames hierarchy )
+\begin{figure}
+  \centering
+  \epsfig{file=vidframes.eps, width=8cm}
+  \caption{Semantic Video Scenario}
+  \label{vidframes}
+\end{figure} 
+
+% (FIGURE: semantic compression )
+% (FIGURE: key frames hierarchy )
 
 \section{Architecture and Adaptation Model}
 \subsection{System Architecture}
@@ -399,6 +406,13 @@ ai2tv video.
 Our system involves several major components: a video server, video
 clients, an externalized autonomic controller and a common
 communications infrastructure.
+
+\begin{figure}
+  \centering
+  \epsfig{file=ai2tvarch.eps, width=8cm}
+  \caption{ai2tv Architecture}
+  \label{ai2tv_arch}
+\end{figure}
 
 %(FIGURE: ai2tv synchronization arch)
 % video server
@@ -457,6 +471,15 @@ by Kaiser \cite{REFARCH}.
 %
 %(??? figure of ref arch here?). 
 %
+
+\begin{figure}
+ \centering
+ \epsfig{file=refarch.eps, width=8cm}
+  \label{refarch}
+ \caption{Conceptual Reference Architecture}
+\end{figure}
+
+
 According to the reference architecture, sensors attached to the end
 targets continuously collect data and send it to gauges.  The sensors
 provide the autonomic controller with data about the clients.  The
@@ -515,6 +538,14 @@ ai2tv clients.
 %
 %add Figure with AI2TV workflow diagram here
 %
+
+\begin{figure} 
+  \centering
+  \hspace*{-5mm}
+  \epsfig{file=ljil.eps, width=8cm}
+  \caption{Workflow diagram }
+  \label{ljil}
+\end{figure}
 
 The adaptation scheme at the lower level falls into two categories:
 directives that adjust the client in response to relatively low
@@ -604,7 +635,7 @@ intervals and log the frame currently being displayed.  This procedure
 effectively takes a snapshot of the system, which we can evaluate for
 correctness.  This evaluation proceeds by checking whether the frame
 being displayed at a certain time corresponds to one of the valid
-frames at that time, on any arbitrary level.  (see figure ???).  We
+frames at that time, on any arbitrary level.  (see figure \ref{vidframes}).  We
 allow any arbitrary level because the semantic compression algorithm
 ensures that all frames at a certain time will contain the same
 semantic information if the semantic windows overlap.  We score the
@@ -629,14 +660,27 @@ bandwidths.  This casual selection is representative of a real world
 situation, like listening to Internet radio, where users must choose a
 desired frame rate to receive.  The user may have been informed that
 she is allocated a level of bandwidth from her Internet service
-provider, but she may actually be receiving a significantly lower rate.
-We ran experiments first without the aid of the autonomic controller
-and then with it. In the former case, clients with insufficient
-bandwidth were stuck at the compression level originally selected, and
-thus missed an average of 63\% of the needed frames.  In the latter
-case, the same clients only missed 35\% of the needed frames.  These
-results provide evidence of the benefits of the adaptive scheme
-implemented by the autonomic controller.
+provider, but she may actually be receiving a significantly lower
+rate.  We ran experiments first without the aid of the autonomic
+controller and then with it. In the former case, clients with
+insufficient bandwidth were stuck at the compression level originally
+selected, and thus only displayed an average of 37\% of the needed
+frames.  In the latter case, the same clients received 65\% of the
+needed frames.  These results provide evidence of the benefits of the
+adaptive scheme implemented by the autonomic controller.
+
+%% selected, and thus missed an average of 63\% of the needed frames.  In
+%% the latter case, the same clients only missed 35\% of the needed
+%% frames.  These results provide evidence of the benefits of the
+%% adaptive scheme implemented by the autonomic controller.
+
+%% \begin{figure} 
+%%   \centering
+%%   \hspace*{-5mm}
+%%   \epsfig{file=scores.eps, width=9cm}
+%%   \caption{Comparison of weighted scores}
+%%   \label{scores}
+%% \end{figure}
 
 \textit{Evaluating Quality of Service} \\ A primary goal of the ai2tv
 system is to increase the video quality for the clients.  With respect
