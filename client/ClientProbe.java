@@ -73,14 +73,13 @@ class ClientProbe implements Runnable {
     }
     // trying to optimize by calling constructors for events only once
     frameEvent = new Notification();
-    frameEvent.putAttribute("FRAME", "frame_ready");
+    frameEvent.putAttribute("AI2TV_FRAME", "frame_ready");
     frameEvent.putAttribute("ClientID", _client.getID());
     frameEvent.putAttribute("leftbound", 0);	
     frameEvent.putAttribute("rightbound", 0);
     frameEvent.putAttribute("moment", 0);
     frameEvent.putAttribute("level", -1); 
     frameEvent.putAttribute("probeTime", 0);
-    frameEvent.putAttribute("missedFrames", 0);
   }
 
   private void emit (FrameDesc fd) {
@@ -88,14 +87,13 @@ class ClientProbe implements Runnable {
       System.out.println("ClientProbe sending update: " + fd);
       //System.out.println ("Sending Frame info");
       //update only necessary fields
-      frameEvent.putAttribute("WF_FRAME_UPDATE", "");
+      frameEvent.putAttribute("AI2TV_FRAME", "");
       frameEvent.putAttribute("leftbound", fd.getStart());
       frameEvent.putAttribute("rightbound", fd.getEnd());
       frameEvent.putAttribute("moment", fd.getNum());
       frameEvent.putAttribute("level", fd.getLevel());
       frameEvent.putAttribute("bandwidth", _client.getBandwidth());
       frameEvent.putAttribute("probeTime", System.currentTimeMillis());
-      frameEvent.putAttribute("missedFrames", _client.getMissedFrames());
       try { 
 	mySiena.publish(frameEvent);
       } catch (SienaException se) {
