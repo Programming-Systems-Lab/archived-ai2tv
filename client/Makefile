@@ -1,21 +1,22 @@
-name=AI2TVJNI
+NAME=AI2TVJNI
+JAVADIR=c:/java1.4
 
 all:
 	javac *.java
-	javah -jni -classpath . ${name}Java
-	cl -Ic:/java1.4/include -Ic:/java1.4/include/win32 -MD ${name}CPP.cpp c:/java1.4/lib/jvm.lib -Fe${name}CPP.dll
-	cl -Ic:/java1.4/include -Ic:/java1.4/include/win32 -MD ${name}CPP.cpp c:/java1.4/lib/jvm.lib
+	javah -jni -classpath ../../../ psl.ai2tv.client.${NAME}Java
+	cl -I${JAVADIR}/include -I${JAVADIR}/include/win32 -MD ${NAME}CPP.cpp ${JAVADIR}/lib/jvm.lib -Fe${NAME}CPP.dll
+	cl -I${JAVADIR}/include -I${JAVADIR}/include/win32 -MD ${NAME}CPP.cpp ${JAVADIR}/lib/jvm.lib
 
 
 run:
-	java -classpath . ${name}Java
+	java -classpath . ${NAME}Java
 
 mid:
-	javap -classpath . -s -p ${name}Java
+	javap -classpath . -s -p ${NAME}Java
 
 client:
 	javac Client.java CommController.java CacheController.java TimeController.java Viewer.java ClientProbe.java FauxWF.java
 
 clean:
-	rm -rf *.class ${name}Java.h ${name}Java.class ${name}CPP.obj ${name}CPP.exp ${name}CPP.dll ${name}CPP.lib ${name}CPP.exe
+	rm -rf *.class ${NAME}Java.h ${NAME}Java.class ${NAME}CPP.obj ${NAME}CPP.exp ${NAME}CPP.dll ${NAME}CPP.lib ${NAME}CPP.exe psl_ai2tv_client_AI2TVJNIJava.h
 

@@ -28,10 +28,12 @@ AI2TVJNICPP::AI2TVJNICPP(){
   // make sure the base psl dir is in your classpath
   JAVACLASS = "psl/ai2tv/client/AI2TVJNIJava"; 
   classpath = "-Djava.class.path=c:/pslroot/psl/ai2tv/client;c:/pslroot;.";
+
   // note: don't know why, but setting this libpath here doesn't have any 
   // effect later, meaning that on the Java side, should you print out the 
   // libpath, the settings set below are now present.
   libpath = "-Djava.class.path=c:/pslroot/psl/ai2tv/client;c:/pslroot;.";
+
   _jvm = NULL;
   _env = NULL;
   _class = NULL;
@@ -51,6 +53,10 @@ AI2TVJNICPP::AI2TVJNICPP(){
   instantiateClasses();
 }
 
+/**
+ * Desctructor: cleanup class variables, destroy the JVM.  We should
+ * delete the objects that we used here.
+ */
 AI2TVJNICPP::~AI2TVJNICPP(){
   if (DEBUG > 0)
     printf("Shutting down the Java VM");  
@@ -59,6 +65,9 @@ AI2TVJNICPP::~AI2TVJNICPP(){
     printf("Error in shutting down the Java VM");      
 }
 
+/**
+ * Create the Java Virutal Machine
+ */
 JNIEnv* AI2TVJNICPP::create_vm(JavaVM* jvm) {
   JNIEnv* env;
   JavaVMInitArgs args;
@@ -83,6 +92,9 @@ JNIEnv* AI2TVJNICPP::create_vm(JavaVM* jvm) {
   return env;
 }
 
+/**
+ * Initiatiate the java class to be used (AI2TVJNIJava)
+ */
 void AI2TVJNICPP::instantiateClasses(){
   if (_class == NULL) {
     if (DEBUG > 0)
@@ -105,59 +117,161 @@ void AI2TVJNICPP::instantiateClasses(){
 
 // ----- JNI related functions implemented on the Java side ----- //
 
+/**
+ * Tell the Java client that the play button was pressed
+ */
 void AI2TVJNICPP::playPressed(){
-  printf("AI2TVJNICPP::playPressed\n");
-  if (_class == NULL || _obj == NULL) {
-    printf("Error, jclass or jobject is null\n");
-    instantiateClasses();
-    if (_class == NULL || _obj == NULL) {
-      printf("Error, jclass or jobject STILL null\n");
-      return;
-    }
-  }
-
-  /* instantiate object, call play() */
+  /* instantiate object, call play */
   jmethodID mid;
 
   printf("AI2TVJNICPP::playPressed trying to find methodID <CCC ... ");
   mid = _env->GetMethodID(_class, "playPressed","()V");
-  printf("CCC> found methodID\n");
+  if (mid == 0) 
+    printf("CCC> no method found with id: playPressed ()V\n");
+  else
+    printf("CCC> found methodID\n");
 
   printf("AI2TVJNICPP::playPressed calling the method <DDD ... ");
   _env->CallVoidMethod(_obj, mid);
   printf("DDD>\n");
 
 }
+
+/**
+ * Tell the Java client that the stop button was pressed
+ */
+void AI2TVJNICPP::stopPressed(){
+  /* instantiate object, call stop */
+  jmethodID mid;
+
+  printf("AI2TVJNICPP::stopPressed trying to find methodID <CCC ... ");
+  mid = _env->GetMethodID(_class, "stopPressed","()V");
+  if (mid == 0) 
+    printf("CCC> no method found with id: stopPressed ()V\n");
+  else 
+    printf("CCC> found methodID\n");
+
+  printf("AI2TVJNICPP::stopPressed calling the method <DDD ... ");
+  _env->CallVoidMethod(_obj, mid);
+  printf("DDD>\n");
+}
+
+/**
+ * Tell the Java client that the pause button was pressed
+ */
+void AI2TVJNICPP::pausePressed(){
+  /* instantiate object, call pause */
+  jmethodID mid;
+
+  printf("AI2TVJNICPP::pausePressed trying to find methodID <CCC ... ");
+  mid = _env->GetMethodID(_class, "pausePressed","()V");
+  if (mid == 0) 
+    printf("CCC> no method found with id: pausePressed ()V\n");
+  else 
+    printf("CCC> found methodID\n");
+
+  printf("AI2TVJNICPP::pausePressed calling the method <DDD ... ");
+  _env->CallVoidMethod(_obj, mid);
+  printf("DDD>\n");
+}
+
+/**
+ * Tell the Java client that the goto button was pressed
+ *
+ * @param time: time to jump to
+ */
+void AI2TVJNICPP::gotoPressed(int time){
+  /* instantiate object, call goto */
+  jmethodID mid;
+
+  printf("AI2TVJNICPP::gotoPressed trying to find methodID <CCC ... ");
+  mid = _env->GetMethodID(_class, "gotoPressed","(I)V");
+  if (mid == 0)
+    printf("CCC> no method found with the id: gotoPressed (I)V\n");
+  else
+    printf("CCC> found methodID\n");
+
+  printf("AI2TVJNICPP::pausePressed calling the method <DDD ... ");
+  _env->CallVoidMethod(_obj, mid);
+  printf("DDD>\n");
+}
+
+/**
+ * This functon returns the AI2TV Client's current video time in
+ * seconds.
+ */
+long AI2TVJNICPP::currentTime(){
+  /* instantiate object, call goto */
+  jmethodID mid;
+
+  printf("AI2TVJNICPP::currentTime trying to find methodID <CCC ... ");
+  mid = _env->GetMethodID(_class, "currentTime","()J");
+  if (mid == 0) 
+    printf("CCC> no method found with id: currentTime ()J\n");
+  else 
+    printf("CCC> found methodID\n");
+
+  printf("AI2TVJNICPP::currentTime calling the method <DDD ... ");
+  jlong time = _env->CallLongMethod(_obj, mid);
+  printf("DDD>\n");
+
+  return time;
+}
+
+/**
+ * Returns the length of the video in seconds
+ */
+int AI2TVJNICPP::videoLength(){
+  /* instantiate object, call goto */
+  jmethodID mid;
+
+  printf("AI2TVJNICPP::videoLength trying to find methodID <CCC ... ");
+  mid = _env->GetMethodID(_class, "videoLength","()I");
+  if (mid == 0)
+    printf("CCC> no method found with the signature: videoLength ()I\n");
+  else 
+    printf("CCC> found methodID\n");
+
+  printf("AI2TVJNICPP::videoLength calling the method <DDD ... ");
+  jint videoLength = _env->CallIntMethod(_obj, mid);
+  printf("DDD>\n");
+
+  return videoLength;
+}
+
 // ----- END: JNI related functions implemented on the Java side ----- //
 
 // ----- JNI related functions called by the Java side ----- //
 
+/**
+ * Tell the CHIME AI2TV processes to shutdown 
+ */
 JNIEXPORT void JNICALL
-// Java_psl_ai2tv_client_AI2TVJNIJava_shutdown(JNIEnv *env, jobject obj) {
 Java_psl_ai2tv_client_AI2TVJNIJava_shutdown(JNIEnv *env, jobject obj) {
   printf("C++ side: shutdown");
   isActive = 0;
 }
 
+/**
+ * Tell the CHIME "Video" viewer to display this frame
+ */
 JNIEXPORT void JNICALL
-Java_psl_ai2tv_client_AI2TVJNIJava_displayFrame(JNIEnv *env, jobject obj, jstring frameNum) {
-  // char buf[128];
-  // const char *str = env->GetStringUTFChars(frameNum, true);
+Java_psl_ai2tv_client_AI2TVJNIJava_displayFrame(JNIEnv *env, jobject obj, jstring frame) {
   jboolean* isCopy = new jboolean(false);
-  // const char *str = env->GetStringUTFChars(env, frameNum, isCopy);
-  const char *str = env->GetStringUTFChars(frameNum,isCopy);
+  const char *str = env->GetStringUTFChars(frame,isCopy);
 
   printf("c++ : Displayed frame %s\n", str);
-  env->ReleaseStringUTFChars(frameNum, str);
+  env->ReleaseStringUTFChars(frame, str);
 
   return;
 }
 
 // ----- END: JNI related functions called by the Java side ----- //
 
-// point of entry, uncomment if you're going to use this class from
-// the command line
-/*
+/**
+ * point of entry, uncomment if you're going to use this class from
+ * the command line.  This main function is only for testing purposes.
+ */
 int main(int argc, char **argv) {
   // JNIEnv* env = create_vm();
   AI2TVJNICPP* foo = new AI2TVJNICPP();
@@ -179,5 +293,5 @@ int main(int argc, char **argv) {
   printf(" - ZZZ>\n");
   return 0;
 }
-*/
+
 

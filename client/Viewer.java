@@ -237,7 +237,7 @@ class Viewer extends JFrame {
    */
   private void createSlider(){
     int startTime = 0; 
-    int endTime = _client.videoEndTime(); // this needs to be set to the time of the last frame.
+    int endTime = _client.videoLength(); // this needs to be set to the time of the last frame.
     _slider = new JSlider(JSlider.HORIZONTAL, 0, endTime, startTime);
     _slider.setMajorTickSpacing(60); // set the tick spacing to 1 min each
     _slider.setPaintTicks(true);

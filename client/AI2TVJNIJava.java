@@ -21,30 +21,52 @@ package psl.ai2tv.client;
  * @version    $Revision$
  * @author	Dan Phung (dp2041@cs.columbia.edu)
  */
-class AI2TVJNIJava extends Thread{
-  // private AI2TVCommController _comm;
+class AI2TVJNIJava{
+  private Client _client;
 
+  /**
+   * Creates an interface between CHIME and the Client
+   */
   AI2TVJNIJava(){
     System.out.println("Java side <AI2TVJNIJava constructor>");    
-    // _comm = new AI2TVCommController(this);
+    _client = new Client();
   }
 
 
   // ----- JNI related functions called by the C++ side ----- //
+  /**
+   * Indicate to the Client that play was pressed
+   */
   private void playPressed(){
     System.out.println("Java side <play>");
+    _client.playPressed();
   }
 
+  /**
+   * Indicate to the Client that pause was pressed
+   */
   private void pausePressed(){
     System.out.println("Java side <pause>");
+    _client.pausePressed();
   }
 
-  private void ffPressed(){
-    System.out.println("Java side <ff>");
+
+  /**
+   * Indicate to the Client that stop was pressed
+   */
+  private void stopPressed(){
+    System.out.println("Java side <stop>");
+    _client.stopPressed();
   }
 
-  private void rwPressed(){
-    System.out.println("Java side <rw>");
+  /**
+   * Slider function to goto a certain time
+   * 
+   * @param time: time to jump to
+   */
+  private void gotoPressed(int time){
+    System.out.println("Java side <goto>: " + time);
+    _client.gotoPressed(time);
   }
   // --- END: JNI related functions called by the C++ side -- //
 
@@ -52,8 +74,21 @@ class AI2TVJNIJava extends Thread{
   // ----- JNI related functions implemented on the C++ side ----- //
   // the following are function stubs implemented on the C++ side, 
   // accessed through the library loaded in the static block
-  native void displayFrame(String frameNum);
+  /**
+   * Tell CPP side to display a certain frame 
+   * 
+   * @param frame: name of the image file to display
+   */
+  native void displayFrame(String frame);
+
+  /**
+   * shutdown the process
+   */
   native void shutdown();
+
+  /**
+   * the static block used to load the appropriate CPP library
+   */
   static {
     System.loadLibrary("AI2TVJNICPP");
   }

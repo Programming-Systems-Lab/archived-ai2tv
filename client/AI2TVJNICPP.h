@@ -35,7 +35,20 @@ class AI2TVJNICPP
  public:
   AI2TVJNICPP();
   ~AI2TVJNICPP();
+  
+  // the following functions are called by the CPP side to execute
+  // Java side methods
   void playPressed();
+  void stopPressed();
+  void pausePressed();
+  void gotoPressed(int time);
+  long currentTime();
+  int videoLength();
+
+  // These functions are the CPP functions available to the Java side.  
+  // I display these here for information purposes only.
+  // Java_psl_ai2tv_client_AI2TVJNIJava_shutdown(JNIEnv *env, jobject obj)
+  // Java_psl_ai2tv_client_AI2TVJNIJava_displayFrame(JNIEnv *env, jobject obj)
 
  private:
   const char* JAVACLASS;
