@@ -107,6 +107,8 @@ class Viewer extends JFrame {
 
     addWindowListener(new WindowAdapter() {
 	public void windowClosing(WindowEvent e) {
+	  _client.shutdown();
+	  
 	  System.exit(0);
 	}
       });

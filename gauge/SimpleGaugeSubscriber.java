@@ -64,6 +64,10 @@ public abstract class SimpleGaugeSubscriber implements GaugeSubscriber {
     filter.addConstraint(SienaConstants.AI2TV_WF_UPDATE_REPLY, Op.ANY, "ANY");
     siena.subscribe(filter, this);
 
+    // listen for client status updates coming back
+    filter = new Filter();
+    filter.addConstraint(SienaConstants.AI2TV_CLIENT_SHUTDOWN, Op.ANY, "ANY");
+    siena.subscribe(filter, this);
   }
 
   public void notify(Notification s[]) {

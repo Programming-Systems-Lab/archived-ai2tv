@@ -22,13 +22,10 @@ public class SienaConstants {
   public static final String TIME_SHOWN = "timeShown";
   public static final String TIME_OFFSET = "timeOffset";
   public static final String TIME_DOWNLOADED = "timeDownloaded";
-  
-  public static final String AI2TV_WF_REG = "AI2TV_WF_REG";
-  // client ID
-  // 
 
   // these represent the actions of the clients, and are typically sent
   // between peers
+  public static final String AI2TV_CLIENT_SHUTDOWN = "clientShutdown";
   public static final String AI2TV_VIDEO_ACTION = "AI2TV_VIDEO_ACTION";
   public static final String PLAY = "PLAY";
   public static final String STOP = "STOP";
@@ -44,6 +41,7 @@ public class SienaConstants {
   public static final String PLAN_FOR = "PLAN_FOR";
 
   // these are for the WF to gather certain timing stats
+  public static final String AI2TV_WF_REG = "AI2TV_WF_REG";
   public static final String AI2TV_WF_UPDATE_REQUEST = "AI2TV_WF_UPDATE_REQUEST";
   public static final String AI2TV_WF_UPDATE_REPLY = "AI2TV_WF_UPDATE_REPLY";
   public static final String AI2TV_UPDATE_TIME_SENT = "TIME_SENT";

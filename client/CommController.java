@@ -122,6 +122,10 @@ class CommController implements Notifiable{
     Client.out.println("Shutting down CommController");
     Client.out.println("Unsubscribing to Siena server");
     try {
+      Notification shutdownEvent = new Notification();
+      shutdownEvent.putAttribute(SienaConstants.AI2TV_CLIENT_SHUTDWON, "");
+      publishNotification(shutdownEvent);
+
       Filter filter = new Filter();
       filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, Op.ANY, "FOO");
       _siena.unsubscribe(filter, this);

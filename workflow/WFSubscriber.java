@@ -170,6 +170,9 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
 	// should throw an unknown error, or something
 	logger.debug("Received AI2TV VIDEO ACTION event: " + e);
       }
+    } else if (e.getAttribute(SienaConstants.AI2TV_CLIENT_SHUTDWON) != null){
+      // need to remove client from the WF system
+
     } else {
       // event that we don't know what EVENT this is
       // should throw an unknown error, or something
