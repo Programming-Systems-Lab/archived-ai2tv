@@ -1,8 +1,17 @@
 #!/usr/bin/perl
 
+# CVS version control block - do not edit manually
+#  $RCSfile$
+#  $Revision$
+#  $Date$
+#  $Source$
+#
 # Author: Dan Phung (phung@cs.columbia.edu)
 # little script I hacked up to get the proportional
 # difference between the wf frames and the nowf frames
+#
+# should be ran in the directory:
+# c:/pslroot/psl/ai2tv/ai2tv_data/goodness_logs/optimal_start/
 
 $wfLogDir = "WF";
 $nowfLogDir = "noWF";
@@ -16,6 +25,8 @@ closedir(DIR);
 
 $wfTotalFrameCount = 0;
 $nowfTotalFrameCount = 0;
+$count = 0;
+$sumProps = 0;
 foreach $wfFile (@wfFiles) {
     $nowfFile = shift(nowfFiles);
     # print "comparing $wfFile and $nowfFile\n";
@@ -23,7 +34,9 @@ foreach $wfFile (@wfFiles) {
     # print "processing file: $file: ";
     $wfFrameCount = &CountFrames("$wfLogDir/$wfFile");
     $nowfFrameCount = &CountFrames("$nowfLogDir/$nowfFile");
-    # $propDiff = ($wfFrameCount - $nowfFrameCount) / $nowfFrameCount;
+    $propDiff = ($wfFrameCount - $nowfFrameCount) / $nowfFrameCount;
+    $sumProps += $propDiff;
+    $count++;
     # print "WF: $wfFrameCount noWF: $nowfFrameCount = $propDiff\n";
 
     $wfTotalFrameCount += $wfFrameCount;
@@ -33,7 +46,7 @@ foreach $wfFile (@wfFiles) {
 
 $propDiff = ($wfTotalFrameCount - $nowfTotalFrameCount) / $nowfTotalFrameCount;
 print "WF: $wfTotalFrameCount noWF: $nowfTotalFrameCount = $propDiff\n";
-    
+print "intertrial average: " . $sumProps / $count. "\n";
 
 sub CountFrames(){
     my $file = shift;
