@@ -1,0 +1,43 @@
+we could have 
+
+1) invansive probe: probe calls would be littered throughout the 
+code and would assume users would have access to source code.
+
+1) non-invansive probe: would have to have the client already sending
+enough information and provide adapting accessor functions, a somewhat
+unrealistic situation.
+
+Because we do have the code, and the measurements that we want
+to make are specific (ie, we want to know the difference in time
+between when the call to show the frame is made and when the
+frame is actually shown), we will proceed with the invasive 
+approach, carefully labelling each specific location and
+type of probing being used.
+
+- - - - - - - - - - - - - - - 
+
+we must be able to clarify the scope of determinants and non-determinants
+we must also be able to discern on what level what kind of information can
+be gleaned.
+
+determinants 
+- what frame is shown
+- the level the
+
+non-determinants: 
+- avg and std dev of time that the frame is shown, when
+all is well.
+- avg and std dev of communication discrepency between the WF and
+the clients
+
+
+levels		information
+client		: 
+WF		: 
+local workgroup	: 
+global		: 
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - 
+
+NTP Research
