@@ -244,7 +244,6 @@ public class WFHelperFunctions implements ExecutableTask {
 	logger.debug("!!! client is too slow, must skip frames !!!");
 	FrameDesc fd = computeNextDownload(clientLevel, 
 					   clientPG.getFrameRate(),
-					   clientFramePG.getNum(),
 					   clientPG.getBandwidth(), 
 					   clientPG.getAvgDistWF2Client());
 	if (fd != null){
@@ -379,18 +378,16 @@ public class WFHelperFunctions implements ExecutableTask {
    * 
    * 
    * @param level: hierarchy level of the client
-   * @param frameNum: current frameNum that the client is at
    * @param bandwidth: bandwidth of the client
    * @param overhead: propagation overhead of getting the message to the client (in seconds)
    * @return FrameDesc to jump to
    */
-  private FrameDesc computeNextDownload(int level, int frameRate, int frameNum, 
+  private FrameDesc computeNextDownload(int level, int frameRate, 
 					double bandwidth, double overhead){
     
     logger.debug("- - - computingNextDownload - - -");
     logger.debug("clientLevel: " + level);
     logger.debug("frameRate: " + frameRate);
-    logger.debug("frameNum: " + frameNum);
     logger.debug("bandwidth: " + bandwidth);
     logger.debug("overhead: " + overhead);
     long now = _myGauge.clock.currentTime();
