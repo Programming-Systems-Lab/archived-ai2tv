@@ -1,10 +1,10 @@
 package psl.ai2tv;
 
 /**
- * Shared constants for siena events
+ * Shared constants for Keywords events
  *
  */
-public class SienaConstants {
+public class Keywords {
 
   // these represent the typical client probe frame updates
   public static final String UID = "UID";
