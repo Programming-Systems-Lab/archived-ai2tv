@@ -17,6 +17,7 @@ package psl.ai2tv.client;
 
 import siena.*;
 import siena.comm.*;
+import psl.ai2tv.SienaConstants;
 
 /**
  * The Client Effector that listens to WF
@@ -51,7 +52,7 @@ class ClientEffector implements Notifiable {
   private void setupFilter() throws siena.SienaException {
     // WF related actions
     Filter filter = new Filter();
-    filter.addConstraint("AI2TV_FRAME_UPDATE", "");
+    filter.addConstraint(SienaConstants.AI2TV_FRAME_UPDATE, "");
     _mySiena.subscribe(filter, this);
   }
 
@@ -70,17 +71,6 @@ class ClientEffector implements Notifiable {
       ise.printStackTrace();	
     }
     _frameEvent = new Notification();
-
-    // ask peppo if it really makes a difference if we add these now...
-    /*
-      _frameEvent.putAttribute("AI2TV_FRAME", "frame_ready");
-      _frameEvent.putAttribute("CLIENT_ID", _client.getID());
-      _frameEvent.putAttribute("leftbound", 0);	
-      _frameEvent.putAttribute("rightbound", 0);
-      _frameEvent.putAttribute("moment", 0);
-      _frameEvent.putAttribute("level", -1); 
-      _frameEvent.putAttribute("probeTime", 0);
-    */
   }
 
   /**
@@ -113,16 +103,16 @@ class ClientEffector implements Notifiable {
     AttributeValue attrib = event.getAttribute(name);
     Client.out.println("ClientEffector handle notification: name: " + name);
     Client.out.println("ClientEffector handle notification: attrib: " + attrib);
-    if (name.equals("AI2TV_FRAME_UPDATE") && 
-	event.getAttribute("CLIENT_ID").longValue() == _client.getID()){
+    if (name.equals(SienaConstants.AI2TV_FRAME_UPDATE) && 
+	event.getAttribute(SienaConstants.CLIENT_ID).longValue() == _client.getID()){
       Client.out.println("found a WF commmand to do something, directed to ME!");
       Client.out.println("");
-      if (event.getAttribute("CHANGE_LEVEL") != null){
-	Client.out.println("ClientEffector found command to change levels: " + event.getAttribute("CHANGE_LEVEL").toString());
-	_client.changeLevel(event.getAttribute("CHANGE_LEVEL").toString());
-      } else if (event.getAttribute("GOTO_FRAME") != null){
-	Client.out.println("ClientEffector found command to goto frame: " + event.getAttribute("GOTO_FRAME").intValue());
-	_client.setNextFrame(event.getAttribute("GOTO_FRAME").intValue());
+      if (event.getAttribute(SienaConstants.CHANGE_LEVEL) != null){
+	Client.out.println("ClientEffector found command to change levels: " + event.getAttribute(SienaConstants.CHANGE_LEVEL).toString());
+	_client.changeLevel(event.getAttribute(SienaConstants.CHANGE_LEVEL).toString());
+      } else if (event.getAttribute(SienaConstants.PLAN_FOR) != null){
+	Client.out.println("ClientEffector found command to goto frame: " + event.getAttribute(SienaConstants.PLAN_FOR).intValue());
+	_client.setNextFrame(event.getAttribute(SienaConstants.PLAN_FOR).intValue());
       } else {
 	Client.err.println("AI2TV_FRAME_UDPATE: Notification Error, received unknown attribute: " + attrib);
       }
@@ -135,7 +125,7 @@ class ClientEffector implements Notifiable {
   void shutdown(){
     try {
       Filter filter = new Filter();
-      filter.addConstraint("AI2TV_FRAME_UPDATE", "");
+      filter.addConstraint(SienaConstants.AI2TV_FRAME_UPDATE, "");
       _mySiena.unsubscribe(filter, this);
     } catch (siena.SienaException e) {
       Client.err.println("error:" + e);

@@ -66,14 +66,6 @@ class CommController implements Notifiable{
    */
   private void setupFilter() throws siena.SienaException {
     Filter filter = new Filter();
-    filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, SienaConstants.UP_LEVEL);
-    _mySiena.subscribe(filter, this);
-
-    filter = new Filter();
-    filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, SienaConstants.DOWN_LEVEL);
-    _mySiena.subscribe(filter, this);
-
-    filter = new Filter();
     filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, SienaConstants.PLAY);
     _mySiena.subscribe(filter, this);
 
@@ -122,14 +114,6 @@ class CommController implements Notifiable{
     Client.out.println("Unsubscribing to Siena server");
     try {
       Filter filter = new Filter();
-      filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, SienaConstants.UP_LEVEL);
-      _mySiena.unsubscribe(filter, this);
-
-      filter = new Filter();
-      filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, SienaConstants.DOWN_LEVEL);
-      _mySiena.unsubscribe(filter, this);
-
-      filter = new Filter();
       filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, SienaConstants.PLAY);
       _mySiena.unsubscribe(filter, this);
 
@@ -185,14 +169,14 @@ class CommController implements Notifiable{
     Client.out.println("handle notification: name: " + name);
     Client.out.println("handle notification: attrib: " + attrib);
     if (name.equals(SienaConstants.AI2TV_VIDEO_ACTION)){
-      if (attrib.toString().equals("\"PLAY\"")){
+      if (attrib.toString().equals("\""+SienaConstants.PLAY+"\"")){
 	_client.commPlay(); 
-      } else if (attrib.toString().equals("\"STOP\"")){
+      } else if (attrib.toString().equals("\""+SienaConstants.STOP+"\"")){
 	_client.commStop(); 
-      } else if (attrib.toString().equals("\"PAUSE\"")){
+      } else if (attrib.toString().equals("\""+SienaConstants.PAUSE+"\"")){
 	_client.commPause(); 
-      } else if (attrib.toString().startsWith("\"GOTO")){
-	_client.commGoto(event.getAttribute("NEWTIME").intValue());
+      } else if (attrib.toString().startsWith("\""+SienaConstants.GOTO+"\"")){
+	_client.commGoto(event.getAttribute(SienaConstants.NEWTIME).intValue());
       } else {
 	Client.err.println("AI2TV_VIDEO_ACTION: Notification Error, received unknown attribute: " + attrib);
       }
@@ -208,7 +192,7 @@ class CommController implements Notifiable{
   void playPressed(){
     // need to publish the notification that we are need to start playing.
     Notification event = new Notification();
-    event.putAttribute(SienaConstants.AI2TV_VIDEO_ACTION, "PLAY");
+    event.putAttribute(SienaConstants.AI2TV_VIDEO_ACTION, SienaConstants.PLAY);
     Client.out.println("CommController publishing event: " + event);
     publishNotification(event);
   }
@@ -219,7 +203,7 @@ class CommController implements Notifiable{
   void pausePressed(){
     // need to publish the notification that we are need to start playing.
     Notification event = new Notification();
-    event.putAttribute(SienaConstants.AI2TV_VIDEO_ACTION, "PAUSE");
+    event.putAttribute(SienaConstants.AI2TV_VIDEO_ACTION, SienaConstants.PAUSE);
     Client.out.println("CommController publishing event: " + event);
     publishNotification(event);
   }
@@ -229,7 +213,7 @@ class CommController implements Notifiable{
    */
   void stopPressed(){
     Notification event = new Notification();
-    event.putAttribute(SienaConstants.AI2TV_VIDEO_ACTION, "STOP");
+    event.putAttribute(SienaConstants.AI2TV_VIDEO_ACTION, SienaConstants.STOP);
     Client.out.println("CommController publishing event: " + event);
     publishNotification(event);
   }
@@ -241,8 +225,8 @@ class CommController implements Notifiable{
    */
   void gotoPressed(int gotoTime){
     Notification event = new Notification();
-    event.putAttribute(SienaConstants.AI2TV_VIDEO_ACTION, "GOTO");
-    event.putAttribute("NEWTIME", gotoTime);
+    event.putAttribute(SienaConstants.AI2TV_VIDEO_ACTION, SienaConstants.GOTO);
+    event.putAttribute(SienaConstants.NEWTIME, gotoTime);
     Client.out.println("CommController publishing event: " + event);
     publishNotification(event);
   }

@@ -18,6 +18,7 @@ package psl.ai2tv.client;
 import siena.*;
 import siena.comm.*;
 
+import psl.ai2tv.SienaConstants;
 import psl.ai2tv.gauge.FrameDesc;
 import psl.ai2tv.SienaConstants;
 
@@ -79,17 +80,6 @@ class ClientProbe {
     }
     // trying to optimize by calling constructors for events only once
     _frameEvent = new Notification();
-
-    // ask peppo if it really makes a difference if we add these now...
-    /*
-    _frameEvent.putAttribute("AI2TV_FRAME", "frame_ready");
-    _frameEvent.putAttribute("CLIENT_ID", _client.getID());
-    _frameEvent.putAttribute("leftbound", 0);
-    _frameEvent.putAttribute("rightbound", 0);
-    _frameEvent.putAttribute("moment", 0);
-    _frameEvent.putAttribute("level", -1);
-    _frameEvent.putAttribute("probeTime", 0);
-    */
   }
 
   /**
@@ -159,7 +149,7 @@ class ClientProbe {
       Client.probeOutput.println("sending an update: time diff: " + (time - _probeTimes[ID]));
       _frameEvent.putAttribute(natureOfMessage, (time - _probeTimes[ID]));
 
-      if (natureOfMessage.equals("timeShown"))
+      if (natureOfMessage.equals(SienaConstants.TIME_SHOWN))
 	addFrameInfo();
       sendUpdate();
 

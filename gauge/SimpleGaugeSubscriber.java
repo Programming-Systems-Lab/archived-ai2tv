@@ -37,15 +37,15 @@ public abstract class SimpleGaugeSubscriber implements GaugeSubscriber {
             }
 
 	    Filter startFilter = new Filter();
-	    startFilter.addConstraint("Start", Op.ANY, (String)null);
+	    startFilter.addConstraint(SienaConstants.PLAY, Op.ANY, (String)null);
 	    mainSiena.subscribe(startFilter, this);
 	    
 	    gaugeFilter = new Filter();
-		gaugeFilter.addConstraint("FRAME", Op.EQ, "frame_ready");	
+	    gaugeFilter.addConstraint(SienaConstants.AI2TV_FRAME, Op.ANY);
 	    mainSiena.subscribe(gaugeFilter, this);
 
         Filter filter = new Filter();
-        filter.addConstraint("AI2TV_FRAME", "");
+        filter.addConstraint(SienaConstants.AI2TV_FRAME, "");
         mainSiena.subscribe(filter, this);
 	}
 

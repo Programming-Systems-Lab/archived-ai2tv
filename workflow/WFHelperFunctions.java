@@ -23,6 +23,7 @@ import psl.ai2tv.workflow.assets.*;
 import siena.Notification;
 import siena.ThinClient;
 import org.apache.log4j.Logger;
+import psl.ai2tv.SienaConstants;
 
 
 /**
@@ -193,14 +194,14 @@ public class WFHelperFunctions implements ExecutableTask {
                         + ", clientid=" + currentClient.getId());
         if (end <= baseClient.getSampleTime()) {
             event = new Notification();
-            event.putAttribute("AI2TV_FRAME_UPDATE", "");
-            event.putAttribute("CLIENT_ID", currentClient.getId());
-            event.putAttribute("CHANGE_LEVEL", "DOWN");
+            event.putAttribute(SienaConstants.AI2TV_FRAME_UPDATE, "");
+            event.putAttribute(SienaConstants.CLIENT_ID, currentClient.getId());
+            event.putAttribute(SienaConstants.CHANGE_LEVEL, SienaConstants.CHANGE_LEVEL_DOWN);
         } else if (start >= baseClient.getSampleTime()) {
             event = new Notification();
-            event.putAttribute("AI2TV_FRAME_UPDATE", "");
-            event.putAttribute("CLIENT_ID", currentClient.getId());
-            event.putAttribute("CHANGE_LEVEL", "UP");
+            event.putAttribute(SienaConstants.AI2TV_FRAME_UPDATE, "");
+            event.putAttribute(SienaConstants.CLIENT_ID, currentClient.getId());
+            event.putAttribute(SienaConstants.CHANGE_LEVEL, SienaConstants.CHANGE_LEVEL_UP);
         }
 
         /*

@@ -75,14 +75,14 @@ class FauxWF extends Thread implements Notifiable {
     long clientID;
 
     // System.out.println("name: " + name + " attrib:" + attrib);
-    if (name.equals("AI2TV_FRAME")){
-      clientID = event.getAttribute("CLIENT_ID").longValue();
+    if (name.equals(SienaConstants.AI2TV_FRAME)){
+      clientID = event.getAttribute(SienaConstants.CLIENT_ID).longValue();
 
       int currFrame = event.getAttribute(SienaConstants.MOMENT).intValue(); // DEBUG
-      int leftbound = event.getAttribute("leftbound").intValue(); // DEBUG
-      double bandwidth = event.getAttribute("bandwidth").doubleValue(); // DEBUG
-      int level = event.getAttribute("level").intValue();
-      long timeShown = event.getAttribute("timeShown").longValue();
+      int leftbound = event.getAttribute(SienaConstants.LEFTBOUND).intValue(); // DEBUG
+      double bandwidth = event.getAttribute(SienaConstants.BANDWIDTH).doubleValue(); // DEBUG
+      int level = event.getAttribute(SienaConstants.LEVEL).intValue();
+      long timeShown = event.getAttribute(SienaConstants.TIME_SHOWN).longValue();
 
       // first we see if the level needs to be changed.
       // Client.debug.println("currFrame: (leftbound) attribute: " + leftbound);
@@ -109,8 +109,8 @@ class FauxWF extends Thread implements Notifiable {
 
       sendEcho(clientID);
 
-    } else if (name.equals("AI2TV_WF_ECHO_REPLY")){
-      clientID = event.getAttribute("CLIENT_ID").longValue();
+    } else if (name.equals(SienaConstants.AI2TV_WF_ECHO_REPLY)){
+      clientID = event.getAttribute(SienaConstants.CLIENT_ID).longValue();
       /*
       long wf2probe = event.getAttribute("WF2Probe").longValue();
       long probe2wf = event.getAttribute("Probe2WF").longValue();
@@ -128,31 +128,31 @@ class FauxWF extends Thread implements Notifiable {
 
   private void sendEcho(long clientID){
     Notification event = new Notification();
-    event.putAttribute("AI2TV_WF_ECHO", "");
-    event.putAttribute("CLIENT_ID", clientID);
-    event.putAttribute("sentTime", System.currentTimeMillis());
+    event.putAttribute(SienaConstants.AI2TV_WF_ECHO, "");
+    event.putAttribute(SienaConstants.CLIENT_ID, clientID);
+    event.putAttribute(SienaConstants.SENT_TIME, System.currentTimeMillis());
     publishNotification(event);    
   }
 
   private void gotoFrame(int newFrame, long clientID){
     Notification event = new Notification();
-    event.putAttribute("AI2TV_FRAME_UPDATE", "");
-    event.putAttribute("CLIENT_ID", clientID);
-    event.putAttribute("GOTO_FRAME", newFrame);
+    event.putAttribute(SienaConstants.AI2TV_FRAME_UPDATE, "");
+    event.putAttribute(SienaConstants.CLIENT_ID, clientID);
+    event.putAttribute(SienaConstants.GOTO, newFrame);
     publishNotification(event);
   }
 
   private void changeLevel(String dir, long clientID){
     Notification event = new Notification();
-    event.putAttribute("AI2TV_FRAME_UPDATE", "");
-    event.putAttribute("CLIENT_ID", clientID);
-    event.putAttribute("CHANGE_LEVEL", dir);
+    event.putAttribute(SienaConstants.AI2TV_FRAME_UPDATE, "");
+    event.putAttribute(SienaConstants.CLIENT_ID, clientID);
+    event.putAttribute(SienaConstants.CHANGE_LEVEL, dir);
     publishNotification(event);
   }
 
   private void setupFilter() throws siena.SienaException {
     filter = new Filter();
-    filter.addConstraint("AI2TV_FRAME", "");
+    filter.addConstraint(SienaConstants.AI2TV_FRAME, "");
     _mySiena.subscribe(filter, this);
   }
 

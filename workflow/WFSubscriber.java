@@ -2,6 +2,7 @@ package psl.ai2tv.workflow;
 
 import psl.ai2tv.gauge.ClientDesc;
 import psl.ai2tv.gauge.SimpleGaugeSubscriber;
+import psl.ai2tv.SienaConstants;
 
 import siena.Notification;
 import siena.SienaException;
@@ -28,7 +29,7 @@ class WFSubscriber extends SimpleGaugeSubscriber {
 
         logger.debug("received " + e);
 
-    	String id = String.valueOf(e.getAttribute("CLIENT_ID").longValue());
+    	String id = String.valueOf(e.getAttribute(SienaConstants.CLIENT_ID).longValue());
     	Hashtable ht = myGauge.getGroupClients();	
     	currentClient = (ClientDesc)ht.get(id);
     	if (currentClient == null) {
@@ -56,15 +57,15 @@ class WFSubscriber extends SimpleGaugeSubscriber {
     	}
     	else */{
     		//normalize download time
-    		long t = e.getAttribute("probeTime").longValue() - myGauge.getStartTime();
+		  long t = e.getAttribute(SienaConstants.PROBE_TIME).longValue() - myGauge.getStartTime();
 
-    		currentClient.setFrame(e.getAttribute("leftbound").intValue(),
-    								e.getAttribute("moment").intValue(),
-    								e.getAttribute("rightbound").intValue(),
-    								t,
-    								e.getAttribute("level").intValue(),
-                                    e.getAttribute("size").intValue());
-    	}
+		  currentClient.setFrame(e.getAttribute(SienaConstants.LEFTBOUND).intValue(),
+					 e.getAttribute(SienaConstants.MOMENT).intValue(),
+					 e.getAttribute(SienaConstants.RIGHTBOUND).intValue(),
+					 t,
+					 e.getAttribute(SienaConstants.LEVEL).intValue(),
+					 e.getAttribute(SienaConstants.SIZE).intValue());
+		}
 	}
 	
 }

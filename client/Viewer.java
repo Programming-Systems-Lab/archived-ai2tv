@@ -19,6 +19,7 @@ import java.awt.event.*;
 import java.util.Hashtable;
 import javax.swing.*;
 import javax.swing.event.*;
+import psl.ai2tv.SienaConstants;
 
 /** 
  * Very simple viewer.  The steps to showing an image are:
@@ -139,7 +140,7 @@ class Viewer extends JFrame {
       
     if (_newFrame){
       if (Client.probe.getTimeProbe(0) >= 0)
-	Client.probe.endTimeProbe(0, _client.currentTime(), "timeShown");
+	Client.probe.endTimeProbe(0, _client.currentTime(), SienaConstants.TIME_SHOWN);
       _newFrame = false;
       // don't know when I should do the following
       // _mediaTracker.removeImage(_image);  
