@@ -131,7 +131,9 @@ public class Client extends Thread{
   private Hashtable _activeVSIDs;
 
   // we should have these in a config file
-  private String _cacheDir = null;
+  // 999
+  // private String _cacheDir = null;
+  private String _cacheDir = "cache/";
   private String _baseURL;     // the base url of the available videos
   private String _videoURL;    // the video url holding the frame_index.txt file and the frames
   private String _sienaServer;
@@ -142,14 +144,10 @@ public class Client extends Thread{
    * time to load and paint image) in seconds
    */
   private long _lookahead = 0;
-  /**
-   * WF Probe
-   */
+  /** WF Probe */
   static ClientProbe probe;
 
-  /**
-   * WF Effector
-   */
+  /** WF Effector */
   private ClientEffector _effector;
 
   /**
@@ -162,6 +160,8 @@ public class Client extends Thread{
   }
 
   Client(boolean attachedToCHIME) {
+    System.out.println("<Java side> Client ctor");
+
     _attachedToCHIME = attachedToCHIME;    
     // debugging/logging stuff
     try {
@@ -434,10 +434,12 @@ public class Client extends Thread{
    * @param dir: the client's directory for holding the frame cache
    */
   void setCacheDir(String dir) {
+    System.out.println("<Java Client> setting cacheDir: " + dir);
     if (!dir.endsWith("/"))
       _cacheDir = dir + "/";
     _cacheDir = dir;
-    _cache.setCacheDir(_cacheDir);
+    if (_cache != null)
+      _cache.setCacheDir(_cacheDir);
   }
 
   /**
@@ -464,6 +466,8 @@ public class Client extends Thread{
    * @return client's current bandwidth
    */
   double getBandwidth() {
+    if (_cache == null)
+      return 0;
     return _cache.getBandwidth();
   }
 
@@ -480,7 +484,9 @@ public class Client extends Thread{
    * @param passwd: the client's password
    */
   void login(String uid, String gid, String passwd){
-    Client.debug.println("<Client> setting login info");
+    // Client.debug.println("<Client> setting login info");
+    // 999
+    System.out.println("<Java side Client> setting login info");
 
     _uid = uid;
     _gid = gid;
@@ -500,6 +506,9 @@ public class Client extends Thread{
    */
   Vector getAvailableVideos(){
     //999: dp2041, this isn't a good place for this.
+    if (_comm == null)
+      return null;
+
     _comm.setupWGFilter();
 
     // first we get the contents of the base URL
@@ -549,6 +558,9 @@ public class Client extends Thread{
    * get active videos in the user's GID
    */
   Collection getActiveVSIDs(){
+    if (_comm == null)
+      return null;
+    
     _comm.getActiveVSIDs();
 
     waitForWGReply();
@@ -669,6 +681,9 @@ public class Client extends Thread{
     Client.debug.println("computing VideoQuality: " + date);
     // get a preliminary estimate of the bandwidth by downloading the first
     // frame of the highest level.
+    if (_cache == null)
+      return LOWEST_LEVEL;
+
     _cache.downloadFile(_videoURL + _framesData[0][0].getNum() + IMAGE_FORMAT);
     double bandwidth = _cache.getBandwidth();
     // double bandwidth = 1.8; // 1.5 kbytes/sec
@@ -779,6 +794,8 @@ public class Client extends Thread{
    * @return current level of the client's cache controller
    */
   public int getCacheLevel() {
+    if (_cache == null)
+      return LOWEST_LEVEL;
     return _cache.getLevel();
   }
 
@@ -794,6 +811,8 @@ public class Client extends Thread{
    * @return number of prefetched frames
    */
   int getNumPrefetchedFrames(int level) {
+    if (_cache == null)
+      return 0;
     return _cache.getNumPrefetchedFrames(level);
   }
 

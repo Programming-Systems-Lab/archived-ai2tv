@@ -91,6 +91,7 @@ class AI2TVJNIJava{
    * @param dir: directory to store frame cache
    */
   void setCacheDir(String dir){
+    // should check for \\ and replace with / here
     _client.setCacheDir(dir);
   }
 
@@ -129,9 +130,8 @@ class AI2TVJNIJava{
    * @param login: login information
    * @param passwd
    */
-  void setLoginInfo(String login, String passwd, String server,
-		    String uid, String gid){
-    ; // _client.login(info);
+  void setLoginInfo(String uid, String gid, String passwd){
+    _client.login(uid, gid, passwd);
   }
 
   /**
@@ -157,9 +157,9 @@ class AI2TVJNIJava{
    */
   String[] getAvailableVideos(){
     java.util.Vector v = _client.getAvailableVideos();
-
+      
     String[] availableVideos;
-   if (v != null && v.size() > 1)
+    if (v != null && v.size() < 1)
       availableVideos = new String[v.size() + 1];
     else {
       availableVideos = new String[3];
@@ -167,9 +167,8 @@ class AI2TVJNIJava{
       availableVideos[1] = "CS4118-11";
       availableVideos[2] = "CS4118-12";
       return availableVideos;
-      // return new String[0];
     }
-
+      
     for (int i=0; i<v.size(); i++)
       availableVideos[i] = v.get(i).toString();
 

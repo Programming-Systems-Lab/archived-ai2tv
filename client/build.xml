@@ -71,7 +71,7 @@
   <!-- this command wasn't found in the ant tasks list.-->
   <target name="javap" description="create the correct method call of a all java methods for use in CPP code.">
     <exec executable="javap">
-      <arg line="-classpath build -s -p psl.ai2tv.client.${JNIPREFIX}Java"/>
+      <arg line="-classpath ${BUILD} -s -p psl.ai2tv.client.${JNIPREFIX}Java"/>
     </exec>
   </target>
 
