@@ -64,3 +64,4 @@ class AI2TVJNIJava extends Thread{
     return;
   }
 }
+

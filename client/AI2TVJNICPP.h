@@ -50,3 +50,4 @@ class AI2TVJNICPP
 };
 
 #endif // !defined(_AI2TVJNICPP_H_)
+
