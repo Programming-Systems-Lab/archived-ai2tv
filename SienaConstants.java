@@ -9,6 +9,7 @@ public class SienaConstants {
   public static final String CLIENT_ID = "CLIENT_ID";
   public static final String BANDWIDTH = "bandwidth";
   public static final String PROBE_TIME = "probeTime";
+  public static final String CLIENT_CURRENT_TIME = "clientCurrentTime";
   public static final String LEFTBOUND = "leftbound";
   public static final String RIGHTBOUND = "rightbound";
   public static final String MOMENT = "moment";
@@ -33,4 +34,7 @@ public class SienaConstants {
   public static final String AI2TV_WF_ECHO_REPLY = "AI2TV_WF_ECHO_REPLY";
   public static final String AI2TV_WF_ECHO_SENT_TIME = "SENT_TIME";
   public static final String AI2TV_WF_ECHO_RCVD_TIME = "RCVD_TIME";
+
+  public static final String AI2TV_VIDEO_PREFETCH = "";
+
 }
