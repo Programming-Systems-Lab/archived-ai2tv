@@ -1,8 +1,6 @@
 package psl.ai2tv.workflow;
 
-import psl.ai2tv.workflow.assets.ClientAsset;
-import psl.ai2tv.workflow.assets.PropertyGroupFactory;
-import psl.ai2tv.workflow.assets.ReportAsset;
+import psl.ai2tv.workflow.assets.*;
 import psl.workflakes.littlejil.*;
 import psl.workflakes.littlejil.assets.ExecClassAgentAsset;
 import psl.workflakes.littlejil.assets.NewExecutorPG;
@@ -125,6 +123,10 @@ public class AI2TVPlugin extends ComponentPlugin {
             ReportAsset reportAsset = (ReportAsset) reports.nextElement();
 
             logger.info("got new ReportAsset");
+
+            /*BucketPG bucketPG = reportAsset.getBucketPG();
+            logger.debug("group=" + bucketPG.getGroup());*/
+
             PluginUtil.Timing.addTimestamp("got report");
 
             // if we haven't published the ExecAgent asset yet, do so now

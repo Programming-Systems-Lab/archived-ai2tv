@@ -96,6 +96,9 @@ public class GaugeLDMPlugIn
 		Iterator allClients = bucket.getGroupState().keySet().iterator();
 		ClientAsset ca;
 
+        // DEBUG
+        StringBuffer buf = new StringBuffer();
+
 		while(allClients.hasNext()) {
 			Object o = allClients.next();
 			ClientDesc cd = (ClientDesc) bucket.retrieve(o);
@@ -117,11 +120,13 @@ public class GaugeLDMPlugIn
 			report.getBucketPG().getGroup().add(ca);
 			// [commented out by matias - publishing resport only, for AI2TVPlugin] insertAsset(ca);
 			bucket.update(o, (ClientDesc)null);
+
+            buf.append("{id=" + cd.getClientID() + ", frame=" + fd.getNum() + "}");
 		}
 
 		setSampleTime(report, sampleTime);
 		//should insert a new ReportAsset in the BB, not simply update an exisiting one
-		logger.debug("inserting report " + report + ", time=" + sampleTime + ",group=" + report.getBucketPG().getGroup());
+		logger.debug("inserting report, time=" + sampleTime + ",group=" + buf.toString());
         insertAsset(report);
 		bucket.clearValues();
 	}
