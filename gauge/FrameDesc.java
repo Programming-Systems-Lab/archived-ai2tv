@@ -26,8 +26,8 @@ public class FrameDesc {
 	/** has it been downloaded in the cache already? */
 	private boolean downloaded = false;
 	
-	/** time at which the Frame was downloaded */
-	private long downloadedTime;
+	/** time at which the Frame was shown */
+	private long frameShownTime;
 	
 	/** Vector containing the FrameDesc of all the equivalent frames to this frame */
 	private Vector equivalents;
@@ -41,7 +41,7 @@ public class FrameDesc {
 		start = -1;
 		end = -1;
 		size = -1;
-		downloadedTime = -1;	
+		frameShownTime = -1;
 		equivalents = null;
 	}
 	
@@ -57,7 +57,7 @@ public class FrameDesc {
 	public void setDownloaded (boolean flag) { 
 		downloaded = flag; 
 		if (flag == true)
-			downloadedTime = System.currentTimeMillis();
+		  ; // downloadedTime = System.currentTimeMillis();
 	}
 	
 	public boolean isDownloaded() { return downloaded; }
@@ -72,8 +72,8 @@ public class FrameDesc {
 	public int getSize() { return level; }
 	public void setSize(int s) { size = s; }
 	
-	public long getDownloadedTime() {return downloadedTime; }
-	public void setDownloadedTime(long t) { downloadedTime = t; }
+	public long getFrameShownTime() {return frameShownTime; }
+	public void setFrameShownTime(long t) { frameShownTime = t; }
 	
 	public void setEquivalents(Vector v) { equivalents = v; }
 	public Iterator getEquivalents() { return equivalents.iterator(); }

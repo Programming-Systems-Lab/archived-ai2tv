@@ -87,6 +87,10 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
   }
 
   public void notify(Notification e) {
+    handleNotification(e);
+  }
+
+  private void handleNotification(Notification e){
     ClientDesc currentClient;
 
     logger.debug("received " + e);
@@ -101,14 +105,13 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
       myGauge.getBucket().update(id, currentClient);
     }
 
-
     if (e.getAttribute(SienaConstants.AI2TV_FRAME) != null){
 
-      long t = myGauge.clock.currentTime();
+      long currentTime = myGauge.clock.currentTime();
       currentClient.setFrame(e.getAttribute(SienaConstants.LEFTBOUND).intValue(),
 			     e.getAttribute(SienaConstants.MOMENT).intValue(),
 			     e.getAttribute(SienaConstants.RIGHTBOUND).intValue(),
-			     t,
+			     currentTime,
 			     e.getAttribute(SienaConstants.LEVEL).intValue(),
 			     e.getAttribute(SienaConstants.SIZE).intValue());
 
@@ -120,20 +123,22 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
 
     } else if (e.getAttribute(SienaConstants.AI2TV_VIDEO_ACTION) != null){
       String action = e.getAttribute(SienaConstants.AI2TV_VIDEO_ACTION).stringValue();
+      long absTimeSent = e.getAttribute(SienaConstants.ABS_TIME_SENT).longValue();
       if (action.equals(SienaConstants.PLAY)) {
 	//check if clients are already running
 	if (! myGauge.isRunning()) {
-	  // nominal start time = 1st client start time
+	  /* // nominal start time = 1st client start time	
 	  long st = myGauge.clock.currentTime(); // System.currentTimeMillis();
 	  myGauge.setStartTime(st);
 	  currentClient.setStartTime(st);
+	  */
 	  logger.debug("starting nominal");
 	  myGauge.startNominal();
 	}
-	WFGauge.clock.startTime();
+	WFGauge.clock.startTime(absTimeSent);
 
       } else if (action.equals(SienaConstants.PAUSE)) {
-	WFGauge.clock.pauseTime();
+	WFGauge.clock.pauseTime(absTimeSent);
 
       } else if (action.equals(SienaConstants.STOP)) {
 	WFGauge.clock.stopTime();
@@ -142,7 +147,7 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
 	long clientid = e.getAttribute(SienaConstants.AI2TV_VIDEO_ACTION).longValue();
 	// id of -1 is reserved for the WF
 	if (clientid != _id){
-	  WFGauge.clock.gotoTime(e.getAttribute(SienaConstants.NEWTIME).intValue());
+	  WFGauge.clock.gotoTime(absTimeSent, e.getAttribute(SienaConstants.NEWTIME).intValue());
 	}
       } else {
 	// event that we don't know what action this is
