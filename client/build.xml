@@ -1,84 +1,84 @@
 <!-- Ant build properties file for the AI2TV client module -->
 <project name="AI2TVClient" default="client" basedir=".">
 
-    <!-- the location of the build files (.class files) -->
-    <property name="BUILD" value="build"/>
-    <property name="SRCDIR" value="c:/pslroot"/>
-    <property name="JNIPREFIX" value="AI2TVJNI"/>
-    <property name="JAVADIR" value="c:/java1.4"/>
-    <property name="JAR_PATH" value="c:/pslroot/jars"/>
-    <property name="CONNECTION_TYPE" value="ka"/>
-    <property name="SIENA_HOST" value="localhost"/>
-    <property name="SIENA_PORT" value="4444"/>
-    <property name="BASE_URL" value="http://franken.psl.cs.columbia.edu/ai2tv/"/>
-    <property name="CPP_COMPILER" value="cl"/>
+  <!-- the location of the build files (.class files) -->
+  <property name="BUILD" value="build"/>
+  <property name="SRCDIR" value="c:/pslroot"/>
+  <property name="JNIPREFIX" value="AI2TVJNI"/>
+  <property name="JAVADIR" value="c:/java1.4"/>
+  <property name="JAR_PATH" value="c:/pslroot/jars"/>
+  <property name="CONNECTION_TYPE" value="ka"/>
+  <property name="SIENA_HOST" value="localhost"/>
+  <property name="SIENA_PORT" value="4444"/>
+  <property name="BASE_URL" value="http://wall.psl.cs.columbia.edu/ai2tv/"/>
+  <property name="CPP_COMPILER" value="cl"/>
 
-    <path id="compile.classpath">
-        <pathelement location="${BUILD}"/>
+  <path id="compile.classpath">
+    <pathelement location="${BUILD}"/>
 
-        <fileset dir="${JAR_PATH}">
-            <include name="siena-1.4.3.jar"/>
-        </fileset>
-    </path>
+    <fileset dir="${JAR_PATH}">
+      <include name="siena-1.4.3.jar"/>
+    </fileset>
+  </path>
 
-    <target name="prepare">
-        <mkdir dir="${BUILD}"/>
-    </target>
+  <target name="prepare">
+    <mkdir dir="${BUILD}"/>
+  </target>
 
-    <target name="client" depends="prepare">
-        <javac srcdir="${SRCDIR}" destdir="${BUILD}" classpathref="compile.classpath" listfiles="yes" includes="psl/ai2tv/client/Client.java, psl/ai2tv/client/CommController.java, psl/ai2tv/client/CacheController.java, psl/ai2tv/client/TimeController.java, psl/ai2tv/client/Viewer.java, psl/ai2tv/client/LoginHandler.java, psl/ai2tv/client/ClientProbe.java, psl/ai2tv/client/ClientEffector.java, psl/ai2tv/gauge/FrameDesc.java, psl/ai2tv/gauge/FrameIndexParser.java, psl/ai2tv/SienaConstants.java" />
-	<copy file="ai2tv_ready.jpg" todir="${BUILD}/psl/ai2tv/client" />
-    </target>
+  <target name="client" depends="prepare">
+    <javac srcdir="${SRCDIR}" destdir="${BUILD}" classpathref="compile.classpath" listfiles="yes" includes="psl/ai2tv/client/Client.java, psl/ai2tv/client/CommController.java, psl/ai2tv/client/CacheController.java, psl/ai2tv/client/TimeController.java, psl/ai2tv/client/Viewer.java, psl/ai2tv/client/LoginHandler.java, psl/ai2tv/client/ClientProbe.java, psl/ai2tv/client/ClientEffector.java, psl/ai2tv/gauge/FrameDesc.java, psl/ai2tv/gauge/FrameIndexParser.java, psl/ai2tv/SienaConstants.java" />
+    <copy file="ai2tv_ready.jpg" todir="${BUILD}/psl/ai2tv/client" />
+  </target>
 
-    <target name="run">
-        <delete>
-	  <fileset dir="cache" includes="*.jpg" />
-	</delete>
-	<java classname="psl.ai2tv.client.Client" classpathref="compile.classpath" fork="yes">
-	      <jvmarg value="-Dai2tv.server=${CONNECTION_TYPE}:${SIENA_HOST}:${SIENA_PORT}" />
-	      <jvmarg value="-Dai2tv.baseURL=${BASE_URL}"/>
-        </java>
-    </target>
+  <target name="run">
+    <!-- delete>
+      <fileset dir="cache" includes="*.jpg" />
+    </delete-->
+    <java classname="psl.ai2tv.client.Client" classpathref="compile.classpath" fork="yes">
+      <jvmarg value="-Dai2tv.server=${CONNECTION_TYPE}:${SIENA_HOST}:${SIENA_PORT}" />
+      <jvmarg value="-Dai2tv.baseURL=${BASE_URL}"/>
+    </java>
+  </target>
 
-    <target name="jar" depends="client">
-        <jar destfile="c:\pslroot\ai2tvClient.jar" basedir="${BUILD}" includes="psl/ai2tv/SienaConstants.class, psl/ai2tv/gauge/FrameIndexParser.class psl/ai2tv/gauge/FrameDesc.class psl/ai2tv/client/*.class psl/ai2tv/client/ai2tv_ready.jpg" />
-    </target>
+  <target name="jar" depends="client">
+    <jar destfile="c:\pslroot\ai2tvClient.jar" basedir="${BUILD}" includes="psl/ai2tv/SienaConstants.class, psl/ai2tv/gauge/FrameIndexParser.class psl/ai2tv/gauge/FrameDesc.class psl/ai2tv/client/*.class psl/ai2tv/client/ai2tv_ready.jpg" />
+  </target>
 
-    <target name="clean">
-       <delete dir="${BUILD}"/> 
-       <delete file="${JNIPREFIX}CPP.obj" />
-       <delete file="${JNIPREFIX}CPP.exp" />
-       <delete file="${JNIPREFIX}CPP.dll" /> 
-       <delete file="${JNIPREFIX}CPP.lib" /> 
-       <delete file="${JNIPREFIX}CPP.exe" /> 
-       <delete file="psl_ai2tv_client_AI2TVJNIJava.h" /> 
-    </target>
+  <target name="clean">
+    <delete dir="${BUILD}"/>
+    <delete file="${JNIPREFIX}CPP.obj" />
+    <delete file="${JNIPREFIX}CPP.exp" />
+    <delete file="${JNIPREFIX}CPP.dll" />
+    <delete file="${JNIPREFIX}CPP.lib" />
+    <delete file="${JNIPREFIX}CPP.exe" />
+    <delete file="psl_ai2tv_client_AI2TVJNIJava.h" />
+  </target>
 
 
-    <!-- JNI related targets -->
+  <!-- JNI related targets -->
 
-    <target name="jni" depends="prepare">
-        <javac srcdir="${SRCDIR}" destdir="${BUILD}" classpathref="compile.classpath" includes="psl/ai2tv/client/*.java, psl/ai2tv/client/LoginHandler.java, psl/ai2tv/SienaConstants.java, psl/ai2tv/gauge/FrameDesc.java, psl/ai2tv/gauge/FrameIndexParser.java" />
-	<javah classpath="${SRCDIR};${BUILD}" class="psl.ai2tv.client.${JNIPREFIX}Java" destdir="."/>
-        <exec executable="${CPP_COMPILER}">
-	  <arg line="-I${JAVADIR}/include -I${JAVADIR}/include/win32 -MD ${JNIPREFIX}CPP.cpp ${JAVADIR}/lib/jvm.lib -Fe${JNIPREFIX}CPP.dll" />
-        </exec>
-	<exec executable="${CPP_COMPILER}">
-          <arg line=" -I${JAVADIR}/include -I${JAVADIR}/include/win32 -MD ${JNIPREFIX}CPP.cpp ${JAVADIR}/lib/jvm.lib" />
-        </exec>
+  <target name="jni" depends="prepare">
+    <javac srcdir="${SRCDIR}" destdir="${BUILD}" classpathref="compile.classpath" includes="psl/ai2tv/client/*.java, psl/ai2tv/client/LoginHandler.java, psl/ai2tv/SienaConstants.java, psl/ai2tv/gauge/FrameDesc.java, psl/ai2tv/gauge/FrameIndexParser.java" />
+    <javah classpath="${SRCDIR};${BUILD}" class="psl.ai2tv.client.${JNIPREFIX}Java" destdir="."/>
+    <exec executable="${CPP_COMPILER}">
+      <arg line="-I${JAVADIR}/include -I${JAVADIR}/include/win32 -MD ${JNIPREFIX}CPP.cpp ${JAVADIR}/lib/jvm.lib -Fe${JNIPREFIX}CPP.dll" />
+    </exec>
+    <exec executable="${CPP_COMPILER}">
+      <arg line=" -I${JAVADIR}/include -I${JAVADIR}/include/win32 -MD ${JNIPREFIX}CPP.cpp ${JAVADIR}/lib/jvm.lib" />
+    </exec>
 
-    </target>
+  </target>
 
-    <!-- this command wasn't found in the ant tasks list.-->
-    <target name="javap" description="create the correct method call of a all java methods for use in CPP code.">
-       <exec executable="javap">
-           <arg line="-classpath build -s -p psl.ai2tv.client.${JNIPREFIX}Java"/>
-       </exec>
-    </target>
+  <!-- this command wasn't found in the ant tasks list.-->
+  <target name="javap" description="create the correct method call of a all java methods for use in CPP code.">
+    <exec executable="javap">
+      <arg line="-classpath build -s -p psl.ai2tv.client.${JNIPREFIX}Java"/>
+    </exec>
+  </target>
 
-    <target name="run-jni" description="this is to run the jni executable (if it's not already hooked onto another main)">
-    	<java classname="${JNIPREFIX}Java" classpath="." />
-    </target>
+  <target name="run-jni" description="this is to run the jni executable (if it's not already hooked onto another main)">
+    <java classname="${JNIPREFIX}Java" classpath="." />
+  </target>
 
 
 </project>

@@ -51,7 +51,7 @@ class CommController implements Notifiable{
    * create a CommController
    *
    * @param c: higher level client to communicate with
-   * @param sienaServer: point of contact to the Siena communications layer.
+   * @param server: point of contact to the Siena communications layer.
    */
   CommController(Client c, String server){
     _client = c;
