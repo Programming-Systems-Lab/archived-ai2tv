@@ -314,8 +314,8 @@ class Viewer extends JFrame {
       // Client.debug.println("Viewer displaying: " + filename);
       return true;
     } else {
-      Client.err.println("_image: " + _images);
-      Client.err.println("Error in Viewer.displayImage: " + filename + " not valid.");
+      // Client.err.println("_image: " + _images);
+      // Client.err.println("Error in Viewer.displayImage: " + filename + " not valid.");
       return false;
     }
   }
@@ -340,7 +340,7 @@ class Viewer extends JFrame {
       _imageIndex = (_imageIndex + 1) % 65535; // wraps around on the 65556'th image
       return true;
     } catch (InterruptedException e){
-      Client.err.println("Viewer error in loading image " +filename +": "+ e);
+      // Client.err.println("Viewer error in loading image " +filename +": "+ e);
       e.printStackTrace(Client.err);
     }
     return false;
@@ -369,4 +369,3 @@ class Viewer extends JFrame {
     }
   }
 }
-
