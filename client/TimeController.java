@@ -93,7 +93,6 @@ public class TimeController{
    * @param absTimeSent: absolute system time at which the command was originally sent
    */
   private void pause(long absTimeSent) {
-    System.currentTimeMillis();    
     // _pausedStartTime = System.currentTimeMillis();
     _pausedStartTime = absTimeSent;
   }

@@ -107,10 +107,7 @@ class Viewer extends JFrame {
 
     addWindowListener(new WindowAdapter() {
 	public void windowClosing(WindowEvent e) {
-	  _client.shutdown();
-	  
-	  // this is the right way to close, not that Sys.exit stuff.
-	  dipose();
+	  shutdown();
 	}
       });
 
@@ -271,6 +268,12 @@ class Viewer extends JFrame {
 	  }
 	}
       });
+  }
+
+  void shutdown(){
+    _client.shutdown();
+    // this is the right way to close, not that System.exit stuff.
+    dispose();
   }
 
   // - - - - - - ENTRY FUNCTIONS USED BY CLIENT - - - - - - - //
