@@ -38,6 +38,9 @@ public class AI2TVPlugin extends ComponentPlugin {
     byte[] diagramByteArray;    // cache of the serialized LittleJIL ai2tv diagram
     private boolean publishedExecAgentAsset;
 
+    // used to obtain the time it takes to run a WF
+    long startTime;
+
     private static class ResourceTablePredicate implements UnaryPredicate {
         public boolean execute(Object o) {
             return (o instanceof LittleJILResourceTable);
@@ -127,7 +130,8 @@ public class AI2TVPlugin extends ComponentPlugin {
             /*BucketPG bucketPG = reportAsset.getBucketPG();
             logger.debug("group=" + bucketPG.getGroup());*/
 
-            PluginUtil.Timing.addTimestamp("got report");
+	    startTime = System.currentTimeMillis();
+            PluginUtil.Timing.addTimestamp("got report", startTime);
 
             // if we haven't published the ExecAgent asset yet, do so now
             if (!publishedExecAgentAsset) {
@@ -200,6 +204,7 @@ public class AI2TVPlugin extends ComponentPlugin {
             PluginUtil.Timing.addTimestamp("END " + taskName);
 
             if (taskName.equals("ROOT")) {
+	        PluginUtil.Timing.addTimestamp(" " + taskName, (System.currentTimeMillis() - startTime));
                 PluginUtil.Timing.newRow();
             }
         }
