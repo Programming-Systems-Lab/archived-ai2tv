@@ -18,8 +18,7 @@ public abstract class SimpleGaugeSubscriber implements GaugeSubscriber {
 
   private static final Logger logger = Logger.getLogger(SimpleGaugeSubscriber.class);
 
-  private Filter gaugeFilter;
-  private Siena mainSiena;
+  protected Siena mainSiena;
 	
   /** Siena and subscriptions initialization */
   protected void setup() 
@@ -37,27 +36,21 @@ public abstract class SimpleGaugeSubscriber implements GaugeSubscriber {
       logger.debug ("Siena Server Up: " + new String(((HierarchicalDispatcher) mainSiena).getReceiver().address()));
     }
 
-    // should ask peppo how do to this more efficiently
+
+    // listen for frame updates from clients
     Filter filter = new Filter();
-    filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, SienaConstants.PLAY);
+    filter.addConstraint(SienaConstants.AI2TV_FRAME, Op.ANY);
     mainSiena.subscribe(filter, this);
-    
+
+    // listen to a registration notification
     filter = new Filter();
-    filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, SienaConstants.STOP);
+    filter.addConstraint(SienaConstants.AI2TV_WF_REG, Op.ANY);
     mainSiena.subscribe(filter, this);
 
+    // listen for client reports coming back
     filter = new Filter();
-    filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, SienaConstants.PAUSE);
+    filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, Op.ANY);
     mainSiena.subscribe(filter, this);
-
-    filter = new Filter();
-    filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, SienaConstants.GOTO);
-    mainSiena.subscribe(filter, this);
-
-
-    gaugeFilter = new Filter();
-    gaugeFilter.addConstraint(SienaConstants.AI2TV_FRAME, Op.ANY);
-    mainSiena.subscribe(gaugeFilter, this);
   }
 
   public void notify(Notification s[]) {

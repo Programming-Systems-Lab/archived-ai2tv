@@ -9,7 +9,8 @@ import java.util.Hashtable;
 public class GroupGauge {
 
 	/**
-		Constant defining the time interval (in ms.) for getting group state snaphsots
+	   Constant defining the time interval (in ms.) for getting
+	   group state snaphsots
 	*/
 	public static final long SAMPLE_INTERVAL = 1000;
 	
@@ -93,7 +94,6 @@ public class GroupGauge {
 	 		ce.printStackTrace();		
 	 	}
  		nominal = defineNominalClient();
- 		
 	 }
 
 	/** sets up communication facilities: see @see comm
