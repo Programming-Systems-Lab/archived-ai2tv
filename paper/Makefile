@@ -1,4 +1,4 @@
-# Makefile for ckptmgr paper, intended to be submitted to 
+# Makefile for ckptmgr paper, intended to be submitted to 
 # OSDI 2004
 
 # this make file should create the pdf and ps files.
@@ -21,7 +21,7 @@ DVIPSFLAGS=-K
 %.dvi: %.tex; latex $*; latex $*; bibtex $*; latex $*;
 %.ps: %.dvi; dvips $(DVIPSFLAGS) $* -o
 # %.pdf: %.tex %.dvi; pdflatex $*
-%.pdf: %.ps; ps2pdf $< $@
+# %.pdf: %.ps; ps2pdf $< $@
 
 # ${name}.dvi: ${name}.sty
 
