@@ -30,7 +30,7 @@ import psl.ai2tv.gauge.FrameDesc;
  * sending a message when a probe is unset.  The objective of this
  * class is to measure the timing of certain events.
  *
- * @version	$$
+ * @version	$Revision$
  * @author	Dan Phung (dp2041@cs.columbia.edu)
  */
 class ClientProbe {
@@ -95,27 +95,28 @@ class ClientProbe {
    * publish an update of the state of the client 
    */
   private void sendUpdate(){
+    _frameEvent.putAttribute("AI2TV_FRAME", "");
+    _frameEvent.putAttribute("CLIENT_ID", _client.getID());
+    _frameEvent.putAttribute("bandwidth", _client.getBandwidth());
+
+
+    // this element must be the last one added, as we are doing a
+    // timing measurement to find the distance to the WF.
+    _frameEvent.putAttribute("probeTime", System.currentTimeMillis());
+    try { 
+      _mySiena.publish(_frameEvent);
+    } catch (SienaException se) {
+      se.printStackTrace();	
+    }
+  }
+
+  private void addFrameInfo(){
     FrameDesc fd = _client.getCurrFrame();
-    Notification event = new Notification();
     if (fd != null) {
-      // Client.out.println("ClientProbe sending update: " + fd);
-      //Client.out.println ("Sending Frame info");
-      _frameEvent.putAttribute("AI2TV_FRAME", "");
-      _frameEvent.putAttribute("CLIENT_ID", _client.getID());
       _frameEvent.putAttribute("leftbound", fd.getStart());
       _frameEvent.putAttribute("rightbound", fd.getEnd());
       _frameEvent.putAttribute("moment", fd.getNum());
-      // _frameEvent.putAttribute("timeShown", _client.getTimeCurrFrameShown());
       _frameEvent.putAttribute("level", fd.getLevel());
-      _frameEvent.putAttribute("bandwidth", _client.getBandwidth());
-      _frameEvent.putAttribute("probeTime", System.currentTimeMillis());
-
-      try { 
-	_mySiena.publish(_frameEvent);
-      } catch (SienaException se) {
-	se.printStackTrace();	
-      }
-
     }
   }
 
@@ -153,9 +154,16 @@ class ClientProbe {
   void endTimeProbe(int ID, long time, String natureOfMessage){
     // long diff = _time - _probeTimes[ID];
     if (ID >= 0 && ID < _probeTimes.length){
-      Client.debug.println("sending an update: time diff: " + (time - _probeTimes[ID]));
+      Client.probeOutput.println("sending an update: time diff: " + (time - _probeTimes[ID]));
       _frameEvent.putAttribute(natureOfMessage, (time - _probeTimes[ID]));
+
+      if (natureOfMessage.equals("timeShown"))
+	addFrameInfo();
       sendUpdate();
+
+      Client.probeOutput.println("image: " + _client.getCurrFrame().getNum() + 
+				 " shown at: " + _probeTimes[ID] + 
+				 " late: " + (time - _probeTimes[ID]) + " (ms)");
     }
   }
 
