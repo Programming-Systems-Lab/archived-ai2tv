@@ -1,5 +1,6 @@
 NAME=AI2TVJNI
 JAVADIR=c:/java1.4
+SIENA_HOST=localhost
 
 all:
 	javac *.java
@@ -9,7 +10,8 @@ all:
 
 
 run:
-	java -classpath . ${NAME}Java
+	java -Dai2tv.server=ka:${SIENA_HOST}:4444 psl.ai2tv.client.Client 2> errors
+#	java -classpath . ${NAME}Java
 
 mid:
 	javap -classpath . -s -p ${NAME}Java
