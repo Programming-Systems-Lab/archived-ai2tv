@@ -220,7 +220,7 @@ public void print(){
    */
   public static void main(String[] args) {
     if(args.length != 1) {
-      System.err.println("Usage: WGServer <server-address>");
+      System.err.println("Usage: java WGServer <siena server address>");
       System.exit(1);
     }
 
