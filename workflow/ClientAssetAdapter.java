@@ -1,6 +1,6 @@
 package psl.ai2tv.workflow;
 
-import org.cougaar.domain.planning.ldm.asset.Asset;
+import org.cougaar.planning.ldm.asset.Asset;
 
 public class ClientAssetAdapter extends Asset {
 	private static String version = "0.1";

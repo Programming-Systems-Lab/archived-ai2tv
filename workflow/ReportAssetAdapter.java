@@ -1,7 +1,7 @@
 package psl.ai2tv.workflow;
 
-import org.cougaar.domain.planning.ldm.asset.Asset;
-import org.cougaar.domain.planning.ldm.asset.PropertyGroup;
+import org.cougaar.planning.ldm.asset.Asset;
+import org.cougaar.planning.ldm.asset.PropertyGroup;
 
 public class ReportAssetAdapter extends Asset {
 	private static String version = "0.1";

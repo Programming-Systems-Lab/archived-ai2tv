@@ -1,13 +1,13 @@
 package psl.ai2tv.workflow;
 
-import siena.*;
-import siena.comm.*;
+import psl.ai2tv.gauge.ClientDesc;
+import psl.ai2tv.gauge.SimpleGaugeSubscriber;
 
-import java.util.Hashtable;
-import java.io.IOException;
+import siena.Notification;
 import siena.SienaException;
 
-import psl.ai2tv.gauge.*;
+import java.io.IOException;
+import java.util.Hashtable;
 
 class WFSubscriber extends SimpleGaugeSubscriber {
 	
@@ -47,14 +47,15 @@ class WFSubscriber extends SimpleGaugeSubscriber {
 			}
     	}
     	else {
-    		//normalize download time 
+    		//normalize download time
     		long t = e.getAttribute("probeTime").longValue() - myGauge.getStartTime();
-    		 
+
     		currentClient.setFrame(e.getAttribute("leftbound").intValue(),
     								e.getAttribute("moment").intValue(),
     								e.getAttribute("rightbound").intValue(),
     								t,
-    								e.getAttribute("level").intValue());
+    								e.getAttribute("level").intValue(),
+                                    e.getAttribute("size").intValue());
     	}
 	}
 	
