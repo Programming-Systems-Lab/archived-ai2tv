@@ -141,7 +141,10 @@ class CommController implements Notifiable{
    * @param event: Notification sent by the Siena server
    */
   private void handleNotification(Notification event){
-    Client.out.println("handleNotification(): I just got this event:" + event + ": at : " 
+    
+    // Client.out.println("handleNotification(): I just got this event:" + event + ": at : " 
+    // + Calendar.getInstance().getTime());
+    Client.debug.println("handleNotification(): I just got this event:" + event + ": at : " 
 		       + Calendar.getInstance().getTime());
 
     String name = event.toString().substring(7).split("=")[0];
@@ -158,14 +161,18 @@ class CommController implements Notifiable{
     if (name.equals(SienaConstants.AI2TV_VIDEO_ACTION)){
       
       if (attrib.equals(SienaConstants.PLAY)){
+	Client.debug.println("CommController: PLAY action event received");
 	_client.commPlay(absTimeSent); 
       } else if (attrib.equals(SienaConstants.STOP)){
+	Client.debug.println("CommController: PLAY action event received");
 	_client.commStop();
 
       } else if (attrib.equals(SienaConstants.PAUSE)){
+	Client.debug.println("CommController: PLAY action event received");
 	_client.commPause(absTimeSent);
 
       } else if (attrib.equals(SienaConstants.GOTO)){
+	Client.debug.println("CommController: PLAY action event received");
 	_client.commGoto(absTimeSent, event.getAttribute(SienaConstants.NEWTIME).intValue());
       } else {
 	Client.err.println("AI2TV_VIDEO_ACTION: Notification Error, received unknown attribute: " + attrib);
