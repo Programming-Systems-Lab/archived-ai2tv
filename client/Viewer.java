@@ -154,6 +154,18 @@ class Viewer extends JFrame {
    */
   private Canvas paintImage() {
     Canvas newCanvas = new Canvas() {
+	private Image doubleBuffer = null;
+	public void update(Graphics g) {
+	  int dbw = _mainPanel.getSize().width;
+	  int dbh = _mainPanel.getSize().height;
+	  if (doubleBuffer==null 
+	      || doubleBuffer.getWidth(_mainPanel)!=dbw
+	      || doubleBuffer.getHeight(_mainPanel)!=dbh) {
+	    doubleBuffer = _mainPanel.createImage(dbw, dbh);
+	  }
+	  paint(doubleBuffer.getGraphics());
+	  g.drawImage(doubleBuffer, 0, 0, _mainPanel);
+	}
 	public void paint(Graphics g) {
 	  // Client.out.println("repainting: filename " + _filename + " image: " + _image);
 	  g.setColor(_mainCanvasBG);
