@@ -50,7 +50,7 @@ public class EquivClasses {
    * Equivalent frames are stored as a vector within <code>FrameDesc.equivalents</code>
   */
   public void computeAllEquivalents(double equivThreshold) {
-	System.out.println("PRE-Computing all equivalent frames now");
+    // System.out.println("PRE-Computing all equivalent frames now");
   	FrameDesc[][] allFrames = _fip.frameData();
   	int lev = _fip.levels();
   	Vector v;
