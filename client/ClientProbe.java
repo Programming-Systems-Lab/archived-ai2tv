@@ -93,13 +93,13 @@ class ClientProbe {
   private void sendUpdate(){
     _frameEvent.putAttribute(SienaConstants.AI2TV_FRAME, "");
     _frameEvent.putAttribute(SienaConstants.CLIENT_ID, _client.getID());
+    _frameEvent.putAttribute(SienaConstants.LEVEL, _client.getLevel());
+    _frameEvent.putAttribute(SienaConstants.CACHE_LEVEL, _client.getCacheLevel());
+    _frameEvent.putAttribute(SienaConstants.CLIENT_RESERVE_FRAMES, _client.getReserveFrames());
     _frameEvent.putAttribute(SienaConstants.BANDWIDTH, _client.getBandwidth());
+    _frameEvent.putAttribute(SienaConstants.PREFETCHED_FRAMES, _client.getNumPrefetchedFrames(_client.getCacheLevel()));
+    _frameEvent.putAttribute(SienaConstants.ABS_TIME_SENT, System.currentTimeMillis());
 
-    // this element must be the last one added, as we are doing a
-    // timing measurement to find the distance to the WF.
-    // _frameEvent.putAttribute(SienaConstants.PROBE_TIME, System.currentTimeMillis());
-    // _frameEvent.putAttribute(SienaConstants.PROBE_TIME, _client.currentTime());
-    // _frameEvent.putAttribute(SienaConstants.CLIENT_CURRENT_TIME, _client.currentTime());
     try {
       _siena.publish(_frameEvent);
     } catch (SienaException se) {

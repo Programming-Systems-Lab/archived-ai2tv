@@ -131,15 +131,26 @@ class ClientEffector implements Notifiable {
 	event.getAttribute(SienaConstants.CLIENT_ID).longValue() == _client.getID()){
       Client.out.println("found a WF commmand to do something, directed to ME!");
       Client.out.println("");
-      if (event.getAttribute(SienaConstants.CHANGE_LEVEL) != null){
-	Client.out.println("ClientEffector found command to change levels: " + event.getAttribute(SienaConstants.CHANGE_LEVEL).toString());
-	_client.changeLevel(event.getAttribute(SienaConstants.CHANGE_LEVEL).toString());
-      } else if (event.getAttribute(SienaConstants.JUMP_TO) != null){
+      if (event.getAttribute(SienaConstants.CHANGE_CLIENT_LEVEL_UP) != null){
+	// Client.out.println("ClientEffector found command to change levels: " + event.getAttribute(SienaConstants.CHANGE_LEVEL).toString());
+	_client.changeLevel(SienaConstants.CHANGE_CLIENT_LEVEL_UP);
+      }
+      if (event.getAttribute(SienaConstants.CHANGE_CLIENT_LEVEL_DOWN) != null){
+	// Client.out.println("ClientEffector found command to change levels: " + event.getAttribute(SienaConstants.CHANGE_LEVEL).toString());
+	_client.changeLevel(SienaConstants.CHANGE_CLIENT_LEVEL_DOWN);
+      }
+      if (event.getAttribute(SienaConstants.CHANGE_CACHE_LEVEL_UP) != null){
+	// Client.out.println("ClientEffector found command to change levels: " + event.getAttribute(SienaConstants.CHANGE_LEVEL).toString());
+	_client.changeLevel(SienaConstants.CHANGE_CACHE_LEVEL_UP);
+      }
+      if (event.getAttribute(SienaConstants.CHANGE_CACHE_LEVEL_DOWN) != null){
+	// Client.out.println("ClientEffector found command to change levels: " + event.getAttribute(SienaConstants.CHANGE_LEVEL).toString());
+	_client.changeLevel(SienaConstants.CHANGE_CACHE_LEVEL_DOWN);
+      }
+      if (event.getAttribute(SienaConstants.JUMP_TO) != null){
 	Client.out.println("ClientEffector found command to jump to a certain frame: " + event.getAttribute(SienaConstants.JUMP_TO).stringValue());
 	_client.jumpTo(event.getAttribute(SienaConstants.JUMP_TO).stringValue());
-      } else {
-	Client.err.println("AI2TV_FRAME_UDPATE: Notification Error, received unknown attribute: " + attrib);
-      }
+      } 
     } else {
       Client.err.println("Notification Error, received unknown name: " + name);
     }
@@ -152,8 +163,12 @@ class ClientEffector implements Notifiable {
    */
   void publishUpdate(long ppd){
     Notification event = new Notification();
+    event.putAttribute(SienaConstants.LEVEL, _client.getLevel());
+    event.putAttribute(SienaConstants.CACHE_LEVEL, _client.getCacheLevel());    
+    event.putAttribute(SienaConstants.CLIENT_RESERVE_FRAMES, _client.getReserveFrames());
     event.putAttribute(SienaConstants.AI2TV_WF_UPDATE_REPLY, "");
     event.putAttribute(SienaConstants.PREV_PROP_DELAY, ppd);
+    event.putAttribute(SienaConstants.PREFETCHED_FRAMES, _client.getNumPrefetchedFrames(_client.getCacheLevel()));
     addFrameInfo(event);
     publishNotification(event);      
   }
@@ -165,8 +180,9 @@ class ClientEffector implements Notifiable {
    */
   private void publishNotification(Notification event){
     try{
-      event.putAttribute(SienaConstants.ABS_TIME_SENT, System.currentTimeMillis());
       event.putAttribute(SienaConstants.CLIENT_ID, _client.getID());
+      event.putAttribute(SienaConstants.ABS_TIME_SENT, System.currentTimeMillis());
+      
       _siena.publish(event);
     } catch (siena.SienaException e){
       Client.err.println("CommController publishing sienaException: " + e);
