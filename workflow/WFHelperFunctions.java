@@ -187,17 +187,28 @@ public class WFHelperFunctions implements ExecutableTask {
 
         // !!! need to add the cilentID to the wf info
         Notification event = null;
-        int end = currentClientFrame.getEnd()/30;
-        int start = currentClientFrame.getStart()/30;
+        double end = (double)currentClientFrame.getEnd()/30;
+        double start = (double)currentClientFrame.getStart()/30;
+	double timeDiff = (double)baseClient.getSampleTime()/1000;
+	// double timeDiff = (double)baseClient.getTimeShown()/1000;
 
-        logger.debug("frame start=" + start + ",end=" + end + ",sampleTime=" + baseClient.getSampleTime()
-                        + ", clientid=" + currentClient.getId());
-        if (end <= baseClient.getSampleTime()) {
+        logger.debug("frame start=" + start + ",end=" + end + ",sampleTime=" + timeDiff
+		     + ", clientid=" + currentClient.getId());
+	
+	int threshold = 2000;
+	if (timeDiff == 0){
+	  ; // we're right on time
+
+	  // } else if (end < now) {
+	  // } else if (now > theshold) {
+	} else if (timeDiff > 2000 && timeDiff < 15000) {
             event = new Notification();
             event.putAttribute(SienaConstants.AI2TV_FRAME_UPDATE, "");
             event.putAttribute(SienaConstants.CLIENT_ID, currentClient.getId());
             event.putAttribute(SienaConstants.CHANGE_LEVEL, SienaConstants.CHANGE_LEVEL_DOWN);
-        } else if (start >= baseClient.getSampleTime()) {
+	    // } else if (start > now) {
+	    // } else if ( now < -threshold) {
+	} else if ( timeDiff < 200) {
             event = new Notification();
             event.putAttribute(SienaConstants.AI2TV_FRAME_UPDATE, "");
             event.putAttribute(SienaConstants.CLIENT_ID, currentClient.getId());
