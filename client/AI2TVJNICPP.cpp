@@ -77,7 +77,8 @@ AI2TVJNICPP::~AI2TVJNICPP(){
 JNIEnv* AI2TVJNICPP::create_vm(JavaVM* jvm) {
   JNIEnv* env;
   JavaVMInitArgs args;
-  JavaVMOption options[3];
+  const int numOptions = 5;
+  JavaVMOption options[numOptions];
 
   /* There is a new JNI_VERSION_1_4, but it doesn't matter since
      we're not using any of the new stuff for attaching to threads. */
@@ -88,7 +89,7 @@ JNIEnv* AI2TVJNICPP::create_vm(JavaVM* jvm) {
   options[3].optionString = baseURL;  /* the base video URL */
   options[4].optionString = sienaServer; /* the siena comm server */
   args.options = options;
-  args.nOptions = 5;
+  args.nOptions = numOptions;
   args.ignoreUnrecognized = JNI_TRUE;
 
   if( (JNI_CreateJavaVM(&jvm, (void **)&env, &args)) < 0 )
@@ -313,34 +314,28 @@ void AI2TVJNICPP::initialize(){
 /**
  * gets the available videos from the server
  * @param videoList: pre-initialized double-array of video names
+ * @return number of available videos
  */
-// char** videoList
-void AI2TVJNICPP::getAvailableVideos(char videoList[3][10]){
-
-  strcpy (videoList[0], "CS4118-10");
-  strcpy (videoList[1], "CS4118-11");
-  strcpy (videoList[2], "CS4118-12");
-
-  /*
-  jboolean* isCopy = new jboolean(false);
-
+int AI2TVJNICPP::getAvailableVideos(char availableVideos[10][10]){
   jmethodID mid;
   mid = _env->GetMethodID(_class, "getAvailableVideos","()[Ljava/lang/String;");
-  jstring* videos = (jstring*) _env->CallObjectMethod(_obj, mid);
-  // jstring videos[] = (jstring[]) _env->CallObjectMethod(_obj, mid);
+  jobjectArray videoObjectArray = (jobjectArray) _env->CallObjectMethod(_obj, mid);
+  jstring video = (jstring)_env->GetObjectArrayElement(videoObjectArray, 0);
 
-  const char *str;
-  for (int i=0; i<NUM_VIDEOS; i++){
-    // if (videos[i] == NULL || videoList[i] == NULL)
-    if (videos[i] == NULL || videoList[i] == NULL)
-      break;
-    // str = env->GetStringUTFChars(videos[i],isCopy);
-    str = _env->GetStringUTFChars(videos[i],isCopy);
-    strcpy(videoList[i], str);
-    // env->ReleaseStringUTFChars(videos[i], str);
-    _env->ReleaseStringUTFChars(videos[i], str);
+  int i=0;
+  jboolean* isCopy = new jboolean(false);
+  while(video != NULL){
+    const char* str = _env->GetStringUTFChars(video,isCopy);
+    strcpy(availableVideos[i], str);
+    availableVideos[i][10] = '\0'; // put a cap in dat ass, cuz strpy doesn't!
+    _env->DeleteLocalRef(video);
+    _env->ReleaseStringUTFChars(video, str);
+    video = (jstring)_env->GetObjectArrayElement(videoObjectArray, ++i);
   }
-  */
+
+  // clean up the used objects
+  _env->DeleteLocalRef(videoObjectArray);
+  return i;
 }
 
 /**
@@ -398,20 +393,26 @@ Java_psl_ai2tv_client_AI2TVJNIJava_displayFrame(JNIEnv *env, jobject obj, jstrin
 /**
  * point of entry, uncomment if you're going to use this class from
  * the command line.  This main function is only for testing purposes.
+ *
+ * to run this, you need this values in these environment variables:  
+ * PATH = c:\j2sdk1.4.2_01\jre\bin\client (needs the jvm.dll)
+ *
  */
 int main(int argc, char **argv) {
   // JNIEnv* env = create_vm();
   AI2TVJNICPP* foo = new AI2TVJNICPP();
   printf("success, now trying to invoke a class\n");
   // foo->playPressed();
-  char videos[3][10];
-  // videos = new char[3][10];
-  foo->getAvailableVideos(videos);
-  for (int i=0; i<16; i++){
-    printf("%s\n", videos[i]);
+  char videos[10][10];
+  int length = foo->getAvailableVideos(videos);
+  printf("length of video: %d\n", length);
+  // i'm not printing it correctly here, so don't count on this.
+  for (int i=0; i<length; i++){
+    if (videos[i] != NULL)
+      printf("video %s\n", videos[i]);
+    else 
+      break;
   }
-
-  
 
   printf("Entering wait thread\n");  
   while(isActive != 0){
@@ -421,10 +422,9 @@ int main(int argc, char **argv) {
   }
   printf("Out of wait thread\n");  
 
-  printf("<ZZZ - ");
   if (foo != NULL)
     delete foo;
-  printf(" - ZZZ>\n");
+
   return 0;
 }
 

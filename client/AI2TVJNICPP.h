@@ -55,7 +55,7 @@ class AI2TVJNICPP
   void setLoginInfo(char* info);
   void loadVideo(char* name, char* date);
   void initialize();
-  void getAvailableVideos(char videoList[3][10]);
+  int getAvailableVideos(char videoList[3][10]);
   // char[][] getAvailableVideos();
 
   void shutdown();
