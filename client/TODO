@@ -12,11 +12,13 @@ done - integrate and compile the MyAI2TVClient.cpp class
 -----
 java:
 -----
-- ff
-- rw
-- pause
-- play
 
+- add WF
+
+done - ff
+done - rw
+done - pause
+done - play
 done - test the invocation of a c++ method
 done - integrate and compile the AI2TVClient.java class
 
