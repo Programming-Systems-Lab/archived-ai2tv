@@ -21,6 +21,45 @@ import java.io.*;
  * @author      Dan Phung (dp2041@cs.columbia.edu)
  */
 
+/**
+ * LogParser = Stats calculator for AI2TV project.  Ya,
+ * so its somewhat of a misnomer...
+ *
+ * Warning: this script has many magic numbers, constants, etc.  It
+ * also assumes filenames of a certain form, and a certain directory
+ * structure.  It also automatically overwrites a file:
+ * goodness_scores.txt without prompting you!!!
+ *
+ *
+ * Overview: This script parses the log files taken from ai2tv
+ * evaluation experiments and calculates, on the fly, goodness scores
+ * that measure the relative video quality of the video session.  It
+ * also calculates an average and stdev over the trials and calculates
+ * a t-score of wf vs. non wf data.
+ *
+ * The script runs as follows:
+ * - open file
+ * - for each line, calculate goodness score for that data point
+ *   and add to total score.  The score per line depends on whether
+ *   the data point is a missed frame or normal score.  The scoring
+ *   system is described in our acm-mm ai2tv paper, so go read that
+ *   if you're more interested (or just ask me).
+ * - at the end of a file, average it all out, and gimme the results.
+ *
+ * For the paper and other reasons, we also split up the scoring so
+ * that missed frames and the normal scoring scheme are kept separate.
+ * To calculate that here, you have to edit three parts in the code,
+ * labeled 111, 222, and 333.  Within these code parts, only one
+ * region should be uncommented, eg. A), B), or C).
+ * A) combined scoring + missed frames score
+ * B) goodness score (without the missed frames)
+ * C) missed frames count (all the other numbers that are
+ * spit out don't mean squat).
+ *
+ *
+ * oh, and ignore the weighted stuff, that's old stuff I want to
+ * leave in here in case we want to switch scoring schemes.
+ */
 public class LogParser {
   // get these numbers from the frame_index.txt file.
   public final int NUM_FRAMES_LEVEL_0 = 165;
@@ -206,7 +245,6 @@ public class LogParser {
             } else if (!missedFrame && currentFrame == ((int) input.nval) ||
                 currentFrame != ((int) input.nval)) {
 
-              // 999
               sampleScore = scoreTrial(theoreticalLevel, currentLevel);
               missedFrame = false;
               currentFrame = (int) input.nval;
@@ -239,6 +277,9 @@ public class LogParser {
     return goodnessScore/samples;
 
     // B)
+    // return goodnessScore/samples;
+
+    // C)
     // return goodnessScore; // no normalization (for missed frame count)
   }
 
@@ -257,6 +298,9 @@ public class LogParser {
     return sampleScore;
 
     // B)
+    // return sampleScore;
+
+    // C)
     // return 0; // if we only want to count the missed frames
   }
 
@@ -274,12 +318,13 @@ public class LogParser {
     // The missed frame score is computed by extrapolating the end point of the 0 quality level
     // worst score.  This equation was computed using a polynomial regression: -0.4795*(X*X)-0.2035*X+0.401
     // The score below uses X=6. (initial point starts at 1)
+    // A)
     // missedFrameScore = -18;
 
-    // A)
+    // B)
     missedFrameScore = 0; // goodness score does not count in the missed frames
 
-    // B)
+    // C)
     // missedFrameScore = 1; // goodness score  simply counts the number of missed frames
     // System.out.println("someone missed a frame");
 
