@@ -3,64 +3,11 @@
 % $Date$
 % $Source$
 %
-%
 % ---------------------------------------------------------------------------
 % TODO:
 %
-% FINAL READ 
-% - check for consistent tense
-% - query replace: ai2tv -> $\mathrm{AI}^2$TV
-% - spell check
-%
-%
 % ---------------------------------------------------------------------------
-% This is "sig-alternate.tex" V1.3 OCTOBER 2002
-% This file should be compiled with V1.6 of "sig-alternate.cls" OCTOBER 2002
-%
-% This example file demonstrates the use of the 'sig-alternate.cls'
-% V1.6 LaTeX2e document class file. It is for those submitting
-% articles to ACM Conference Proceedings WHO DO NOT WISH TO
-% STRICTLY ADHERE TO THE SIGS (PUBS-BOARD-ENDORSED) STYLE.
-% The 'sig-alternate.cls' file will produce a similar-looking,
-% albeit, 'tighter' paper resulting in, invariably, fewer pages.
-%
-% ---------------------------------------------------------------------------
-% This .tex file (and associated .cls V1.6) produces:
-%       1) The Permission Statement
-%       2) The Conference (location) Info information
-%       3) The Copyright Line with ACM data
-%       4) NO page numbers
-%
-% as against the acm_proc_article-sp.cls file which
-% DOES NOT produce 1) thru' 3) above.
-%
-% Using 'sig-alternate.cls' you have control, however, from within
-% the source .tex file, over both the CopyrightYear
-% (defaulted to 2002) and the ACM Copyright Data
-% (defaulted to X-XXXXX-XX-X/XX/XX).
-% e.g.
-% \CopyrightYear{2003} will cause 2002 to appear in the copyright line.
-% \crdata{0-12345-67-8/90/12} will cause 0-12345-67-8/90/12 to appear in the
-%  copyright line.
-%
-% ---------------------------------------------------------------------------
-% This .tex source is an example which *does* use
-% the .bib file (from which the .bbl file % is produced).
-% REMEMBER HOWEVER: After having produced the .bbl file,
-% and prior to final submission, you *NEED* to 'insert'
-% your .bbl file into your source .tex file so as to provide
-% ONE 'self-contained' source file.
-%
-% ================= IF YOU HAVE QUESTIONS =======================
-% Questions regarding the SIGS styles, SIGS policies and
-% procedures, Conferences etc. should be sent to
-% Adrienne Griscti (griscti@acm.org)
-%
-% Technical questions _only_ to
-% Gerald Murray (murray@acm.org)
-% ===============================================================
-%
-% For tracking purposes - this is V1.3 - OCTOBER 2002
+
 \documentclass{sig-alternate}
 \usepackage{url}
 
@@ -76,7 +23,6 @@
 % Allows default copyright data (0-89791-88-6/97/05) to be over-ridden - IF NEED BE.
 % --- End of Author Metadata ---
 
-% \title{Optimizing Quality for Video Sharing in Synchronous Collaboration}
 \title{Optimizing Quality for Collaborative Video Viewing}
 % 
 % You need the command \numberofauthors to handle the "boxing"
@@ -90,45 +36,48 @@
 % these will be set for you without further effort on your
 % part as the last section in the body of your article BEFORE
 % References or any Appendices.
-
-\numberofauthors{4}
 %
 % You can go ahead and credit authors number 4+ here;
 % their names will appear in a section called
 % "Additional Authors" just before the Appendices
 % (if there are any) or Bibliography (if there
 % aren't)
+% \numberofauthors{4}
 
 % Put no more than the first THREE authors in the \author command
 \author{
+ \alignauthor Authors removed for double blind reviewing.
+} 
+
 %
 % The command \alignauthor (no curly braces needed) should
 % precede each author name, affiliation/snail-mail address and
 % e-mail address. Additionally, tag each line of
 % affiliation/address with \affaddr, and tag the
-%% e-mail address with \email.
-\alignauthor Dan Phung\\
-       \affaddr{Computer Science}\\
-       \affaddr{Columbia University}\\
-       \affaddr{New York City, New York}\\
-       \email{phung@cs.columbia.edu}
-\alignauthor Giuseppe Valetto\\
-       \affaddr{Computer Science}\\
-       \affaddr{Columbia University}\\
-       \affaddr{New York City, New York}\\
-       \affaddr{and Telecom Italia Lab}\\
-       \affaddr{Turin, Italy}
-       \email{valetto@cs.columbia.edu}
-\alignauthor Gail Kaiser \\
-       \affaddr{Computer Science}\\
-       \affaddr{Columbia University}\\
-       \affaddr{New York City, New York}\\
-       \email{kaiser@cs.columbia.edu}
-}
-\additionalauthors{Additional authors: Suhit Gupta {\texttt{suhit@columbia.cs.edu}}}
+% e-mail address with \email.
+
+%% \alignauthor Dan Phung\\
+%%        \affaddr{Computer Science}\\
+%%        \affaddr{Columbia University}\\
+%%        \affaddr{New York City, New York}\\
+%%        \email{phung@cs.columbia.edu}
+%% \alignauthor Giuseppe Valetto\\
+%%        \affaddr{Computer Science}\\
+%%        \affaddr{Columbia University}\\
+%%        \affaddr{New York City, New York}\\
+%%        \affaddr{and Telecom Italia Lab}\\
+%%        \affaddr{Turin, Italy}
+%%        \email{valetto@cs.columbia.edu}
+%% \alignauthor Gail Kaiser \\
+%%        \affaddr{Computer Science}\\
+%%        \affaddr{Columbia University}\\
+%%        \affaddr{New York City, New York}\\
+%%        \email{kaiser@cs.columbia.edu}
+%% }
+%\additionalauthors{Additional authors: Suhit Gupta {\texttt{suhit@columbia.cs.edu}}}
+
 \date{\parbox[b][0ex]{0em}{\hspace*{-12.5em}\raisebox{37ex}{\fbox{For
-submission to \emph{ACM-MM 2004}, due 12:00 AM EDT: April 05, 2004.}}}}
-% \date{05 April 2004}
+submission to \emph{ACM-MM 2004}, due 5:00 PM EDT: April 25, 2004.}}}}
 \maketitle
 
 \begin{abstract}
@@ -166,14 +115,7 @@ the quality level for each participant.
 
 \keywords{Synchronized Collaborative Video, Autonomic Controller}
 
-% tech report number CUCS-009-04
 \section{Introduction}
-
-% The wording was awkward here, so I pretend that Stanford also
-% once fedexed, even tho we don't know that.  
-
-% Dan - you didn't insert any of the original cites into the new
-% Introduction, weren't any of them relevant?
 
 Distance learning programs such as the Columbia Video Network and the
 Stanford Center for Professional Development have evolved from
@@ -189,8 +131,6 @@ the instructor is probably not available for these discussions, this
 may be an advantage, since on-campus students are rarely afforded the
 opportunity to pause, rewind and fast-forward their instructors'
 lectures.
-
-% should it be JPG or JPEG?
 
 However, {\em collaborative video viewing} by multiple geographically
 dispersed users is not yet supported by conventional Internet-video
@@ -266,9 +206,6 @@ contributions.
 
 \section{Motivation and Background} \label{background}
 
-% - discuss other projects on multiple client synchronization 
-% shouldn't that go in the related work section?
-
 Correspondence courses have been available to working adult and/or
 geographically remote learners for over a century, e.g., the American
 School in Illinois has offered high school courses since 1897
@@ -277,8 +214,6 @@ extension courses in 1892, launching a full-fledged college distance
 learning program in 1906 \cite{UWyoming}.  Correspondence courses have
 traditionally been designed for individual students with a
 self-motivated learning style, studying primarily from text materials.
-
-% would be good if a cite could be found for last sentence above
 
 An NSF Report \cite{NSFReport} discusses how technology, from radio to
 television, to audio and video cassettes, to audio and video
@@ -313,10 +248,6 @@ However, it seems that Web-based video streaming should enable
 synchronous collaboration ``situated'' by collaborative lecture video
 viewing, approximating the experience of on-campus students physically
 attending the lecture and class discussion.
-
-% would be good to find a cite for the last sentence above
-
-% - ai2tv project goals
 
 Our $\mathrm{AI}^2$TV project aims to contribute to the area of
 synchronous collaboration support for distance education, specifically
@@ -353,10 +284,6 @@ resources from a hierarchy of several different encodings for that
 video. Thus a client could receive an appropriate quality of video
 content while staying in sync with the other members of the group.
 
-% so why isn't the above approach good enough, do we do better?
-
-% - describe overview of semantic compression tool used
-
 We use {\em semantic compression} to produce a video with cumulative
 layering.  A semantic compression algorithm developed by Liu and
 Kender \cite{TIECHENG} reduces a video to a set of semantically
@@ -387,7 +314,7 @@ high frequency semantic change, which result in sections in the video
 that demand a higher frame rate.  The variable frame rate video adds
 substantial complexity to the bandwidth demands of the client.
 
-Also, in figure \ref{sem_video}, the bottom-left in-set shows the
+In figure \ref{sem_video}, the bottom-left in-set shows the
 juxtaposition of individual frames from two different quality levels.
 Each frame has a representative time interval \texttt{[start:end]}.
 For the higher level, Frame 1a represents the interval from 1:00 to
@@ -430,14 +357,9 @@ Workflakes monitors the video clients and consequently coordinates the
 dynamic adjustment of the compression (quality) level currently
 assigned to each client.
 
-% (FIGURE: semantic compression )
-% (FIGURE: key frames hierarchy )
-
 \section{Architecture and Adaptation\\ Model}
 
 \subsection{System Architecture}
-
-% Design of the system in general
 
 $\mathrm{AI}^2$TV involves several major components: a video server,
 video clients, an autonomic controller, and a common communications
@@ -450,8 +372,6 @@ infrastructure, as shown in figure \ref{ai2tv_arch}.
   \label{ai2tv_arch}
 \end{figure}
 
-%(FIGURE: ai2tv synchronization arch)
-% video server
 The video server provides the educational video content to the clients
 for viewing.  Each lecture video is stored in the form of a hierarchy
 of versions, produced by running the semantic compression tool
@@ -459,8 +379,6 @@ multiple times with settings for different compression levels. Each
 run produces a sequence of JPEG frames with a corresponding frame
 index file.  The task of the video server is simply to provide remote
 download access to the collection of index files and frames over HTTP.
-
-% video client
 
 The task of each video client is to acquire video frames, display them
 at the correct times, and provide a set of basic video functions.
@@ -505,7 +423,9 @@ The purpose of the autonomic controller is to ensure that, given the
 synchronization constraint, each client plays at its highest
 attainable quality level.  The controller is itself a distributed
 system, whose design derives from a conceptual reference architecture
-for autonomic computing platforms proposed by Kaiser {\it et al.}
+% for autonomic computing platforms proposed by Kaiser {\it et al.}
+for autonomic computing platforms proposed by
+Anonymous\footnote{Removed for double blind reviewing.} {\it et al.}
 \cite{REFARCH}, which is shown in figure \ref{refarch}. The
 architecture provides an end-to-end closed control loop, in which
 sensors attached to a generic (possibly legacy) target system
@@ -516,10 +436,6 @@ controllers coordinate the expression and orchestration of the
 workflow needed to carry out the adaptation.  At the end of the loop,
 actuators attached to the target system effect the needed adjustments
 under the supervision of the controller.
-
-%
-%(figure of ref arch here). 
-%
 
 \begin{figure}
  \centering
@@ -542,8 +458,6 @@ produce triggers for the coordinator.  When a trigger is raised, the
 coordination engine enacts an adaptation scheme, basically a workflow
 plan, which is executed on the end hosts by taking advantage of the
 hooks provided to the actuators by the clients.
-
-% communications 
 
 Communication among the video clients, as well as between the sensors
 and actuators at the clients and the autonomic controller, is provided
@@ -568,10 +482,6 @@ as a set of parallel steps.  Also note that the multiplicity of those
 parallel steps is dynamically determined via the number of entries in
 the \texttt{clients} variable, which maps to a collection of
 $\mathrm{AI}^2$TV clients.
-
-%
-%add Figure with AI2TV workflow diagram here
-%
 
 \begin{figure} 
   \centering
@@ -650,21 +560,7 @@ differences resulting from the controller's adaptation of the clients'
 behavior {\it versus} the behavior of the baseline client, with
 respect to synchrony and frame rate.
 
-%% To evaluate our system, we produced an $\mathrm{AI}^2$TV video that had 5 quality
-%% levels.  For a 17 minute video and five different window lengths, the
-%% total number of frames are 165, 71, 39, 21, and 13.  Our choice of the
-%% relatively low frame rate quality levels was influenced by the goal of
-%% the system being used by clients with low bandwidth resources.
- 
-% the pathetic average frame rates (per minute!!!):
-%% 3.399831413 - high
-%% 1.46295776
-%% 0.806289939
-%% 0.434237734
-%% 0.268763313 - low
-
 \subsection{Evaluating Synchronization}
-
 The primary goal of our system is to provide synchronous viewing of
 lecture videos to small groups of geographically dispersed students,
 some possibly with relatively meager resources.  Our initial
@@ -700,28 +596,16 @@ listening to Internet radio, where users must choose a desired frame
 rate to receive.  The user may have been informed that she is
 allocated a certain bandwidth level from her Internet service
 provider, but may actually be receiving a significantly lower rate.
-We ran this set of experiments first without the aid of the autonomic
-controller and then with it. In the former case, clients with
-insufficient bandwidth were stuck at the compression level originally
-selected, and thus missed an average of 63\% of the needed frames.  In
-the latter case, the same clients only missed 35\% of the needed
-frames.  Although both situations are abysmal, these results provide
-evidence of the benefits of the adaptive scheme implemented by the
-autonomic controller.
-
-%% selected, and thus only displayed an average of 37\% of the needed
-%% frames.  In the latter case, the same clients received 65\% of the
-%% needed frames.  These results provide evidence of the benefits of the
-%% adaptive scheme implemented by the autonomic controller.
-
-
-%% \begin{figure} 
-%%   \centering
-%%   \hspace*{-5mm}
-%%   \epsfig{file=scores.eps, width=9cm}
-%%   \caption{Comparison of weighted scores}
-%%   \label{scores}
-%% \end{figure}
+The clients were assigned bandwidths one level lower than the preset
+quality level.  We ran this set of experiments first without the aid
+of the autonomic controller and then with it. In the former case,
+clients with insufficient bandwidth were stuck at the compression
+level originally selected, and thus missed an average of 63\% of the
+needed frames.  In the latter case, the same clients only missed 35\%
+of the needed frames.  Although both situations show a significant
+amount of missed frames, these results provide evidence of the
+benefits of the adaptive scheme implemented by the autonomic
+controller.
 
 \subsection{Evaluating Quality of Service} 
 
@@ -745,8 +629,6 @@ quality, and are not constrained by the group synchronization
 requirement.  This restriction mandates a scoring system sensitive to
 the relative differences between quality hierarchies.
 
-% qos results
-
 Our experiments show that baseline clients scored a group score of 1
 (as expected) while the controller-assisted clients scored a group
 score of 1.25.  The one-tailed t-score of this difference is 3.01,
@@ -759,8 +641,6 @@ degree of benefit, we measure the proportion of additional frames that
 each client is able to enjoy.  We found that, overall, those clients
 received 20.4\% ($\pm$ 9.7, N=17) more frames than clients operating
 at a baseline rate.
-
-% risk assessment
 
 Running the client close to or at a level higher than the average
 bandwidth needed puts the client at risk for missing more frames,
@@ -780,12 +660,6 @@ demanded a higher frame rate at the same time that the network
 bandwidth available to that client was relatively low.  The client was
 able to consistently maintain a high video quality level after this
 epoch.
-
-% calculation used for the 20% number I got up there.
-% baselineFrames = number of frames base client gets
-% wfFrames = number of frames the wf client gets
-% (wfFrames - baselineFrames) / baselineFrames = proportion of frames higher
-%                                                then the baseline client
 
 Our $\mathrm{AI}^2$TV system can achieve collaborative video viewing
 using relatively naive NTP-based synchronization, without the
@@ -925,33 +799,24 @@ have demonstrated the advantages of this approach through experimental
 trials using bandwidth throttling to show that our system can provide
 synchronization of video together with optimized video quality.
 
-%ACKNOWLEDGMENTS are optional
-\section{Acknowledgments}
 
-We would like to thank John Kender, Tiecheng Liu, and other members of
-the High-Level Vision Lab for their assistance in using their
-lecture-video semantic compression software.  We would also like to
-thank the other members of the Programming Systems Lab, particularly
-Matias Pelenur who implemented PSL's Little-JIL interpreter on top of
-Workflakes/Cougaar.  Little-JIL was developed by Lee Osterweil's LASER
-lab at the University of Massachusetts, Amherst. Cougaar was developed
-by a DARPA-funded consortium; our main Cougaar contact was Nathan
-Combs of BBN.  Siena was developed by the University of Colorado,
-Boulder, in Alex Wolf's SERL lab. PSL is funded in part by National
-Science Foundation grants CCR-0203876, EIA-0202063 and EIA-0071954,
-and by Microsoft Research.
+% Removed to adhere to anonymity guidelines
+%% \section{Acknowledgments}
+%% We would like to thank John Kender, Tiecheng Liu, and other members of
+%% the High-Level Vision Lab for their assistance in using their
+%% lecture-video semantic compression software.  We would also like to
+%% thank the other members of the Programming Systems Lab, particularly
+%% Matias Pelenur who implemented PSL's Little-JIL interpreter on top of
+%% Workflakes/Cougaar.  Little-JIL was developed by Lee Osterweil's LASER
+%% lab at the University of Massachusetts, Amherst. Cougaar was developed
+%% by a DARPA-funded consortium; our main Cougaar contact was Nathan
+%% Combs of BBN.  Siena was developed by the University of Colorado,
+%% Boulder, in Alex Wolf's SERL lab. PSL is funded in part by National
+%% Science Foundation grants CCR-0203876, EIA-0202063 and EIA-0071954,
+%% and by Microsoft Research.
 
-% The following two commands are all you need in the
-% initial runs of your .tex file to
-% produce the bibliography for the citations in your paper.
-% \bibliographystyle{abbrv} \bibliography{ai2tv}
-% \subsection{References}
-% 
-%% Generated by bibtex from your ~.bib file.  Run latex,
-%% then bibtex, then latex twice (to resolve references)
-%% to create the ~.bbl file.  Insert that ~.bbl file into
-%% the .tex source file and comment out
-%% the command \texttt{{\char'134}thebibliography}.
+%  ??? for spacing, to get references on the next column
+\vspace*{10mm}
 
 \begin{thebibliography}{10}
 \small
@@ -1044,12 +909,13 @@ A.~L. Corte, A.~Lombardo, S.~Palazzo, and G.~Schembra.
 \newblock {\em Multimedia Systems}, 6(2):102--112, 1998.
 
 \bibitem{CHIME}
-S.~E. Dossick and G.~E. Kaiser.
-\newblock {CHIME: A Metadata-Based Distributed Software Development
-  Environment}.
-\newblock In {\em Joint 7th European Software Engineering Conference and 7th
-  ACM SIGSOFT International Symposium on the Foundations of Software
-  Engineering}, pages 464--475, 1999.
+Reference removed for double blind reviewing.
+%% S.~E. Dossick and G.~E. Kaiser.
+%% \newblock {CHIME: A Metadata-Based Distributed Software Development
+%%   Environment}.
+%% \newblock In {\em Joint 7th European Software Engineering Conference and 7th
+%%   ACM SIGSOFT International Symposium on the Foundations of Software
+%%   Engineering}, pages 464--475, 1999.
 
 \bibitem{FSP}
 J.~Escobar, C.~Partridge, and D.~Deutsch.
@@ -1077,11 +943,13 @@ A.~J. Gonzalez and H.~Adbel-Wahab.
   2000.
 
 \bibitem{VECTORS}
-S.~Gupta and G.~Kaiser.
-\newblock {A Virtual Environment for Collaborative Distance Learning With Video
-  Synchronization}.
-\newblock In {\em 7th IASTED International Conference on Computers and Advanced
-  Technology in Education}, August 2004.
+Reference removed for double blind reviewing.
+
+%% S.~Gupta and G.~Kaiser.
+%% \newblock {A Virtual Environment for Collaborative Distance Learning With Video
+%%   Synchronization}.
+%% \newblock In {\em 7th IASTED International Conference on Computers and Advanced
+%%   Technology in Education}, August 2004.
 
 \bibitem{IBM}
 {IBM}.
@@ -1089,24 +957,27 @@ S.~Gupta and G.~Kaiser.
 \newblock \url{http://www.research.ibm.com/autonomic/}.
 
 \bibitem{REFARCH}
-G.~Kaiser, P.~Gross, G.~Kc, J.~Parekh, and G.~Valetto.
-\newblock {An Approach to Autonomizing Legacy Systems, in Workshop on
-  Self-Healing, Adaptive and Self-Managed Systems}.
-\newblock In {\em Workshop on Self-Healing, Adaptive and Self-Managed Systems},
-  June 2002.
+Reference removed for double blind reviewing.
+%% G.~Kaiser, P.~Gross, G.~Kc, J.~Parekh, and G.~Valetto.
+%% \newblock {An Approach to Autonomizing Legacy Systems, in Workshop on
+%%   Self-Healing, Adaptive and Self-Managed Systems}.
+%% \newblock In {\em Workshop on Self-Healing, Adaptive and Self-Managed Systems},
+%%   June 2002.
 
 \bibitem{AMS}
-G.~Kaiser, J.~Parekh, P.~Gross, and G.~Valetto.
-\newblock {Kinesthetics eXtreme: An External Infrastructure for Monitoring
-  Distributed Legacy Systems}.
-\newblock In {\em 5th Annual International Active Middleware Workshop}, June
-  2003.
+Reference removed for double blind reviewing.
+%% G.~Kaiser, J.~Parekh, P.~Gross, and G.~Valetto.
+%% \newblock {Kinesthetics eXtreme: An External Infrastructure for Monitoring
+%%   Distributed Legacy Systems}.
+%% \newblock In {\em 5th Annual International Active Middleware Workshop}, June
+%%   2003.
 
 \bibitem{AMSJournal}
-G.~Kaiser, J.~Parekh, P.~Gross, and G.~Valetto.
-\newblock {Retrofitting Autonomic Capabilities onto Legacy Systems}.
-\newblock Technical Report CUCS-026-03, Columbia University Department of
-  Computer Science, October 2003.
+Reference removed for double blind reviewing.
+%% G.~Kaiser, J.~Parekh, P.~Gross, and G.~Valetto.
+%% \newblock {Retrofitting Autonomic Capabilities onto Legacy Systems}.
+%% \newblock Technical Report CUCS-026-03, Columbia University Department of
+%%   Computer Science, October 2003.
 
 \bibitem{OSTERWEIL}
 B.~S. Lemer, E.~K. McCall, A.~Wise, A.~G. Cass, L.~J. Osterweil, and S.~M.~S.
@@ -1195,16 +1066,18 @@ G.~Sidler, A.~Scott, and H.~Wolf.
 \newblock In {\em 8th Joint European Networking Conference Proceedings}, 1997.
 
 \bibitem{ValettoThesis}
-G.~Valetto.
-\newblock {\em Orchestrating the Dynamic Adaptation of Distributed Software
-  with Process Technology}.
-\newblock PhD thesis, Columbia University, April 2004.
+Reference removed for double blind reviewing.
+%% G.~Valetto.
+%% \newblock {\em Orchestrating the Dynamic Adaptation of Distributed Software
+%%   with Process Technology}.
+%% \newblock PhD thesis, Columbia University, April 2004.
 
 \bibitem{ICSE}
-G.~Valetto and G.~Kaiser.
-\newblock {Using Process Technology to Control and Coordinate Software
-  Adaptation}.
-\newblock In {\em International Conference on Software Engineering}, May 2003.
+Reference removed for double blind reviewing.
+%% G.~Valetto and G.~Kaiser.
+%% \newblock {Using Process Technology to Control and Coordinate Software
+%%   Adaptation}.
+%% \newblock In {\em International Conference on Software Engineering}, May 2003.
 
 \bibitem{CEN}
 J.~Walpole, R.~Koster, S.~Cen, C.~Cowan, D.~Maier, D.~McNamee, C.~Pu,
@@ -1225,15 +1098,7 @@ J.~G. Wells.
 
 \end{thebibliography}
 
-% This next section command marks the start of
-% Appendix B, and does not continue the present hierarchy
-%% \section{More Help for the Hardy}
-%% The sig-alternate.cls file itself is chock-full of succinct
-%% and helpful comments.  If you consider yourself a moderately
-%% experienced to expert user of \LaTeX, you may find reading
-%% it useful but please remember not to change it.
-
-\balancecolumns % GM July 2000
+\balancecolumns 
 % That's all folks!
 \end{document}
 % ---------------------------------------------------------------
