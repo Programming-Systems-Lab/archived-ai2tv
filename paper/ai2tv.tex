@@ -644,7 +644,7 @@ compression hierarchy and the same bandwidth as the baseline client
 for that hierarchy level.  For each experimental trial, we record any
 differences resulting from the controller's adaptation of the clients'
 behavior {\it versus} the behavior of the baseline client, with
-respect to synchrony and quality of service (frame rate).
+respect to synchrony and frame rate.
 
 %% To evaluate our system, we produced an $\mathrm{AI}^2$TV video that had 5 quality
 %% levels.  For a 17 minute video and five different window lengths, the
@@ -661,12 +661,16 @@ respect to synchrony and quality of service (frame rate).
 
 \subsection{Evaluating Synchronization}
 
-Recall that the primary goal of our system is to provide synchronous
-viewing of lecture videos to small groups of geographically dispersed
-students, some possibly with relatively meager resources.  To measure
-the effectiveness of the synchronization, we probe the video clients
-at periodic time intervals and log the frame currently being
-displayed.  This procedure effectively takes a series of system
+The primary goal of our system is to provide synchronous viewing of
+lecture videos to small groups of geographically dispersed students,
+some possibly with relatively meager resources.  Our initial
+experiments evaluate the level of synchronization for several small
+groups of clients, where each group is involved in a video session.
+Each client is preset at a designated level of compression and given
+the average baseline bandwidth required for that compression level.
+To measure the effectiveness of the synchronization, we probe the
+video clients at periodic time intervals and log the frame currently
+being displayed.  This procedure effectively takes a series of system
 snapshots, which we can evaluate for synchronization correctness.  We
 check whether the frame being displayed at a certain time corresponds
 to one of the valid frames for that time, on {\em any} quality level.
@@ -677,16 +681,13 @@ summing the number of clients \underline{not} showing an acceptable
 frame and normalizing over the total number of clients.  A score of 0
 indicates a fully synchronized system.
 
-Our initial experiments intending to evaluate synchronization involved
-small groups of clients that were set to begin playing the test video
-at different levels in the compression hierarchy, and were assigned
-the corresponding baseline bandwidth. Those experiments showed a total
-score of 0 for all trials, that is, perfect synchrony. Notwithstanding
-the variations in the frame rate and/or occasional fluctuations in the
-actual bandwidth of the clients, no frames were missed.  This result
-demonstrates that the chosen baseline combinations of compression
-levels and throttled bandwidths do not push the clients beyond their
-bandwidth resource capacity.
+These experiments showed a total score of 0 for all trials, meaning
+that all of the clients were viewing appropriate frames when probed.
+Notwithstanding the variations in the frame rate and/or occasional
+fluctuations in the actual bandwidth of the clients, no frames were
+missed.  This result demonstrates that the chosen baseline
+combinations of compression levels and throttled bandwidths do not
+push the clients beyond their bandwidth resource capacity.
 
 Then we ran another set of experiments, in which the clients were
 assigned more casually selected levels of starting bandwidths.  Said
@@ -725,8 +726,8 @@ system is our autonomic controller approach to optimizing video
 quality.  Here we analogously use a scoring system relative to the
 baseline client's quality level.  We give a weighted score for each
 level above or below the baseline quality level.  The weighted score
-is calculated as the ratio of the frame rate of the two levels.  So,
-for example, if a client is able to play at one level higher then the
+is calculated as the ratio of the frame rate of the two levels.  For
+example, if a client is able to play at one level higher then the
 baseline, and the baseline plays at an average \texttt{n} frames per
 second (fps) while the level higher plays at \texttt{2*n} fps, the
 score for playing at the higher level is 2.  The weighted score is
@@ -764,9 +765,9 @@ better but more resource-demanding level.  To measure whether the
 controller-assisted client is adversely exposed to a higher risk of
 missing frames, we also count the number of missed frames during a
 video session.  The scoring is a simple count of the missed frames.
-Note this scoring is kept separate from the measure of the relative
-quality (frame rate) to discriminate between levels of concern,
-although they both indicate QoS characteristics.
+Note that this scoring is kept separate from the measure of the
+relative quality to discriminate between levels of concern, although
+they both indicate QoS characteristics.
 
 There was only one instance in which a controller-assisted client
 missed two consecutive frames.  Upon closer inspection, the time
