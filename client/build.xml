@@ -58,7 +58,7 @@
     <!-- JNI related targets -->
 
     <target name="jni" depends="prepare">
-        <javac srcdir="${SRCDIR}" destdir="${BUILD}" classpathref="compile.classpath" includes="psl/ai2tv/client/*.java, psl/ai2tv/SienaConstants.java, psl/ai2tv/gauge/FrameDesc.java, psl/ai2tv/gauge/FrameIndexParser.java" />
+        <javac srcdir="${SRCDIR}" destdir="${BUILD}" classpathref="compile.classpath" includes="psl/ai2tv/client/*.java, psl/ai2tv/client/LoginHandler.java, psl/ai2tv/SienaConstants.java, psl/ai2tv/gauge/FrameDesc.java, psl/ai2tv/gauge/FrameIndexParser.java" />
 	<javah classpath="${SRCDIR};${BUILD}" class="psl.ai2tv.client.${JNIPREFIX}Java" destdir="."/>
         <exec executable="${CPP_COMPILER}">
 	  <arg line="-I${JAVADIR}/include -I${JAVADIR}/include/win32 -MD ${JNIPREFIX}CPP.cpp ${JAVADIR}/lib/jvm.lib -Fe${JNIPREFIX}CPP.dll" />

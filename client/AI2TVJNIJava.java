@@ -127,7 +127,7 @@ class AI2TVJNIJava{
    * @param info: login information
    */
   void setLoginInfo(String info){
-    ; // _client.setLoginInfo(info);
+    ; // _client.login(info);
   }
 
   /**
@@ -137,7 +137,7 @@ class AI2TVJNIJava{
    * @param date: date/time to load the video by
    */
   void loadVideo(String name, String date){
-    _client.loadVideo(name, date);
+    _client.loadVideo(name +";"+ date);
   }
 
 
@@ -152,7 +152,18 @@ class AI2TVJNIJava{
    * @return list of available videos from the server
    */
   String[] getAvailableVideos(){
-    return _client.getAvailableVideos();
+    java.util.Vector v = _client.getAvailableVideos();
+
+    String[] availableVideos;
+    if (v != null && v.size() > 1)
+      availableVideos = new String[v.size() + 1];
+    else
+      return new String[0];
+
+    for (int i=0; i<v.size(); i++)
+      availableVideos[i] = v.get(i).toString();
+
+    return availableVideos;
   }
 
   /**

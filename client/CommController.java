@@ -14,10 +14,10 @@
  */
 
 package psl.ai2tv.client;
+
 import java.io.*;
 import java.util.Calendar;
 import java.net.*;
-import psl.ai2tv.gauge.*;
 import psl.ai2tv.SienaConstants;
 import siena.*;
 
@@ -36,8 +36,6 @@ import siena.*;
 class CommController implements Notifiable{
   public static final int DEBUG = 0;
 
-  private Notification frameEvent;
-  private long clientID;
   private Client _client;
   private ThinClient _siena;
   private String _sienaServer;
@@ -47,12 +45,10 @@ class CommController implements Notifiable{
    * create a CommController
    *
    * @param c: higher level client to communicate with
-   * @param id: ID of the associated client, to be sent out with each message
    * @param sienaServer: point of contact to the Siena communications layer.
    */
-  CommController(Client c, long id, String server){
+  CommController(Client c, String server){
     _client = c;
-    clientID = id;
     _siena = null;
     _sienaServer = server;
     setupSienaListener();
@@ -62,29 +58,48 @@ class CommController implements Notifiable{
    * setup the filters describing what this subscriber want to
    * receive.
    */
-  private void setupFilter() throws siena.SienaException {
-    Filter filter = new Filter();
-    // the string "FOO" doesn't mean anything (the string is ignored)
-    filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, Op.ANY, "FOO");
-    filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, Op.ANY, "FOO");
-    _siena.subscribe(filter, this);
+  void setupSienaFilter()  {
+    try {
+      Filter filter = new Filter();
+      // the string "FOO" doesn't mean anything (the string is ignored)
+      filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, Op.ANY, "FOO");
+      filter.addConstraint(SienaConstants.GID, Op.EQ, _client.getGID());
+      // filter.addConstraint(SienaConstants.VSID, Op.EQ, _client.getVSID());
+      _siena.subscribe(filter, this);
+    } catch (SienaException e){
+      Client.err.println("SienaException caught setting up Siena Filter: " + e);
+    }
   }
 
   /**
-   * setup the communications link
+   * setup the communications with the Video related actions
+   */
+  void setupWGFilter(){
+    try {
+      Filter filter = new Filter();
+      filter.addConstraint(SienaConstants.GET_ACTIVE_VSIDS_REPLY, Op.ANY, "FOO");
+      _siena.subscribe(filter, this);
+      
+      filter = new Filter();
+      filter.addConstraint(SienaConstants.JOIN_NEW_VSID_REPLY, Op.ANY, "FOO");
+      _siena.subscribe(filter, this);
+    } catch (SienaException e){
+      Client.err.println("SienaException caught setting up WG Filter: " + e);
+    }
+  }
+
+  /**
+   * setup the communications with the Video related actions
    */
   private void setupSienaListener(){
     try {
       _siena = new ThinClient(_sienaServer);
 
       // subsribe to the events (specified in the method)
-      setupFilter();
+      //setupFilter();
       // Client.out.println("subscribing for " + filter.toString());
       _isActive = true;
 
-    } catch (siena.comm.PacketSenderException e) {
-      // what is this?
-      System.err.println ("Caught exception in setting up the Siena server: "  + e);
     } catch (SienaException e) {
       // ; // WTF?
       // } catch (siena.comm.InvalidSenderException e) {
@@ -94,27 +109,69 @@ class CommController implements Notifiable{
     }
   }
   
+  /**
+   * get the active videos from the WG server
+   */
+  void getActiveVSIDs(){
+    Notification request = new Notification();
+    request.putAttribute(SienaConstants.GET_ACTIVE_VSIDS, "FOO");
+    publishNotification(request);
+  }
 
+  /**
+   * create a new video session
+   */
+  void joinNewVSID(String videoName, String date){
+    Notification request = new Notification();
+    request.putAttribute(SienaConstants.JOIN_NEW_VSID, "FOO");
+    request.putAttribute(SienaConstants.VIDEO_NAME, videoName);
+    request.putAttribute(SienaConstants.VIDEO_DATE, date);
+    publishNotification(request);
+  }
+
+  /**
+   * join an existing video session
+   */
+  void joinActiveVSID(String vsid){
+    Notification request = new Notification();
+    request.putAttribute(SienaConstants.JOIN_ACTIVE_VSID, "FOO");
+    request.putAttribute(SienaConstants.VSID, vsid);
+    publishNotification(request);
+  }
 
   /**
    * showdown the communications layer
    */
   void shutdown(){
-    Client.out.println("Shutting down CommController");
-    Client.out.println("Unsubscribing to Siena server");
+     Client.debug.println("Shutting down CommController");
+    Client.debug.println("Unsubscribing to Siena server");
     try {
       Notification shutdownEvent = new Notification();
+      shutdownEvent.putAttribute(SienaConstants.REMOVE_USER_FROM_VSID, "FOO");
+      shutdownEvent.putAttribute(SienaConstants.VSID, _client.getVSID());
+      publishNotification(shutdownEvent);
+
+      shutdownEvent = new Notification();
       shutdownEvent.putAttribute(SienaConstants.AI2TV_CLIENT_SHUTDOWN, "");
       publishNotification(shutdownEvent);
 
       Filter filter = new Filter();
       filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, Op.ANY, "FOO");
       _siena.unsubscribe(filter, this);
+
+      filter = new Filter();
+      filter.addConstraint(SienaConstants.GET_ACTIVE_VSIDS_REPLY, Op.ANY, "FOO");
+      _siena.unsubscribe(filter, this);
+
+      filter = new Filter();
+      filter.addConstraint(SienaConstants.JOIN_NEW_VSID_REPLY, Op.ANY, "FOO");
+      _siena.unsubscribe(filter, this);
     } catch (siena.SienaException e) {
       Client.err.println("error:" + e);
     }
-    Client.out.println("Shutting down Siena server");
+    Client.debug.println("Shutting down Siena server");
     _siena.shutdown();
+    _isActive = false;
   }
   
   /**
@@ -125,7 +182,7 @@ class CommController implements Notifiable{
   public void notify(Notification event) {
     handleNotification(event);
   };
-
+  
   /**
    * recieve some notifications from the Siena server
    *
@@ -148,18 +205,14 @@ class CommController implements Notifiable{
     Client.debug.println("handleNotification(): I just got this event:" + event + ": at : " 
 		       + Calendar.getInstance().getTime());
 
-    String name = event.toString().substring(7).split("=")[0];
-    String attrib = event.getAttribute(name).stringValue();
     AttributeValue absAttrib = event.getAttribute(SienaConstants.ABS_TIME_SENT);
     long absTimeSent = -1;
     if (absAttrib != null){
       absTimeSent = absAttrib.longValue();
     }
 
-    Client.out.println("handle notification: name: " + name);
-    Client.out.println("handle notification: attrib: " + attrib);
-
-    if (name.equals(SienaConstants.AI2TV_VIDEO_ACTION)){
+    if (event.getAttribute(SienaConstants.AI2TV_VIDEO_ACTION) != null){
+      String attrib = event.getAttribute(SienaConstants.AI2TV_VIDEO_ACTION).stringValue();
       
       if (attrib.equals(SienaConstants.PLAY)){
 	Client.debug.println("CommController: PLAY action event received");
@@ -178,8 +231,23 @@ class CommController implements Notifiable{
       } else {
 	Client.err.println("AI2TV_VIDEO_ACTION: Notification Error, received unknown attribute: " + attrib);
       }
+      
+    } else if (event.getAttribute(SienaConstants.GET_ACTIVE_VSIDS_REPLY) != null){
+      if (event.getAttribute(SienaConstants.ACTIVE_VSIDS) != null){
+	String activeVSIDs = event.getAttribute(SienaConstants.ACTIVE_VSIDS).stringValue();
+	String activeVSIDInfo = event.getAttribute(SienaConstants.ACTIVE_VSIDS_INFO).stringValue();
+	_client.setActiveVSID(activeVSIDs, activeVSIDInfo);
+      } else {
+	_client.setActiveVSID(null, null);
+      }
+
+    } else if (event.getAttribute(SienaConstants.JOIN_NEW_VSID_REPLY) != null){
+      String vsid = event.getAttribute(SienaConstants.JOIN_NEW_VSID_REPLY).stringValue();
+      _client.setVSID(vsid);
+      _client.setWaitForWGReply(false);
+      
     } else {
-      Client.err.println("Notification Error, received unknown name: " + name);
+      Client.err.println("Notification Error, received unknown event");
     }
   }
 

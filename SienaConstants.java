@@ -9,7 +9,7 @@ public class SienaConstants {
   // these represent the typical client probe frame updates
   public static final String UID = "UID";
   public static final String GID = "GID";
-  public static final String PID = "PID";
+  public static final String VSID = "VSID";
 
   public static final String AI2TV_FRAME = "AI2TVFrame";
   public static final String AI2TV_FRAME_MISSED = "AI2TVFrameMissed";
@@ -56,5 +56,17 @@ public class SienaConstants {
   public static final String AI2TV_UPDATE_TIME_RCVD = "timeReceived";
 
   public static final String AI2TV_VIDEO_PREFETCH = "";
+
+  // these are for the WG server
+  public static final String GET_ACTIVE_VSIDS = "getActiveVSIDs";  
+  public static final String GET_ACTIVE_VSIDS_REPLY = "getActiveVSIDsReply";  
+  public static final String JOIN_NEW_VSID = "joinNewVSID";  
+  public static final String JOIN_NEW_VSID_REPLY = "joinNewVSIDReply";  
+  public static final String JOIN_ACTIVE_VSID = "joinActiveVSID";  
+  public static final String REMOVE_USER_FROM_VSID = "removeUserFromVSID";
+  public static final String VIDEO_DATE = "videoDate";
+  public static final String VIDEO_NAME = "videoName";
+  public static final String ACTIVE_VSIDS = "activeVSIDs";
+  public static final String ACTIVE_VSIDS_INFO = "activeVSIDsInfo";
 
 }

@@ -271,9 +271,9 @@ class Viewer extends JFrame {
   }
 
   void shutdown(){
+    dispose();
     _client.shutdown();
     // this is the right way to close, not that System.exit stuff.
-    dispose();
   }
 
   // - - - - - - ENTRY FUNCTIONS USED BY CLIENT - - - - - - - //
@@ -310,6 +310,7 @@ class Viewer extends JFrame {
       // Client.debug.println("Viewer displaying: " + filename);
       return true;
     } else {
+      Client.err.println("_image: " + _images);
       Client.err.println("Error in Viewer.displayImage: " + filename + " not valid.");
       return false;
     }
@@ -331,7 +332,7 @@ class Viewer extends JFrame {
       _mediaTracker.addImage(image, _imageIndex);
       _mediaTracker.waitForID(_imageIndex);
       _images.put(filename, new ImageIndexPair(image, _imageIndex));
-      //Client.debug.println("Viewer loaded image: " + filename + " with id: " + _imageIndex);
+      // Client.debug.println("Viewer loaded image: " + filename + " with id: " + _imageIndex);
       _imageIndex = (_imageIndex + 1) % 65535; // wraps around on the 65556'th image
       return true;
     } catch (InterruptedException e){

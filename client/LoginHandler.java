@@ -40,8 +40,7 @@ public class LoginHandler extends JFrame {
   private Color mainCanvasFG;
   private final int MAXCL = 255;
   private Container mainContentPane;
-  JPanel mainPanel;
-  JPanel menuPanel;
+  JPanel mainPanel, menuPanel;
 
   private String _uid = null;
   private String _gid = null;
@@ -78,21 +77,8 @@ public class LoginHandler extends JFrame {
 
     setTitle("AI2TV Login");
     setResizable(true);
-    mainPanel = new JPanel();
-    mainCanvas = addMainCanvas();
 
-    mainPanel.setLayout(new BorderLayout());
-    mainPanel.add(mainCanvas, BorderLayout.CENTER);
-
-    menuPanel = new JPanel();
-    menuPanel.setLayout(new BoxLayout(menuPanel, BoxLayout.Y_AXIS));
-
-    addLoginFields();
-
-    setSize(130, 200);
-    mainContentPane.add(menuPanel, BorderLayout.WEST);
-    mainContentPane.add(mainPanel);
-    show();
+    showLoginView();
   }
 
   private Canvas addMainCanvas() {
@@ -123,7 +109,27 @@ public class LoginHandler extends JFrame {
     return newCanvas;
   }
 
-  private void changeView(){
+  private void showLoginView(){
+    mainContentPane.removeAll();
+    mainContentPane = getContentPane();
+    mainPanel = new JPanel();
+    mainCanvas = addMainCanvas();
+    
+    mainPanel.setLayout(new BorderLayout());
+    mainPanel.add(mainCanvas, BorderLayout.CENTER);
+
+    menuPanel = new JPanel();
+    menuPanel.setLayout(new BoxLayout(menuPanel, BoxLayout.Y_AXIS));
+    menuPanel.setDoubleBuffered(true);
+
+    addLoginFields();
+
+    mainContentPane.add(menuPanel, BorderLayout.WEST);
+    mainContentPane.add(mainPanel);
+    show();
+  }
+
+  private void showVideosView(){
     mainContentPane.removeAll();
     mainContentPane = getContentPane();
     mainPanel = new JPanel();
@@ -134,11 +140,18 @@ public class LoginHandler extends JFrame {
 
     menuPanel = new JPanel();
     menuPanel.setLayout(new BoxLayout(menuPanel, BoxLayout.Y_AXIS));
+    menuPanel.setDoubleBuffered(true);
 
     addVideoFields();
 
+    // mainContentPane.add(menuPanel, );
     mainContentPane.add(menuPanel, BorderLayout.WEST);
     mainContentPane.add(mainPanel);
+
+    // JPanel foo;
+    // mainContentPane.add(foo, BorderLayout.CENTER);
+    // mainContentPane.add(foo);
+
     show();
   }
 
@@ -180,8 +193,9 @@ public class LoginHandler extends JFrame {
 	    _gid = _gidField.getText();
 	    _passwd = new String(_passwdField.getPassword());
 	    
-	    _client.setLoginInfo(_uid, _gid, _passwd);
-	    changeView();
+	    _client.login(_uid, _gid, _passwd);
+	    Client.debug.println("logged in");
+	    showVideosView();
 	  } else {
 	    Client.err.println("You must fill in all the fields");
 	  }
@@ -189,11 +203,31 @@ public class LoginHandler extends JFrame {
       });
     menuPanel.add(createButton);
 
-
-    // -------- DONE ADD BUTTONS and MENU PANEL ------ //
+    setSize(130, 200);
   }
 
   void addVideoFields(){
+    int menuWidth = 200;
+    int menuLength = 180;
+    boolean videosAvailable = false;
+
+    // ------ Go Back to Login ------ //
+    JButton goBackButton = new JButton("Go Back to Login");
+    goBackButton.addActionListener(new ActionListener() {
+	public void actionPerformed(ActionEvent evt) {
+	  showLoginView();
+	}
+      });
+    menuPanel.add(goBackButton);
+
+    // ------ Update View ------ //
+    JButton updateButton = new JButton("Update");
+    updateButton.addActionListener(new ActionListener() {
+	public void actionPerformed(ActionEvent evt) {
+	  showVideosView();
+	}
+      });
+    menuPanel.add(updateButton);
 
     // ------ show/change base URL ------ //
     JLabel baseURLLabel = new JLabel("Base URL");
@@ -201,38 +235,42 @@ public class LoginHandler extends JFrame {
     
     _baseURLField = new JTextField(8);
     _baseURLField.setText(_client.getBaseURL());
-    menuPanel.add(_baseURLField);
+    menuPanel.add(_baseURLField, BorderLayout.WEST);
 
     JButton baseURLButton = new JButton("change base URL");
     baseURLButton.addActionListener(new ActionListener() {
 	public void actionPerformed(ActionEvent evt) {
 	  if (_baseURLField.getText().trim().length() > 0) {
 	    _client.setBaseURL(_baseURLField.getText());
-	    changeView();
+	    showVideosView();
 	  }
 	}
       });
     menuPanel.add(baseURLButton);
 
-    // ------ Select videos ------ //
-    String[] listOfVideos = _client.getAvailableVideos();
+    // ------ Show Available Videos ------ //
+    Vector availableVideos = _client.getAvailableVideos();
     JLabel videoLabel;
-    if (listOfVideos.length == 0){
+    if (availableVideos.size() == 0){
       Client.err.println("no videos available");
       videoLabel = new JLabel("Available videos: NONE");
-    } else
+    } else {
       videoLabel = new JLabel("Available videos");
+      videosAvailable = true;
 
+      System.out.println("available videos: ");
+      for (int i=0; i<availableVideos.size(); i++){
+	System.out.println("> " + availableVideos.get(i));	
+      }
+    }
     menuPanel.add(videoLabel);
 
-    final JList _availableVideos = new JList(listOfVideos);
+    final JList _availableVideos = new JList(availableVideos);
+    // _availableVideos.setFixedCellWidth(menuWidth);
     menuPanel.add(_availableVideos);
-    if (listOfVideos.length == 0){ 
-      setSize(200, 120);
-
     // if there are available videos to get
-    } else {
-      setSize(200, (200 + (listOfVideos.length * 20)));
+    if (availableVideos.size() != 0){ 
+      menuLength += 80 + (availableVideos.size() * 20);
 
       // ------ Date ------ //
       JLabel dateLabel = new JLabel("Date to view video");
@@ -241,7 +279,7 @@ public class LoginHandler extends JFrame {
       _dateField = new JTextField(8);
       _dateField.setText("2003-07-24");
       menuPanel.add(_dateField);
-      
+
       // ------ Time ------ //
       JLabel timeLabel = new JLabel("Time to view video");
       menuPanel.add(timeLabel);
@@ -249,30 +287,47 @@ public class LoginHandler extends JFrame {
       _timeField = new JTextField(8);
       _timeField.setText("14:30:00");
       menuPanel.add(_timeField);
-      
-      // ------ Get Video ------ //
+    }
+
+    // ------ Select the Video ------ //
+    if (videosAvailable){
       JButton startButton = new JButton("Retrieve video");
       startButton.addActionListener(new ActionListener() {
 	  public void actionPerformed(ActionEvent evt) {
 	    _videoName = (String) _availableVideos.getSelectedValue();
-	    if (_videoName != null && 
-		_dateField.getText().trim().length() > 0 &&
-		_timeField.getText().trim().length() > 0){
-	      
-	      _date = _dateField.getText();
-	      _time = _timeField.getText();
-	      
-	      Client.out.println("selected video: " + _videoName);
-	      _client.loadVideo(_videoName, (_date+";"+_time));
-	      _client.initialize();
-	      shutdown();
+	    
+	    if (_videoName == null){
+	      Client.err.println("You must select an active video session or ");
+	      Client.err.println("select a new video session and set the date and time");
 	    } else {
-	      Client.err.println("You must select a video and set the date and time");
+	    
+	      Client.out.println("selected video: " + _videoName);
+	      String[] info = _videoName.split(",");
+	      if (info.length > 1){
+		if (_dateField.getText().trim().length() > 0 ||
+		    _timeField.getText().trim().length() > 0){
+		  Client.err.println("Warning, date and time settings are ignored for active videos");
+		}
+		_client.loadVideo(_videoName);
+		shutdown();
+
+	      } else if (_dateField.getText().trim().length() > 0 &&
+			 _timeField.getText().trim().length() > 0){
+		
+		_date = _dateField.getText();
+		_time = _timeField.getText();
+		_client.loadVideo(_videoName +","+ _date +";"+ _time);
+		shutdown();		
+	      } else {
+		// this is the case that they selected a new video but didn't set a date and time
+		Client.err.println("Error, you must set a date and time.");
+	      }
 	    }
 	  }
 	});
       menuPanel.add(startButton);
-    }
+    } 
+    setSize(menuWidth, menuLength);
   }
 
   protected void processWindowEvent(WindowEvent e) {
