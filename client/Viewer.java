@@ -58,7 +58,7 @@ class Viewer extends JFrame {
 
   // members involved in video frame 
   private String _lastImage;
-  protected boolean _newFrame;
+  // protected boolean _newFrame;
   protected int _imageIndex;
   protected int _viewIndex;
   private Hashtable _images;
@@ -72,7 +72,7 @@ class Viewer extends JFrame {
   Viewer(Client c) {
     // initialize internal members
     _client = c;
-    _newFrame = false;
+    // _newFrame = false;
     _images = new Hashtable();
     _imageIndex = 0;
     _viewIndex = 0;
@@ -152,6 +152,7 @@ class Viewer extends JFrame {
       g.drawImage(_image, 0, 0, null);
     }
       
+    /* removed during jni intergration
     if (_newFrame){
       _client.setCurrentFrameTimeShown(_client.currentTime());
       if (Client.probe.getTimeProbe(0) >= 0)
@@ -160,6 +161,7 @@ class Viewer extends JFrame {
       // don't know when I should do the following
       // _mediaTracker.removeImage(_image);  
     }
+    */
   }
   
   /**
@@ -285,9 +287,11 @@ class Viewer extends JFrame {
    * @param value: true/false depending on if the next frame to be
    * shown is new.
    */
+  /* removed during jni integration
   void setNewFrame(boolean value){
     _newFrame = value;
   }
+  */
 
   void displayImage(Image image) {
     _image = image;

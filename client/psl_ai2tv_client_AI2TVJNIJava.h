@@ -9,18 +9,18 @@ extern "C" {
 #endif
 /*
  * Class:     psl_ai2tv_client_AI2TVJNIJava
- * Method:    loadFrame
+ * Method:    loadImage
  * Signature: (Ljava/lang/String;)V
  */
-JNIEXPORT void JNICALL Java_psl_ai2tv_client_AI2TVJNIJava_loadFrame
+JNIEXPORT void JNICALL Java_psl_ai2tv_client_AI2TVJNIJava_loadImage
   (JNIEnv *, jobject, jstring);
 
 /*
  * Class:     psl_ai2tv_client_AI2TVJNIJava
- * Method:    displayFrame
- * Signature: (Ljava/lang/String;)V
+ * Method:    displayImage
+ * Signature: (Ljava/lang/String;)Z
  */
-JNIEXPORT void JNICALL Java_psl_ai2tv_client_AI2TVJNIJava_displayFrame
+JNIEXPORT jboolean JNICALL Java_psl_ai2tv_client_AI2TVJNIJava_displayImage
   (JNIEnv *, jobject, jstring);
 
 #ifdef __cplusplus

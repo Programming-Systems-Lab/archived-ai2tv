@@ -15,6 +15,9 @@
 
 #include "AI2TVJNICPP.h"
 
+// The global pointer to ChimeSystemDriver
+// extern ChimeSystemDriver *driver;
+
 /**
  * The CPP side JNI interface for the AI2TV client.
  *
@@ -28,7 +31,7 @@
  */
 AI2TVJNICPP::AI2TVJNICPP(){
   _isActive = 1;
-  DEBUG=1;
+  doDEBUG=1;
   // make sure the base psl dir is in your classpath
   JAVACLASS = "psl/ai2tv/client/AI2TVJNIJava"; 
  
@@ -47,7 +50,7 @@ AI2TVJNICPP::AI2TVJNICPP(){
   _class = NULL;
   _obj = NULL;
 
-  if (DEBUG > 0)
+  if (doDEBUG > 0)
     printf("Creating the Java VM\n");
   _env = create_vm(_jvm);
   if (_env == NULL) return;
@@ -72,7 +75,7 @@ AI2TVJNICPP::AI2TVJNICPP(){
  * http://java.sun.com/j2se/1.3/docs/guide/jni/jni-12.html#DestroyJavaVM
  */
 AI2TVJNICPP::~AI2TVJNICPP(){
-  if (DEBUG > 0)
+  if (doDEBUG > 0)
     printf("Shutting down the Java VM");  
   delete _class;
   delete _obj;
@@ -126,7 +129,7 @@ JNIEnv* AI2TVJNICPP::create_vm(JavaVM* jvm) {
  */
 void AI2TVJNICPP::instantiateClasses(){
   if (_class == NULL) { 
-	  if (DEBUG > 0)
+	  if (doDEBUG > 0)
       printf("Finding the class\n");
     _class = _env->FindClass(JAVACLASS);
   }
@@ -139,7 +142,7 @@ void AI2TVJNICPP::instantiateClasses(){
   }
 
   if (_obj == NULL) {
-  if (DEBUG > 0)
+  if (doDEBUG > 0)
     printf("Instantiating the JObject\n");
 
     jmethodID mid = _env->GetMethodID(_class, "<init>", "()V");
@@ -365,6 +368,7 @@ int AI2TVJNICPP::getAvailableVideos(char availableVideos[10][50]){
   }
 
   // clean up the used objects
+  delete isCopy;
   _env->DeleteLocalRef(videoObjectArray);
   return i;
 }
@@ -387,16 +391,16 @@ void AI2TVJNICPP::shutdown(){
  * Tell the CHIME "Video" viewer to load this frame into memory
  */
 JNIEXPORT void JNICALL
-Java_psl_ai2tv_client_AI2TVJNIJava_loadFrame(JNIEnv *env, jobject obj, jstring frame) {
+Java_psl_ai2tv_client_AI2TVJNIJava_loadImage(JNIEnv *env, jobject obj, jstring frame) {
   jboolean* isCopy = new jboolean(false);
   const char *str = env->GetStringUTFChars(frame,isCopy);
 
   printf("c++ : loading frame %s\n", str);
 
-  /* 
-   * Mark needs to add in functionality here.
-   */
+  // driver->GetAi2tvInterface ()->LoadFrame (frame, frame);
 
+
+  delete isCopy;
   env->ReleaseStringUTFChars(frame, str);
   return;
 }
@@ -404,19 +408,23 @@ Java_psl_ai2tv_client_AI2TVJNIJava_loadFrame(JNIEnv *env, jobject obj, jstring f
 /**
  * Tell the CHIME "Video" viewer to display this frame
  */
-JNIEXPORT void JNICALL
-Java_psl_ai2tv_client_AI2TVJNIJava_displayFrame(JNIEnv *env, jobject obj, jstring frame) {
+JNIEXPORT jboolean JNICALL
+Java_psl_ai2tv_client_AI2TVJNIJava_displayImage(JNIEnv *env, jobject obj, jstring frame) {
+  // dan needs to figure out when to release these in memory
   jboolean* isCopy = new jboolean(false);
+  jboolean* displaySuccessful = new jboolean(false);
+
   const char *str = env->GetStringUTFChars(frame,isCopy);
 
   printf("c++ : Displayed frame %s\n", str);
 
-  /* 
-   * Mark needs to add in functionality here.
-   */
+  // driver->GetAi2tvInterface ()->DisplayFrame (frame);
+  
 
+  delete isCopy;
+  delete displaySuccessful;
   env->ReleaseStringUTFChars(frame, str);
-  return;
+  return *displaySuccessful;
 }
 
 // ----- END: JNI related functions called by the Java side ----- //
@@ -429,7 +437,7 @@ Java_psl_ai2tv_client_AI2TVJNIJava_displayFrame(JNIEnv *env, jobject obj, jstrin
  * PATH = c:\j2sdk1.4.2_01\jre\bin\client (needs the jvm.dll)
  *
  */
-/*int main(int argc, char **argv) {
+int main(int argc, char **argv) {
   AI2TVJNICPP* foo = new AI2TVJNICPP();
   printf("success, now trying to invoke a class method\n");
   foo->playPressed();
@@ -460,4 +468,4 @@ Java_psl_ai2tv_client_AI2TVJNIJava_displayFrame(JNIEnv *env, jobject obj, jstrin
 
   return 0;
 }
-*/
+

@@ -30,7 +30,7 @@ class AI2TVJNIJava{
   AI2TVJNIJava(){
     System.out.println("Java side <AI2TVJNIJava constructor>");    
     System.out.println("creating the client");    
-    _client = new Client();
+    _client = new Client(this);
     System.out.println("done creating the client");    
   }
 
@@ -188,14 +188,14 @@ class AI2TVJNIJava{
    * 
    * @param frame: name of the image file to display
    */
-  native void loadFrame(String frame);
+  native void loadImage(String frame);
 
   /**
    * Tell CPP side to display a certain frame 
    * 
    * @param frame: name of the image file to display
    */
-  native void displayFrame(String frame);
+  native boolean displayImage(String frame);
 
   /**
    * the static block used to load the appropriate CPP library
