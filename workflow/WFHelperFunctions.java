@@ -316,11 +316,12 @@ public class WFHelperFunctions implements ExecutableTask {
 					   clientPG.getAvgDistWF2Client());
 	event.putAttribute(SienaConstants.JUMP_TO, fd.getNum());
       } else {
-	// logger.debug("!!! client is too slow, setting client down a level !!!");
+	// logger.debug("!!! client is too slow!  setting client/cache DOWN a level !!!");
 	if (event == null)
 	  event = new Notification();
-	// addHeader(event, clientPG);
-	event.putAttribute(SienaConstants.CHANGE_CLIENT_LEVEL_DOWN, "");
+	// we want the cache and the client levels to be the same here.
+	event.putAttribute(SienaConstants.CHANGE_CLIENT_LEVEL, (clientLevel + 1));
+	event.putAttribute(SienaConstants.CHANGE_CACHE_LEVEL, (clientLevel + 1)); 
       }
 
 
@@ -332,14 +333,12 @@ public class WFHelperFunctions implements ExecutableTask {
       // logger.debug("!!! client is WAY FAST!  setting client CACHE UP a level !!!");
       if (event == null)
 	event = new Notification();
-      // addHeader(event, clientPG);
-      event.putAttribute(SienaConstants.CHANGE_CACHE_LEVEL_UP, "" );
+      event.putAttribute(SienaConstants.CHANGE_CACHE_LEVEL, (cacheLevel - 1));
     } else if (clientLevel != cacheLevel && prefetchedFrames >= PREFETCH_CHANGE_THRESHOLD) {
       // logger.debug("!!! client's cache is ready.  Setting client UP a level !!!");
       if (event == null)
 	event = new Notification();
-      // addHeader(event, clientPG);
-      event.putAttribute(SienaConstants.CHANGE_CLIENT_LEVEL_UP, "" );
+      event.putAttribute(SienaConstants.CHANGE_CLIENT_LEVEL, cacheLevel);
     }
       
 

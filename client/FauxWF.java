@@ -156,7 +156,7 @@ class FauxWF extends Thread implements Notifiable {
     Notification event = new Notification();
     event.putAttribute(SienaConstants.AI2TV_CLIENT_ADJUST, "");
     event.putAttribute(SienaConstants.CLIENT_ID, clientID);
-    event.putAttribute(SienaConstants.CHANGE_CLIENT_LEVEL_UP, dir);
+    event.putAttribute(SienaConstants.CHANGE_CLIENT_LEVEL, dir);
     publishNotification(event);
   }
 

@@ -40,10 +40,8 @@ public class SienaConstants {
 
   // these are from the WF to adjust certain clients
   public static final String AI2TV_CLIENT_ADJUST = "AI2TVClientAdjust";
-  public static final String CHANGE_CLIENT_LEVEL_UP = "changeClientUp";
-  public static final String CHANGE_CLIENT_LEVEL_DOWN = "changeClientDown";
-  public static final String CHANGE_CACHE_LEVEL_UP = "changeCacheUp";
-  public static final String CHANGE_CACHE_LEVEL_DOWN = "changeCacheDown";
+  public static final String CHANGE_CLIENT_LEVEL = "changeClientLevel";
+  public static final String CHANGE_CACHE_LEVEL = "changeCacheLevel";
   public static final String CHANGE_FRAME_RATE = "changeFrameRate";
   public static final String JUMP_TO = "jumpTo";
 

@@ -134,21 +134,13 @@ class ClientEffector implements Notifiable {
 	event.getAttribute(SienaConstants.CLIENT_ID).longValue() == _client.getID()){
       Client.out.println("found a WF commmand to do something, directed to ME!");
       Client.out.println("");
-      if (event.getAttribute(SienaConstants.CHANGE_CLIENT_LEVEL_UP) != null){
+      if (event.getAttribute(SienaConstants.CHANGE_CLIENT_LEVEL) != null){
 	// Client.out.println("ClientEffector found command to change levels: " + event.getAttribute(SienaConstants.CHANGE_LEVEL).toString());
-	_client.changeLevel(SienaConstants.CHANGE_CLIENT_LEVEL_UP);
+	_client.changeLevel(event.getAttribute(SienaConstants.CHANGE_CLIENT_LEVEL).intValue());
       }
-      if (event.getAttribute(SienaConstants.CHANGE_CLIENT_LEVEL_DOWN) != null){
+      if (event.getAttribute(SienaConstants.CHANGE_CACHE_LEVEL) != null){
 	// Client.out.println("ClientEffector found command to change levels: " + event.getAttribute(SienaConstants.CHANGE_LEVEL).toString());
-	_client.changeLevel(SienaConstants.CHANGE_CLIENT_LEVEL_DOWN);
-      }
-      if (event.getAttribute(SienaConstants.CHANGE_CACHE_LEVEL_UP) != null){
-	// Client.out.println("ClientEffector found command to change levels: " + event.getAttribute(SienaConstants.CHANGE_LEVEL).toString());
-	_client.changeLevel(SienaConstants.CHANGE_CACHE_LEVEL_UP);
-      }
-      if (event.getAttribute(SienaConstants.CHANGE_CACHE_LEVEL_DOWN) != null){
-	// Client.out.println("ClientEffector found command to change levels: " + event.getAttribute(SienaConstants.CHANGE_LEVEL).toString());
-	_client.changeLevel(SienaConstants.CHANGE_CACHE_LEVEL_DOWN);
+	_client.changeCacheLevel(event.getAttribute(SienaConstants.CHANGE_CACHE_LEVEL).intValue());
       }
       if (event.getAttribute(SienaConstants.JUMP_TO) != null){
 	Client.out.println("ClientEffector found command to jump to a certain frame: " + event.getAttribute(SienaConstants.JUMP_TO).stringValue());
