@@ -20,6 +20,8 @@ public class SienaConstants {
   public static final String LEVEL = "level";
   public static final String SIZE = "size";
   public static final String TIME_SHOWN = "timeShown";
+  public static final String TIME_OFFSET = "timeOffset";
+  public static final String TIME_DOWNLOADED = "timeDownloaded";
   
   public static final String AI2TV_WF_REG = "AI2TV_WF_REG";
   // client ID
