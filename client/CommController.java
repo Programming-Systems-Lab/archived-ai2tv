@@ -15,13 +15,9 @@
 
 package psl.ai2tv.client;
 
-import java.io.*;
 import java.util.Calendar;
-import java.net.*;
 import psl.ai2tv.SienaConstants;
 import siena.*;
-import siena.comm.InvalidSenderException;
-import siena.comm.PacketSenderException;
 
 /**
  * The Communications Controller of the AI2TV client.  Main layer
@@ -39,8 +35,7 @@ class CommController implements Notifiable{
   public static final int DEBUG = 0;
 
   private Client _client;
-  // private ThinClient _siena;
-  private HierarchicalDispatcher _siena;
+  private ThinClient _siena;
   private String _sienaServer;
   private boolean _isActive = false;
 
@@ -109,21 +104,13 @@ class CommController implements Notifiable{
    * setup the communications with the Video related actions
    */
   private void setupSienaListener(){
-    _siena = new HierarchicalDispatcher();
-
     try {
-      _siena.setMaster(_sienaServer);
-    } catch (InvalidSenderException e) {
-      System.err.println("Caught Exception " + e);
-      e.printStackTrace();
-    } catch (IOException e) {
-      System.err.println("Caught Exception " + e);
-      e.printStackTrace();
-    } catch (PacketSenderException e) {
-      System.err.println("Caught Exception " + e);
-      e.printStackTrace();
+      _siena = new ThinClient(_sienaServer);
+      _isActive = true;
+    } catch (SienaException e) {
+      System.err.println ("Cannot connect to Siena bus: "  + e);
+      e.printStackTrace(System.err);
     }
-    _isActive = true;
   }
 
   /**
@@ -161,6 +148,7 @@ class CommController implements Notifiable{
   void shutdown(){
     Client.debug.println("Shutting down CommController");
     Client.debug.println("Unsubscribing to Siena server");
+
     Notification shutdownEvent = new Notification();
     shutdownEvent.putAttribute(SienaConstants.REMOVE_USER_FROM_VSID, "FOO");
     publishNotification(shutdownEvent);
@@ -170,16 +158,21 @@ class CommController implements Notifiable{
     publishNotification(shutdownEvent);
 
     Filter filter = new Filter();
-    filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, Op.ANY, "FOO");
-    _siena.unsubscribe(filter, this);
+    try {
+      filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, Op.ANY, "FOO");
+      _siena.unsubscribe(filter, this);
 
-    filter = new Filter();
-    filter.addConstraint(SienaConstants.GET_ACTIVE_VSIDS_REPLY, Op.ANY, "FOO");
-    _siena.unsubscribe(filter, this);
+      filter = new Filter();
+      filter.addConstraint(SienaConstants.GET_ACTIVE_VSIDS_REPLY, Op.ANY, "FOO");
+      _siena.unsubscribe(filter, this);
 
-    filter = new Filter();
-    filter.addConstraint(SienaConstants.JOIN_NEW_VSID_REPLY, Op.ANY, "FOO");
-    _siena.unsubscribe(filter, this);
+      filter = new Filter();
+      filter.addConstraint(SienaConstants.JOIN_NEW_VSID_REPLY, Op.ANY, "FOO");
+      _siena.unsubscribe(filter, this);
+    } catch (siena.SienaException e) {
+      Client.err.println("error:" + e);
+    }
+
     Client.debug.println("Shutting down Siena server");
     _siena.shutdown();
     _isActive = false;
