@@ -184,7 +184,7 @@ class CommController implements Notifiable{
       if (attrib.equals(SienaConstants.PLAY)){
 	_client.commPlay(absTimeSent); 
       } else if (attrib.equals(SienaConstants.STOP)){
-	_client.commStop(absTimeSent);
+	_client.commStop();
 
       } else if (attrib.equals(SienaConstants.PAUSE)){
 	_client.commPause(absTimeSent);
