@@ -712,7 +712,7 @@ public class Client extends Thread{
     if (dayAndTime.length != 2) {
       System.err.println("Error, date parameter incorrect format.");
       System.err.println("Correct format: year-month-day;hour:minute:second");
-      return 4;
+      return LOWEST_LEVEL;
     }
     String[] dateValues = dayAndTime[0].split("-");
     String[] timeValues = dayAndTime[1].split(":");
@@ -720,7 +720,7 @@ public class Client extends Thread{
     if (dateValues.length != 3) {
       System.err.println("Error, date parameter incorrect format.");
       System.err.println("Correct format: year-month-day;hour:minute:second");
-      return 4;
+      return LOWEST_LEVEL;
     }
 
     int year = Integer.parseInt(dateValues[0]);
@@ -771,7 +771,7 @@ public class Client extends Thread{
     // if we still can't hack the downloaded bandwidth needed,
     // we'll set ourselves at the lowest level.
     if (clientLevel == -1)
-      clientLevel = 4;
+      clientLevel = LOWEST_LEVEL;
 
     return clientLevel;
   }
