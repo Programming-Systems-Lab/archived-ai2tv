@@ -53,6 +53,11 @@ public class TimeController{
     }
   }
 
+  //999
+  public long getStartTime() {
+    return _startTime;
+  }
+
   /**
    * get the current time as indicated inside the clock
    */

@@ -73,7 +73,7 @@ class CommController implements Notifiable{
 
     // we subscribe to play events in order to synch up late comers
     filter = new Filter();
-    filter.addConstraint(SienaConstants.PLAY, Op.ANY, "FOO");
+    filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, Op.EQ, SienaConstants.PLAY);
     _siena.subscribe(filter, this);
   }
 
@@ -164,9 +164,13 @@ class CommController implements Notifiable{
     System.out.println("handleNotification(): I just got this event:" + event + ": at : " 
 		       + Calendar.getInstance().getTime());
 
-    if (event.getAttribute(SienaConstants.GET_ACTIVE_VSIDS) != null){
+    String videoName=null, vsid=null, uid=null, gid=null, date=null;
+
+    if (event.getAttribute(SienaConstants.GET_ACTIVE_VSIDS) != null &&
+	event.getAttribute(SienaConstants.GID) != null){
       System.out.println("got event to get active vsids");
-      String gid = event.getAttribute(SienaConstants.GID).stringValue();
+
+      gid = event.getAttribute(SienaConstants.GID).stringValue();
       Hashtable sessions = _server.getActiveVSIDs(gid);
       Notification reply = new Notification();
       reply.putAttribute(SienaConstants.GET_ACTIVE_VSIDS_REPLY, "FOO");
@@ -176,15 +180,15 @@ class CommController implements Notifiable{
 	String activeVIDsInfo = ""; // the VID info (video name, date, etc.)
 	Set vsids = sessions.keySet();
 	Iterator itr = vsids.iterator();
-	VSID vsid;
+	VSID id;
 	// insert each video session into the reply string
 	while(itr.hasNext()){
-	  vsid = (VSID) sessions.get(itr.next());
-	  activeVIDs += vsid.getVSID();
-	  activeVIDsInfo += vsid.getName() + "," + vsid.getDate() + ",";
+	  id = (VSID) sessions.get(itr.next());
+	  activeVIDs += id.getVSID();
+	  activeVIDsInfo += id.getName() + "," + id.getDate() + ",";
 
 	  // insert the users
-	  Set users = vsid.getUIDs();
+	  Set users = id.getUIDs();
 	  Iterator userItr = users.iterator();
 	  while(userItr.hasNext()){
 	    activeVIDsInfo += userItr.next().toString();
@@ -201,42 +205,63 @@ class CommController implements Notifiable{
       }
       publishNotification(reply);      
 
-    } else if (event.getAttribute(SienaConstants.JOIN_NEW_VSID) != null){
+    } else if (event.getAttribute(SienaConstants.JOIN_NEW_VSID) != null &&
+	       event.getAttribute(SienaConstants.VIDEO_NAME) != null &&
+	       event.getAttribute(SienaConstants.UID) != null && 
+	       event.getAttribute(SienaConstants.GID) != null &&
+	       event.getAttribute(SienaConstants.VIDEO_DATE) != null){
+	       
       System.out.println("got event to join a new vsid");
-      String videoName = event.getAttribute(SienaConstants.VIDEO_NAME).stringValue();
-      String uid = event.getAttribute(SienaConstants.UID).stringValue();
-      String gid = event.getAttribute(SienaConstants.GID).stringValue();
-      String date = event.getAttribute(SienaConstants.VIDEO_DATE).stringValue();
+
+      videoName = event.getAttribute(SienaConstants.VIDEO_NAME).stringValue();
+      uid = event.getAttribute(SienaConstants.UID).stringValue();
+      gid = event.getAttribute(SienaConstants.GID).stringValue();
+      date = event.getAttribute(SienaConstants.VIDEO_DATE).stringValue();
 
       String newID = _server.joinNewVSID(videoName, uid, gid, date);
       Notification reply = new Notification();
       reply.putAttribute(SienaConstants.JOIN_NEW_VSID_REPLY, newID);
       publishNotification(reply);
 
-    } else if (event.getAttribute(SienaConstants.JOIN_ACTIVE_VSID) != null){
+    } else if (event.getAttribute(SienaConstants.JOIN_ACTIVE_VSID) != null &&
+	       event.getAttribute(SienaConstants.VSID) != null && 
+	       event.getAttribute(SienaConstants.UID) != null && 
+	       event.getAttribute(SienaConstants.GID) != null){
       System.out.println("got event to join an active vsid");
-      String vsid = event.getAttribute(SienaConstants.VSID).stringValue();
-      String uid = event.getAttribute(SienaConstants.UID).stringValue();
-      String gid = event.getAttribute(SienaConstants.GID).stringValue();
+
+      vsid = event.getAttribute(SienaConstants.VSID).stringValue();
+      uid = event.getAttribute(SienaConstants.UID).stringValue();
+      gid = event.getAttribute(SienaConstants.GID).stringValue();
 
       _server.joinActiveVSID(vsid, uid, gid);
 
-    } else if (event.getAttribute(SienaConstants.REMOVE_USER_FROM_VSID) != null){
+    } else if (event.getAttribute(SienaConstants.REMOVE_USER_FROM_VSID) != null &&
+	       event.getAttribute(SienaConstants.VSID) != null && 
+	       event.getAttribute(SienaConstants.UID) != null && 
+	       event.getAttribute(SienaConstants.GID) != null){
       System.out.println("got event to remove a user from a vsid");
-      String vsid = event.getAttribute(SienaConstants.VSID).stringValue();
-      String uid = event.getAttribute(SienaConstants.UID).stringValue();
-      String gid = event.getAttribute(SienaConstants.GID).stringValue();
+
+      vsid = event.getAttribute(SienaConstants.VSID).stringValue();
+      uid = event.getAttribute(SienaConstants.UID).stringValue();
+      gid = event.getAttribute(SienaConstants.GID).stringValue();
+      
       _server.removeUserFromVSID(vsid, uid, gid);
       
-    } else if (event.getAttribute(SienaConstants.PLAY) != null){
-      String vsid = event.getAttribute(SienaConstants.VSID).stringValue();
-      String uid = event.getAttribute(SienaConstants.UID).stringValue();
-      String gid = event.getAttribute(SienaConstants.GID).stringValue();
+    } else if (event.getAttribute(SienaConstants.AI2TV_VIDEO_ACTION)!= null &&
+	       event.getAttribute(SienaConstants.AI2TV_VIDEO_ACTION).stringValue().equals(SienaConstants.PLAY) &&
+	       event.getAttribute(SienaConstants.VSID) != null && 
+	       event.getAttribute(SienaConstants.UID) != null && 
+	       event.getAttribute(SienaConstants.GID) != null &&
+	       event.getAttribute(SienaConstants.ABS_TIME_SENT) != null){
+	       
+      vsid = event.getAttribute(SienaConstants.VSID).stringValue();
+      uid = event.getAttribute(SienaConstants.UID).stringValue();
+      gid = event.getAttribute(SienaConstants.GID).stringValue();
       long startTime = event.getAttribute(SienaConstants.ABS_TIME_SENT).longValue();
       _server.playPressed(vsid, uid, gid, startTime);
       
     } else {
-      System.err.println("Notification Error, received unknown event");
+      System.err.println("Notification Error, received unknown event: " + event);
     }
   }
 

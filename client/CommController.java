@@ -42,6 +42,12 @@ class CommController implements Notifiable{
   private boolean _isActive = false;
 
   /**
+   * used to ignore late or inverted events (we only respond to the
+   * latest events, no early sent messages)
+   */
+  private long _commandIndex;
+
+  /**
    * create a CommController
    *
    * @param c: higher level client to communicate with
@@ -51,7 +57,15 @@ class CommController implements Notifiable{
     _client = c;
     _siena = null;
     _sienaServer = server;
+    _commandIndex = 0;
     setupSienaListener();
+  }
+
+  /**
+   *
+   */
+  void incrementCommandIndex(){
+    _commandIndex++;
   }
 
   /**
@@ -308,8 +322,6 @@ class CommController implements Notifiable{
       event.putAttribute(SienaConstants.GID, _client.getGID());
       if (_client.getVSID() != null)
 	event.putAttribute(SienaConstants.VSID, _client.getVSID());
-      else 
-	Client.debug.println("CommController: found client VSID to be null!");
       _siena.publish(event);
     } catch (siena.SienaException e){
       Client.err.println("CommController publishing sienaException: " + e);

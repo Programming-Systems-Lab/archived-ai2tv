@@ -207,7 +207,7 @@ public class LoginHandler extends JFrame {
   }
 
   void addVideoFields(){
-    int menuWidth = 200;
+    int menuWidth = 250;
     int menuLength = 180;
     boolean videosAvailable = false;
 

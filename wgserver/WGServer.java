@@ -126,6 +126,8 @@ class WGServer extends Thread  {
       session.addUID(uid);
       long time = session.getStartTime();
       if (time != -1){
+	System.out.println("joinActiveVSID: video has already started: " + time);
+	System.out.println("sending message to: " + uid + "@" + gid + " for: " + vsid);
 	_comm.sendPlay(vsid, uid, gid, time);
       }
       return true;
@@ -225,16 +227,15 @@ public void print(){
     /** create and start the WG server */
     WGServer server = new WGServer(args[0]);
 
-    System.out.println("- - - joinNewVSID - - -");
+    // System.out.println("- - - joinNewVSID - - -");
     String videoName = "CS4118-10/";
     String uid = "goofy";
     String gid = "psl";
     String date = "2003-08-10;08:00:00";
     String vsid = server.joinNewVSID(videoName, uid, gid, date);
-    long startTime = System.currentTimeMillis() - 20000; // 1059408886; // 226
-    System.out.println("setting start time: " + startTime);
-    server.playPressed(vsid, uid, gid, startTime);
-    server.print();
+    //long startTime = System.currentTimeMillis() - 20000; // 1059408886; // 226
+    // System.out.println("setting start time: " + startTime);
+    // server.print();
 
     server.start();
 
