@@ -10,14 +10,15 @@ all: dvi ps pdf
 name=ai2tv
 
 ps: ${name}.ps
-dvi: ${name}.dvi
-pdf: ${name}.pdf
+dvi: ${name}.dvi ${name}.bib
+# pdf: ${name}.pdf
 
 SRC = ${name}.tex
 TEX=latex
 
 DVIPSFLAGS=-K
 
+%.bib: bibtex $*
 %.dvi: %.tex; latex $*; latex $*; bibtex $*; latex $*;
 %.ps: %.dvi; dvips $(DVIPSFLAGS) $* -o
 # %.pdf: %.tex %.dvi; pdflatex $*
