@@ -113,6 +113,8 @@ class ClientProbe {
       _frameEvent.putAttribute(SienaConstants.MOMENT, fd.getNum());
       _frameEvent.putAttribute(SienaConstants.LEVEL, fd.getLevel());
       _frameEvent.putAttribute(SienaConstants.SIZE, fd.getSize());
+      _frameEvent.putAttribute(SienaConstants.TIME_SHOWN, _client.currentTime());
+      _frameEvent.putAttribute(SienaConstants.TIME_DOWNLOADED, fd.getTimeDownloaded());
       // 000
       // _frameEvent.putAttribute(SienaConstants.PROBE_TIME, fd.currentTime());
     }
@@ -161,7 +163,7 @@ class ClientProbe {
       _frameEvent.putAttribute(natureOfMessage, (time - _probeTimes[ID]));
       _frameEvent.putAttribute(SienaConstants.PROBE_TIME, (time - _probeTimes[ID]));
 
-      if (natureOfMessage.equals(SienaConstants.TIME_SHOWN))
+      if (natureOfMessage.equals(SienaConstants.TIME_OFFSET))
 	addFrameInfo();
       sendUpdate();
 

@@ -140,7 +140,7 @@ class Viewer extends JFrame {
       
     if (_newFrame){
       if (Client.probe.getTimeProbe(0) >= 0)
-	Client.probe.endTimeProbe(0, _client.currentTime(), SienaConstants.TIME_SHOWN);
+	Client.probe.endTimeProbe(0, _client.currentTime(), SienaConstants.TIME_OFFSET);
       _newFrame = false;
       // don't know when I should do the following
       // _mediaTracker.removeImage(_image);  

@@ -64,8 +64,6 @@ class CommController implements Notifiable{
   /**
    * setup the filters describing what this subscriber want to
    * receive.
-   * 
-   * note: dp2041: is there a better way to do this?  
    */
   private void setupFilter() throws siena.SienaException {
     Filter filter = new Filter();
@@ -160,10 +158,7 @@ class CommController implements Notifiable{
    */
   private void handleNotification(Notification event){
     long now = System.currentTimeMillis();
-    // dp2041: 999
-    // Client.out.println("handleNotification(): I just got this event:" + event + ": at : " 
-    // + Calendar.getInstance().getTime());
-    System.out.println("handleNotification(): I just got this event:" + event + ": at : "
+    Client.out.println("handleNotification(): I just got this event:" + event + ": at : " 
 		       + Calendar.getInstance().getTime());
     
     // get the propagation delay
@@ -259,11 +254,9 @@ class CommController implements Notifiable{
    * @param ppd: previous propagation delay
    */
   void publishUpdate(long ppd){
-    System.out.println("WF -> client was: " + ppd);
     Notification event = new Notification();
     event.putAttribute(SienaConstants.AI2TV_WF_UPDATE_REPLY, "");
     event.putAttribute(SienaConstants.PREV_PROP_DELAY, ppd);
-    Client.out.println("CommController publishing event: " + event);
     publishNotification(event);      
   }
     
@@ -274,7 +267,6 @@ class CommController implements Notifiable{
    */
   private void publishNotification(Notification event){
     try{
-      // dp2041: 999
       Client.out.println("publishing event: " + Calendar.getInstance().getTime());
       event.putAttribute(SienaConstants.ABS_TIME_SENT, System.currentTimeMillis());
       event.putAttribute(SienaConstants.CLIENT_ID, _client.getID());
@@ -293,4 +285,3 @@ class CommController implements Notifiable{
     _isActive = flag;
   }
 }
-
