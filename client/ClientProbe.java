@@ -155,9 +155,9 @@ class ClientProbe {
 	addFrameInfo(diff);
       sendUpdate();
 
-      Client.probeOutput.println("image: " + _client.getCurrentFrame().getNum() +
-				 " shown at: " + _probeTimes[ID] +
-				 " late: " + (time - _probeTimes[ID]) + " (ms)");
+      // Client.probeOutput.println("image: " + _client.getCurrentFrame().getNum() +
+      // " shown at: " + _probeTimes[ID] +
+      // " late: " + (time - _probeTimes[ID]) + " (ms)");
     }
   }
 
