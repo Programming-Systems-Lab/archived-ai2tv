@@ -48,6 +48,7 @@ class AI2TVJNICPP
   // These functions are the CPP functions available to the Java side.  
   // I display these here for information purposes only.
   // Java_psl_ai2tv_client_AI2TVJNIJava_shutdown(JNIEnv *env, jobject obj)
+  // Java_psl_ai2tv_client_AI2TVJNIJava_loadFrame(JNIEnv *env, jobject obj)
   // Java_psl_ai2tv_client_AI2TVJNIJava_displayFrame(JNIEnv *env, jobject obj)
 
  private:

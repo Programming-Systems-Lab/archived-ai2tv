@@ -75,6 +75,20 @@ class AI2TVJNIJava{
   // the following are function stubs implemented on the C++ side, 
   // accessed through the library loaded in the static block
   /**
+   * Set the cache dir for CrystalSpace
+   * 
+   * @param dir: name of the cache dir
+   */
+  native void setCacheDir(String dir);
+
+  /**
+   * Tell CPP side to load a certain frame into memory
+   * 
+   * @param frame: name of the image file to display
+   */
+  native void loadFrame(String frame);
+
+  /**
    * Tell CPP side to display a certain frame 
    * 
    * @param frame: name of the image file to display

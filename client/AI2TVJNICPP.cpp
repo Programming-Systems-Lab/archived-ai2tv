@@ -253,6 +253,34 @@ Java_psl_ai2tv_client_AI2TVJNIJava_shutdown(JNIEnv *env, jobject obj) {
 }
 
 /**
+ * Set the cache dir for CyrstalSpace
+ */
+JNIEXPORT void JNICALL
+Java_psl_ai2tv_client_AI2TVJNIJava_setCacheDir(JNIEnv *env, jobject obj, jstring dir) {
+  jboolean* isCopy = new jboolean(false);
+  const char *str = env->GetStringUTFChars(dir,isCopy);
+
+  printf("c++ : Displayed frame %s\n", str);
+  env->ReleaseStringUTFChars(dir, str);
+
+  return;
+}
+
+/**
+ * Tell the CHIME "Video" viewer to load this frame into memory
+ */
+JNIEXPORT void JNICALL
+Java_psl_ai2tv_client_AI2TVJNIJava_loadFrame(JNIEnv *env, jobject obj, jstring frame) {
+  jboolean* isCopy = new jboolean(false);
+  const char *str = env->GetStringUTFChars(frame,isCopy);
+
+  printf("c++ : Displayed frame %s\n", str);
+  env->ReleaseStringUTFChars(frame, str);
+
+  return;
+}
+
+/**
  * Tell the CHIME "Video" viewer to display this frame
  */
 JNIEXPORT void JNICALL
