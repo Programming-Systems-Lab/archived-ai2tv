@@ -57,7 +57,7 @@ class WFSubscriber extends SimpleGaugeSubscriber {
     	}
     	else */{
     		//normalize download time
-		  long t = e.getAttribute(SienaConstants.PROBE_TIME).longValue() - myGauge.getStartTime();
+		  long t = e.getAttribute(SienaConstants.PROBE_TIME).longValue();// - myGauge.getStartTime();
 
 		  currentClient.setFrame(e.getAttribute(SienaConstants.LEFTBOUND).intValue(),
 					 e.getAttribute(SienaConstants.MOMENT).intValue(),

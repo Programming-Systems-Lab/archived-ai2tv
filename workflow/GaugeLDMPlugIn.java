@@ -116,7 +116,7 @@ public class GaugeLDMPlugIn
 			ca.setFramePG(makeFramePG(fd.getLevel(), fd.getNum(), fd.getStart(), fd.getEnd()));
 			report.getBucketPG().getGroup().add(ca);
 			// [commented out by matias - publishing resport only, for AI2TVPlugin] insertAsset(ca);
-			//bucket.update(o, (ClientDesc)null);
+			bucket.update(o, (ClientDesc)null);
 		}
 
 		setSampleTime(report, sampleTime);

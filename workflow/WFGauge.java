@@ -69,8 +69,14 @@ class WFGauge extends GroupGauge {
 
             // update the bucket is the time of the last info about a client
             // is within the time of the last sample and this moment
-            if (t <= elapsed && t > bucket.getTime())
+            if (t <= elapsed && t > bucket.getTime()) {
+                logger.debug("updating bucket for client " + id);
                 bucket.update(id, cd);
+            }
+            else {
+                logger.debug("NOT updating bucket for client " + id);
+                logger.debug("t=" + t + ", elapsed=" + elapsed + ", bucket.getTime()=" + bucket.getTime());
+            }
         }
 
         bucket.setTime(elapsed);
