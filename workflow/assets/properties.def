@@ -18,19 +18,20 @@ group.doc=set of clients in the same group and sampled; includes ClientAsset ins
 
 [ClientPG]
 doc=representation of an A2TV client as sampled
-slots=String id, String host, int level, int cacheLevel, int frameRate, double bandwidth, long sampleTime, int prefetchedFrames, int reserveFrames, double avgDistWF2Client, int penalties, boolean adapt, int newFrameRate
+slots=String id, String host, int level, int cacheLevel, int frameRate, double bandwidth, long sampleTime, int prefetchedFrames, int reserveFrames, double avgDistWF2Client, int penalties, boolean adapt, int newFrameRate, String adaptMethod
 id.doc=unique client ID
 host.doc=host name
 level.doc=client's last measured level
 frameRate.doc=client's last measured frame rate
 cacheLevel.doc=client cache's last measured level
 reserveFrames.doc=number of reserved frames if the client and cache levels are not the same
-bandwidth.doc=last bandwidth measure
+bandwidth.doc=bandwidth measured in kbytes/sec
 sampleTime.doc=moment of the sample - same as the equivalent field in BucketPG
 prefetchedFrames.doc=the number of frames downloaded ahead of time
 avgDistWF2Client.doc=the average propagation delay measured from the WF to the client
 penalties.doc=the number of various penalties that this client has incurred
 adapt.doc=indicates whether this client needs to be adjusted
+adaptMethod.doc=String indicating the types of adaptation required (limited to those set in SienaConstants)
 newFrameRate.doc=the new frame rate to go to
 
 [FramePG]
