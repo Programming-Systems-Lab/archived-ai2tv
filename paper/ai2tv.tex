@@ -65,7 +65,7 @@
 \usepackage{url}
 
 \begin{document}
-\usepackage{url}
+
 %
 % --- Author Metadata here ---
 \conferenceinfo{ACM-MM 2004}{New York, NY USA}
@@ -159,7 +159,7 @@ the quality level for each participant.
 \category{C.2.4}{Distributed Systems}{Client/server, Distributed applications}
 \category{D.2.8}{Software Engineering}{Metrics -- performance measures}
 \category{H.5.1}{Information Interfaces and Presentation}{Multimedia Information Systems}
-\category{H.5.3}{Group and Organization Interfaces}{Computer-\\supported cooperative work, Synchronous interaction}
+\category{H.5.3}{\\Group and Organization Interfaces}{Computer-\\supported cooperative work, Synchronous interaction}
 \category{K.3.1}{Computer Uses In Education}{Collaborative learning, Distance learning}
 
 \terms{ALGORITHMS, MEASUREMENT, PERFORMANCE, EXPERIMENTATION, HUMAN
@@ -417,9 +417,13 @@ frames for a given time.
 To adjust the clients in response to the changing environment, we use
 an autonomic controller to maintain the synchronization of the group
 of video clients while fine tuning the video quality for each client.
-In \cite{RAVAGES}, we proposed the idea of using an autonomic
-controller to support group video synchronization and other multimedia
-applications.
+The term \textit{autonomic} is borrowed from IBM to mean a
+self-managing system that uses a (software) feedback control
+loop.  Their terminology applies to the self-management of
+data centers whereas our application applies to the novel domain of
+multi-user video synchronization.  In \cite{RAVAGES}, we proposed the
+idea of using an autonomic controller to support group video
+synchronization and other multimedia applications.
 
 The autonomic controller remains conceptually separate from the
 controlled $\mathrm{AI}^2$TV video system and employs a software based
@@ -630,7 +634,7 @@ the workflow used \cite{LJIL}.  We chose a content-based
 publish-subscribe event system, Siena, as our communication bus
 \cite{SIENA}.
 
-\comment{how many lines of code?}
+% \comment{how many lines of code?}
 
 \section{Evaluation} \label{eval}
 
@@ -955,7 +959,7 @@ developed by Lee Osterweil's LASER lab at the University of
 Massachusetts, Amherst. Cougaar was developed by a DARPA-funded
 consortium; our main Cougaar contact was Nathan Combs of BBN.
 Information about the Columbia Video Network is available at
-\url{http://www.cvn.columbia.edu/}. PSL is funded in part by National
+http://www.cvn.columbia.edu/. PSL is funded in part by National
 Science Foundation grants CCR-0203876, EIA-0202063 and EIA-0071954,
 and by Microsoft Research.
 
