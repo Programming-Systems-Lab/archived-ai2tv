@@ -52,7 +52,7 @@ class ClientEffector implements Notifiable {
   private void setupFilter() throws siena.SienaException {
     // WF related actions
     Filter filter = new Filter();
-    filter.addConstraint(SienaConstants.AI2TV_FRAME_UPDATE, "");
+    filter.addConstraint(SienaConstants.AI2TV_CLIENT_ADJUST, "");
     _mySiena.subscribe(filter, this);
   }
 
@@ -103,7 +103,7 @@ class ClientEffector implements Notifiable {
     AttributeValue attrib = event.getAttribute(name);
     Client.out.println("ClientEffector handle notification: name: " + name);
     Client.out.println("ClientEffector handle notification: attrib: " + attrib);
-    if (name.equals(SienaConstants.AI2TV_FRAME_UPDATE) && 
+    if (name.equals(SienaConstants.AI2TV_CLIENT_ADJUST) && 
 	event.getAttribute(SienaConstants.CLIENT_ID).longValue() == _client.getID()){
       Client.out.println("found a WF commmand to do something, directed to ME!");
       Client.out.println("");
@@ -111,8 +111,8 @@ class ClientEffector implements Notifiable {
 	Client.out.println("ClientEffector found command to change levels: " + event.getAttribute(SienaConstants.CHANGE_LEVEL).toString());
 	_client.changeLevel(event.getAttribute(SienaConstants.CHANGE_LEVEL).toString());
       } else if (event.getAttribute(SienaConstants.PLAN_FOR) != null){
-	Client.out.println("ClientEffector found command to goto frame: " + event.getAttribute(SienaConstants.PLAN_FOR).intValue());
-	_client.setNextFrame(event.getAttribute(SienaConstants.PLAN_FOR).intValue());
+	Client.out.println("ClientEffector found command to plan for frame: " + event.getAttribute(SienaConstants.PLAN_FOR).intValue());
+	_client.planFor(event.getAttribute(SienaConstants.PLAN_FOR).stringValue());
       } else {
 	Client.err.println("AI2TV_FRAME_UDPATE: Notification Error, received unknown attribute: " + attrib);
       }
@@ -125,7 +125,7 @@ class ClientEffector implements Notifiable {
   void shutdown(){
     try {
       Filter filter = new Filter();
-      filter.addConstraint(SienaConstants.AI2TV_FRAME_UPDATE, "");
+      filter.addConstraint(SienaConstants.AI2TV_CLIENT_ADJUST, "");
       _mySiena.unsubscribe(filter, this);
     } catch (siena.SienaException e) {
       Client.err.println("error:" + e);

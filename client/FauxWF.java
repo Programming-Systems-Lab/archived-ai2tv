@@ -113,12 +113,12 @@ class FauxWF extends Thread implements Notifiable {
       else if (timeShown > _lateThreshold && timeShown < 15000)
 	changeLevel("DOWN", clientID);
       
-      sendEcho(clientID);
+      sendUpdateRequest(clientID);
       
     } else if (name.equals(SienaConstants.AI2TV_VIDEO_PREFETCH)){
       
 
-    } else if (name.equals(SienaConstants.AI2TV_WF_ECHO_REPLY)){
+    } else if (name.equals(SienaConstants.AI2TV_WF_UPDATE_REPLY)){
       clientID = event.getAttribute(SienaConstants.CLIENT_ID).longValue();
       /*
       long wf2probe = event.getAttribute("WF2Probe").longValue();
@@ -135,17 +135,17 @@ class FauxWF extends Thread implements Notifiable {
     }
   }
 
-  private void sendEcho(long clientID){
+  private void sendUpdateRequest(long clientID){
     Notification event = new Notification();
-    event.putAttribute(SienaConstants.AI2TV_WF_ECHO, "");
+    event.putAttribute(SienaConstants.AI2TV_WF_UPDATE_REQUEST, "");
     event.putAttribute(SienaConstants.CLIENT_ID, clientID);
-    event.putAttribute(SienaConstants.AI2TV_WF_ECHO_SENT_TIME, System.currentTimeMillis());
+    event.putAttribute(SienaConstants.AI2TV_UPDATE_TIME_SENT, System.currentTimeMillis());
     publishNotification(event);    
   }
 
   private void gotoFrame(int newFrame, long clientID){
     Notification event = new Notification();
-    event.putAttribute(SienaConstants.AI2TV_FRAME_UPDATE, "");
+    event.putAttribute(SienaConstants.AI2TV_CLIENT_ADJUST, "");
     event.putAttribute(SienaConstants.CLIENT_ID, clientID);
     event.putAttribute(SienaConstants.GOTO, newFrame);
     publishNotification(event);
@@ -154,7 +154,7 @@ class FauxWF extends Thread implements Notifiable {
   private void changeLevel(String dir, long clientID){
     System.out.println("Sending Event, changeLevel: " + dir);
     Notification event = new Notification();
-    event.putAttribute(SienaConstants.AI2TV_FRAME_UPDATE, "");
+    event.putAttribute(SienaConstants.AI2TV_CLIENT_ADJUST, "");
     event.putAttribute(SienaConstants.CLIENT_ID, clientID);
     event.putAttribute(SienaConstants.CHANGE_LEVEL, dir);
     publishNotification(event);
