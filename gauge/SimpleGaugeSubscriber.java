@@ -39,17 +39,17 @@ public abstract class SimpleGaugeSubscriber implements GaugeSubscriber {
 
     // listen for frame updates from clients
     Filter filter = new Filter();
-    filter.addConstraint(SienaConstants.AI2TV_FRAME, Op.ANY);
+    filter.addConstraint(SienaConstants.AI2TV_FRAME, Op.ANY, "ANY");
     mainSiena.subscribe(filter, this);
 
     // listen to a registration notification
     filter = new Filter();
-    filter.addConstraint(SienaConstants.AI2TV_WF_REG, Op.ANY);
+    filter.addConstraint(SienaConstants.AI2TV_WF_REG, Op.ANY, "ANY");
     mainSiena.subscribe(filter, this);
 
     // listen for client reports coming back
     filter = new Filter();
-    filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, Op.ANY);
+    filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, Op.ANY, "ANY");
     mainSiena.subscribe(filter, this);
   }
 
