@@ -28,7 +28,16 @@ public class ClientDesc {
 	
   /** last frame being displayed by the client */
   protected FrameDesc fd;
-	
+
+  /** bandwidth as sampled last */
+  protected int level;
+
+  /** bandwidth as sampled last */
+  protected int cacheLevel;
+
+  /** number of reserved frames if the client and cache levels are not the same */
+  protected int reserveFrames;
+
   /** bandwidth as sampled last */
   protected double bandwidth;
 	
@@ -51,6 +60,9 @@ public class ClientDesc {
   /** The sum of the squares of the distances, only needed for stddev*/
   protected long sumOfSquaredDistClient2WF;
 
+  /** number of frames downloaded ahead of time */
+  protected int prefetchedFrames;
+
   /** statistical N (sample size) */
   protected int nDistWF2Client;
   /** The sum of the distances*/
@@ -71,10 +83,14 @@ public class ClientDesc {
   public ClientDesc (String name) {
     clientID = name;
     startTime = 0;
+    level = 0;
+    cacheLevel = 0;
+    reserveFrames = 0;
     bandwidth = 0;
     penalties = 0;
     fd = new FrameDesc();
 
+    prefetchedFrames = 0;
     nDistClient2WF = 0;
     sumDistClient2WF = 0;
     sumOfSquaredDistClient2WF = 0;
@@ -86,13 +102,14 @@ public class ClientDesc {
     variance = 0;
   }
 		
-  public void setFrame(int l, int m, int r, int level, int s, 
+  public void setFrame(int l, int m, int r, int s, int level,
 		       long timeShown, int timeOffset, long timeDownloaded) {
+		       
     fd.setStart (l);
     fd.setNum (m);
     fd.setEnd (r);
-    fd.setLevel (level);
     fd.setSize (s);
+    fd.setLevel (level);
     fd.setTimeShown(timeShown);
     fd.setTimeOffset(timeOffset);
     fd.setTimeDownloaded(timeDownloaded);
@@ -101,30 +118,19 @@ public class ClientDesc {
   public FrameDesc getFrame() { return fd; }
   public long getStartTime() { return startTime; }
   public void setStartTime(long st) { startTime = st; } 
+  public int getLevel() { return level; }
+  public void setLevel(int l) { level = l; }
+  public int getCacheLevel() { return cacheLevel; }
+  public void setCacheLevel(int l) { cacheLevel = l; }
+  public int getReserveFrames() { return reserveFrames; }
+  public void setReserveFrames(int rf) { reserveFrames = rf; }
   public double getBandwidth() { return bandwidth; }
   public void setBandwidth(double d) { bandwidth = d; }
   public String getClientID() { return clientID; }
-
-  /**
-   * get the current penalties that this client has incurred
-   */
-  public int getPenalties(){
-    return penalties;
-  }
-
-  /**
-   * Reset the penalties of this client 
-   */
-  public void resetPenalties(){
-    penalties = 0;
-  }
-
-  /**
-   * Reset the penalties of this client 
-   */
-  public void addPenalty(){
-    penalties++;
-  }
+  public int getPrefetchedFrames() { return prefetchedFrames; }
+  public void setPrefetchedFrames(int p) { prefetchedFrames = p; }
+  public int getPenalties(){ return penalties; }
+  public void setPenalties(int p){ penalties = p; }
 
   /**
    * Add another measurement to the stats.  I "reset" the sum after

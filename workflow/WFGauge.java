@@ -10,11 +10,13 @@ class WFGauge extends GroupGauge {
   private static final Logger logger = Logger.getLogger(WFGauge.class);
   private GaugeLDMPlugIn LDMHandle = null;
   static TimeController clock;
-  private long _lastCheckTime;
+  private long lastCheckTime;
+  private long lastSampleTime;
   
   WFGauge(){
     clock = new TimeController();
-    _lastCheckTime = -1;
+    lastCheckTime = -1;
+    lastSampleTime = -1;
   }
 
 
@@ -58,7 +60,8 @@ class WFGauge extends GroupGauge {
 	    nomProgress = (30 * progress / GroupGauge.SAMPLE_INTERVAL);
 	    //logger.debug("nominalClientThread calling evaluate progress");
 	    try {
-	      evaluateStatus(progress);
+	      // evaluateStatus(progress);
+	      evaluateStatus(System.currentTimeMillis());
 	    }
 	    catch (Exception e) {
 	      logger.error("Exception in evaluateStatus: " + e);
@@ -75,26 +78,33 @@ class WFGauge extends GroupGauge {
       String id = (String) allClients.next();
       ClientDesc cd = (ClientDesc) groupClients.get(id);
       FrameDesc fd = cd.getFrame();
-      long timeShown = fd.getTimeShown();
 
       // update the bucket if the time of the last info about a client
       // is within the time of the last sample and this moment
-      logger.debug("checking client: " + id + " with frame: " + fd);
-      logger.debug(" @ time: " + _lastCheckTime + " < " + timeShown + " > " + currentTime);
-      if (_lastCheckTime < timeShown && timeShown <= currentTime){
+      // logger.debug("checking client: " + id + " with frame: " + fd);
+      
+      logger.debug(lastCheckTime + " < ? " + lastSampleTime + " ? < " + currentTime);
+      if (lastCheckTime < lastSampleTime && lastSampleTime <= currentTime){
 	logger.debug("updating bucket for client " + id);
 	bucket.update(id, cd);
       }
       else {
-	// logger.debug("NOT updating bucket for client " + id);
+	logger.debug("NOT updating bucket for client " + id);
 	// logger.debug("t=" + t + ", elapsed=" + elapsed + ", bucket.getTime()=" + bucket.getTime());
       }
     }
 
-    _lastCheckTime = currentTime;
+    lastCheckTime = currentTime;
     bucket.setTime(currentTime);
   }
 
+  public long getLastSampleTime(){
+    return lastSampleTime;
+  }
+
+  public void setLastSampleTime(long time){
+    lastSampleTime = time;
+  }
 
   protected void evaluateStatus(long elapsed) {
     fillBucket(elapsed);

@@ -22,7 +22,7 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
 
   private static final long REFRESH_DURATION = 5000; // check clients every 5 secs
 
-  private WFGauge myGauge;
+  static WFGauge myGauge;
   private long _id;
   private boolean _isActive;
 
@@ -94,7 +94,7 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
   private void handleNotification(Notification e){
     long now = System.currentTimeMillis();
     ClientDesc currentClient;
-    // logger.debug("received " + e);
+    logger.debug("received " + e);
 
     // get the propagation delay
     AttributeValue absAttrib = e.getAttribute(SienaConstants.ABS_TIME_SENT);
@@ -122,15 +122,24 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
       // this here so that I don't get an error later.
 
     } else if (e.getAttribute(SienaConstants.AI2TV_FRAME) != null){
-      currentClient.setFrame(e.getAttribute(SienaConstants.LEFTBOUND).intValue(),
-			     e.getAttribute(SienaConstants.MOMENT).intValue(),
-			     e.getAttribute(SienaConstants.RIGHTBOUND).intValue(),
-			     e.getAttribute(SienaConstants.LEVEL).intValue(),
-			     e.getAttribute(SienaConstants.SIZE).intValue(),
-			     e.getAttribute(SienaConstants.TIME_SHOWN).intValue(),
-			     e.getAttribute(SienaConstants.TIME_OFFSET).intValue(),
-			     e.getAttribute(SienaConstants.TIME_DOWNLOADED).longValue()
-			     );
+      if (e.getAttribute(SienaConstants.AI2TV_FRAME_MISSED) != null)
+	currentClient.setPenalties(1);
+      else if (e.getAttribute(SienaConstants.MOMENT) != null)
+	currentClient.setFrame(e.getAttribute(SienaConstants.LEFTBOUND).intValue(),
+			       e.getAttribute(SienaConstants.MOMENT).intValue(),
+			       e.getAttribute(SienaConstants.RIGHTBOUND).intValue(),
+			       e.getAttribute(SienaConstants.LEVEL).intValue(),
+			       e.getAttribute(SienaConstants.SIZE).intValue(),
+			       e.getAttribute(SienaConstants.TIME_SHOWN).longValue(),
+			       e.getAttribute(SienaConstants.TIME_OFFSET).intValue(),
+			       e.getAttribute(SienaConstants.TIME_DOWNLOADED).longValue());
+      myGauge.setLastSampleTime(e.getAttribute(SienaConstants.ABS_TIME_SENT).longValue());
+      currentClient.setLevel(e.getAttribute(SienaConstants.LEVEL).intValue());
+      currentClient.setCacheLevel(e.getAttribute(SienaConstants.CACHE_LEVEL).intValue());
+      currentClient.setReserveFrames(e.getAttribute(SienaConstants.CLIENT_RESERVE_FRAMES).intValue());
+			       
+      if (e.getAttribute(SienaConstants.PREFETCHED_FRAMES) != null)
+	currentClient.setPrefetchedFrames(e.getAttribute(SienaConstants.PREFETCHED_FRAMES).intValue());
 
     } else if (e.getAttribute(SienaConstants.AI2TV_WF_UPDATE_REPLY) != null){
       currentClient.addDistClient2WF(ppd);
@@ -139,15 +148,23 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
       // " +/- " + currentClient.getStddevDistClient2WF());
 
       currentClient.addDistWF2Client(e.getAttribute(SienaConstants.PREV_PROP_DELAY).longValue());
-      currentClient.setFrame(e.getAttribute(SienaConstants.LEFTBOUND).intValue(),
-			     e.getAttribute(SienaConstants.MOMENT).intValue(),
-			     e.getAttribute(SienaConstants.RIGHTBOUND).intValue(),
-			     e.getAttribute(SienaConstants.LEVEL).intValue(),
-			     e.getAttribute(SienaConstants.SIZE).intValue(),
-			     e.getAttribute(SienaConstants.TIME_SHOWN).intValue(),
-			     e.getAttribute(SienaConstants.TIME_OFFSET).intValue(),
-			     e.getAttribute(SienaConstants.TIME_DOWNLOADED).longValue()
-			     );
+      if (e.getAttribute(SienaConstants.MOMENT) != null)
+	currentClient.setFrame(e.getAttribute(SienaConstants.LEFTBOUND).intValue(),
+			       e.getAttribute(SienaConstants.MOMENT).intValue(),
+			       e.getAttribute(SienaConstants.RIGHTBOUND).intValue(),
+			       e.getAttribute(SienaConstants.LEVEL).intValue(),
+			       e.getAttribute(SienaConstants.SIZE).intValue(),
+			       e.getAttribute(SienaConstants.TIME_SHOWN).longValue(),
+			       e.getAttribute(SienaConstants.TIME_OFFSET).intValue(),
+			       e.getAttribute(SienaConstants.TIME_DOWNLOADED).longValue());
+
+      if (e.getAttribute(SienaConstants.PREFETCHED_FRAMES) != null)
+	currentClient.setPrefetchedFrames(e.getAttribute(SienaConstants.PREFETCHED_FRAMES).intValue());
+
+      myGauge.setLastSampleTime(e.getAttribute(SienaConstants.ABS_TIME_SENT).longValue());
+      currentClient.setLevel(e.getAttribute(SienaConstants.LEVEL).intValue());
+      currentClient.setCacheLevel(e.getAttribute(SienaConstants.CACHE_LEVEL).intValue());
+      currentClient.setReserveFrames(e.getAttribute(SienaConstants.CLIENT_RESERVE_FRAMES).intValue());
       // logger.debug("WF -> client avg is: " + 
       // currentClient.getAvgDistWF2Client() + 
       // " +/- " + currentClient.getStddevDistWF2Client());
@@ -185,7 +202,8 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
 	logger.debug("Received AI2TV VIDEO ACTION event: " + e);
       }
     } else if (e.getAttribute(SienaConstants.AI2TV_CLIENT_SHUTDOWN) != null){
-      // need to remove client from the WF system
+      myGauge.removeClient(id);
+      logger.debug("Client: " + id + " removed from WF");
 
     } else {
       // event that we don't know what EVENT this is

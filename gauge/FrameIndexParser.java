@@ -121,7 +121,7 @@ public class FrameIndexParser {
 		    start = Integer.parseInt(tempBuffer[1]);
 		    end = Integer.parseInt(tempBuffer[2]);
 		    size = Integer.parseInt(tempBuffer[3]);
-	    	_frameData[i][j] = new FrameDesc(num, start, end, i, size);
+		    _frameData[i][j] = new FrameDesc(num, start, end, i, size);
 	    	if (DEBUG > 0)
 	      		out.print(_frameData[i][j] + "\n");
 	  	}
@@ -224,14 +224,30 @@ public class FrameIndexParser {
   /**
    * get the specified frame time
    *
-   * @param level: hierarchy level
+   * @param level: heirarchy level
    * @param frameNumber: the actual frame number
+   * @param index: beginning [0] or end of the window [1]
    * @return the time specified by the parameters
    */
-  public FrameDesc getFrameTime(int level, int frameNumber){
-  	Hashtable ht = (Hashtable)_frameTimes.get(level);
+  public int getFrameTime(int level, int frameNumber, int index){
+    return ((Integer)((ArrayList)
+		      ((Hashtable) _frameTimes.get(level)).
+		      get(new Integer(frameNumber)))
+	    .get(index)).intValue();
+  }
+
+  /**
+   * get the specified FrameDesc
+   *
+   * @param level: hierarchy level
+   * @param frameNumber: the actual frame number
+   * @return frame descriptor specified by the level and frame number
+   */
+  public FrameDesc getFrame(int level, int frameNumber){
+    Hashtable ht = (Hashtable)_frameTimes.get(level);
   	return (FrameDesc)ht.get(new Integer(frameNumber));
   }
+
 
   public static void main(String[] args){
     if (args.length != 1){

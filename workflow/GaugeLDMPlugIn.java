@@ -106,9 +106,7 @@ public class GaugeLDMPlugIn
       // valid and the report is not produced we will wait until the
       // next iteration
       if (cd == null) {
-	// dp2041
 	// logger.warn("clientDesc is null, not publishing");
-	logger.debug("clientDesc is null, not publishing");
 	return;
       }
 
@@ -117,7 +115,12 @@ public class GaugeLDMPlugIn
       ca = (ClientAsset)factory.createInstance("ClientProto");
       ca.setItemIdentificationPG(makeIdentificationPG("AI2TV_Client "+ cd.getClientID()
 						      + "@" + sampleTime));
-      ca.setClientPG(makeClientPG(cd.getClientID(), "127.0.0.1", cd.getBandwidth(), sampleTime, cd.getAvgDistWF2Client()));
+      ca.setClientPG(makeClientPG(cd.getClientID(), "127.0.0.1", cd.getLevel(), cd.getCacheLevel(), 
+				  cd.getBandwidth(), sampleTime, cd.getPrefetchedFrames(), 
+				  cd.getReserveFrames(), cd.getAvgDistWF2Client(), cd.getPenalties()
+				  ));
+      if (cd.getPenalties() > 0)
+	cd.setPenalties(0);
       ca.setFramePG(makeFramePG(fd.getLevel(), fd.getNum(), fd.getStart(), fd.getEnd(), 
 				fd.getTimeShown(), fd.getTimeOffset(), fd.getTimeDownloaded()
 				));
@@ -133,20 +136,6 @@ public class GaugeLDMPlugIn
     logger.debug("inserting report, time=" + sampleTime + ",group=" + buf.toString());
     insertAsset(report);
     bucket.clearValues();
-
-
-    // dp2041, testing to see if all the values are cleared
-    allClients = bucket.getGroupState().keySet().iterator();
-    logger.debug("----------");
-    logger.debug("after clearing values from bucket");
-    while(allClients.hasNext()) {
-      Object o = allClients.next();
-      ClientDesc cd = (ClientDesc) bucket.retrieve(o);
-      if (cd == null) {
-	logger.debug("good, this client is null");
-      }
-    }
-    logger.debug("----------");
   }
 	
   // methods to prepare and set the data that goes into the BB
@@ -208,7 +197,7 @@ public class GaugeLDMPlugIn
     // set the Prototypes for ClientAssets
     clientProto = (ClientAsset)factory.createPrototype(ClientAsset.class, "ClientProto");
     clientProto.setItemIdentificationPG(makeIdentificationPG("AI2TV Client Descriptor Proto"));
-    clientProto.setClientPG(makeClientPG("dummyID", "127.0.0.1", 0.0, 0, 0));
+    clientProto.setClientPG(makeClientPG("dummyID", "127.0.0.1", 0, 0, 0.0, 0, 0, 0, 0, 0));
     clientProto.setFramePG(makeFramePG(-1, -1, -1, -1, -1, -1, -1));
     prototypeRegistry.cachePrototype("ClientProto", clientProto);
   }
@@ -227,13 +216,20 @@ public class GaugeLDMPlugIn
     return bPG;
   }
 	
-  private ClientPG makeClientPG (String id, String hostname, double bw, long t, double avgDist) {
+  private ClientPG makeClientPG (String id, String hostname, int level, int cacheLevel,
+				 double bw, long t, int prefetchedFrames, 
+				 int reserveFrames, double avgDist, int penalties) {
     NewClientPG cPG = (NewClientPG)factory.createPropertyGroup("ClientPG");
     cPG.setId(id);
     cPG.setHost(hostname);
+    cPG.setLevel(level);
+    cPG.setCacheLevel(cacheLevel);
+    cPG.setReserveFrames(reserveFrames);
     cPG.setBandwidth(bw);
     cPG.setSampleTime(t);
+    cPG.setPrefetchedFrames(prefetchedFrames);
     cPG.setAvgDistWF2Client(avgDist);
+    cPG.setPenalties(penalties);
 		
     return cPG;
   }

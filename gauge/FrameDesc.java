@@ -25,8 +25,12 @@ public class FrameDesc {
 	 */
 	private int end;
 	
+	/** size in bytes of the frame */
+	private int size;
+
 	/** has it been downloaded in the cache already? */
 	private boolean downloaded = false;
+	/** video clock time when the frame was downloaded */
 	private long timeDownloaded;
 
 	/** 
@@ -38,12 +42,9 @@ public class FrameDesc {
   
         /** video clock time when the frame was shown  */
 	private long timeShown;
-	
+
 	/** Vector containing the FrameDesc of all the equivalent frames to this frame */
 	private Vector equivalents;
-	
-	/** size in bytes of the frame */
-	private int size;
 
 	public FrameDesc() {
 		level = -1;
@@ -70,13 +71,12 @@ public class FrameDesc {
 		downloaded = flag; 
 
 		if (flag == true)
-		  timeDownloaded = System.currentTimeMillis(); // this clock time should be absolute through NTP
+		  timeDownloaded = System.currentTimeMillis(); // this clock time should be synchronized through NTP
 		// Warning, on the Client side, I manually set the
 		// downloaded time to the video clock time
 	}
 	
 	public boolean isDownloaded() { return downloaded; }
-  // 999
 	public long getTimeDownloaded() { return timeDownloaded; }
 	public void setTimeDownloaded(long t) { timeDownloaded = t; }
 	public int getNum() { return num; }

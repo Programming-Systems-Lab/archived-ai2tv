@@ -46,8 +46,8 @@ public class EquivClasses {
   }
   
   /**
-  	Compute equivalent frames for all frames in the @see fip
-  	Equivalent frames are stored as a vector within <code>FrameDesc.equivalents</code>
+   * Compute equivalent frames for all frames in the @see FIP (FrameIndexParser)
+   * Equivalent frames are stored as a vector within <code>FrameDesc.equivalents</code>
   */
   public void computeAllEquivalents(double equivThreshold) {
 	System.out.println("PRE-Computing all equivalent frames now");
@@ -164,13 +164,13 @@ public class EquivClasses {
     double[] results = new double[candidates.length];
     int index = 0;
     int firstBeg, firstEnd, secondBeg, secondEnd;
-    firstBeg = _fip.getFrameTime(base.getLevel(), base.getNum()).getStart();
-    firstEnd = _fip.getFrameTime(base.getLevel(), base.getNum()).getEnd();
+    firstBeg = _fip.getFrame(base.getLevel(), base.getNum()).getStart();
+    firstEnd = _fip.getFrame(base.getLevel(), base.getNum()).getEnd();
     
     // the first iteration is redundant, but i left it for clarity
     for (int i=0; i<candidates.length; i++){
-      secondBeg = _fip.getFrameTime(candidates[i].getLevel(), candidates[i].getNum()).getStart();
-      secondEnd = _fip.getFrameTime(candidates[i].getLevel(), candidates[i].getNum()).getEnd();
+      secondBeg = _fip.getFrame(candidates[i].getLevel(), candidates[i].getNum()).getStart();
+      secondEnd = _fip.getFrame(candidates[i].getLevel(), candidates[i].getNum()).getEnd();
 
       results[index++] = _computeOverlap(firstBeg, firstEnd, secondBeg, secondEnd);
     }

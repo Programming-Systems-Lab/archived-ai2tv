@@ -239,7 +239,3 @@ public class AI2TVPlugin extends ComponentPlugin {
 
     }
 }
-
-
-
-

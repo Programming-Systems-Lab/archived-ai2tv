@@ -76,6 +76,7 @@ public class GroupGauge {
  	}
  	
  	public Hashtable getGroupClients() { return groupClients; }
+ 	public void removeClient(String id) {groupClients.remove(id);}
 	public TimeBucket getBucket() { return bucket; }
 	public boolean isRunning() {return running; }
 	public void startNominal() { nominal.start(); }
@@ -83,6 +84,7 @@ public class GroupGauge {
 	public long getStartTime() { return startTime; }
 	public void setFrameFileName (String s) { frameFileName = s; }
 	public String getFrameFileName() { return frameFileName; }
+	public FrameIndexParser getFrameIndexParser() { return fip; }
 	
 	public void setup() {
 		// take in all frame info if available
