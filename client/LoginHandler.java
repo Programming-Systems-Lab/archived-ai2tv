@@ -53,7 +53,7 @@ public class LoginHandler extends JFrame {
   private JTextField _uidField;
   private JTextField _gidField;
   private JPasswordField _passwdField;
-  private JTextField _videoNameField;
+  private JTextField _baseURLField;
   private JTextField _dateField;
   private JTextField _timeField;
   private JList _availableVideos;
@@ -68,7 +68,6 @@ public class LoginHandler extends JFrame {
     _uidField = null;
     _gidField = null;
     _passwdField = null;
-    _videoNameField = null;
     _dateField = null;
     _timeField = null;
     _availableVideos = null;
@@ -182,10 +181,9 @@ public class LoginHandler extends JFrame {
 	    _passwd = new String(_passwdField.getPassword());
 	    
 	    _client.setLoginInfo(_uid, _gid, _passwd);
-	    System.out.println("login button pressed");
 	    changeView();
 	  } else {
-	    System.err.println("You must fill in all the fields");
+	    Client.err.println("You must fill in all the fields");
 	  }
 	}
       });
@@ -197,60 +195,84 @@ public class LoginHandler extends JFrame {
 
   void addVideoFields(){
 
-    // ------ Select videos ------ //
-    JLabel videoLabel = new JLabel("Available videos");
-    menuPanel.add(videoLabel);
+    // ------ show/change base URL ------ //
+    JLabel baseURLLabel = new JLabel("Base URL");
+    menuPanel.add(baseURLLabel);
+    
+    _baseURLField = new JTextField(8);
+    _baseURLField.setText(_client.getBaseURL());
+    menuPanel.add(_baseURLField);
 
-    // java.util.Vector l = new java.util.Vector();
-    // l.add("CS4119-10");
-    // l.add("CS4119-11");
-    // l.add("CS4119-12");
-    // l.add("CS4119-13");
-    // l.add("CS4119-14");
-    // l.add("CS4119-15");
-    String[] listOfVideos = _client.getAvailableVideos();
-    final JList _availableVideos = new JList(listOfVideos);
-    menuPanel.add(_availableVideos);
-    setSize(200, (150 + (listOfVideos.length * 20)));
-
-    // ------ Date ------ //
-    JLabel dateLabel = new JLabel("Date to view video");
-    menuPanel.add(dateLabel);
-
-    _dateField = new JTextField(8);
-    _dateField.setText("2003-07-24");
-    menuPanel.add(_dateField);
-
-    // ------ Time ------ //
-    JLabel timeLabel = new JLabel("Time to view video");
-    menuPanel.add(timeLabel);
-
-    _timeField = new JTextField(8);
-    _timeField.setText("14:34");
-    menuPanel.add(_timeField);
-
-    // ------ Get Video ------ //
-    JButton startButton = new JButton("Retrieve video");
-    startButton.addActionListener(new ActionListener() {
+    JButton baseURLButton = new JButton("change base URL");
+    baseURLButton.addActionListener(new ActionListener() {
 	public void actionPerformed(ActionEvent evt) {
-	  _videoName = (String) _availableVideos.getSelectedValue();
-	  if (_videoName != null && 
-	      _dateField.getText().trim().length() > 0 &&
-	      _timeField.getText().trim().length() > 0){
-
-	    _date = _dateField.getText();
-	    _time = _timeField.getText();
-	    
-	    System.out.println("selected video: " + _videoName);
-	    _client.loadVideo(_videoName, (_date+";"+_time));
-	    _client.initialize();
-	    shutdown();
-	  } else {
-	    System.err.println("You must select a video and set the date and time");
+	  if (_baseURLField.getText().trim().length() > 0) {
+	    _client.setBaseURL(_baseURLField.getText());
+	    changeView();
 	  }
 	}
       });
-    menuPanel.add(startButton);
+    menuPanel.add(baseURLButton);
+
+    // ------ Select videos ------ //
+    String[] listOfVideos = _client.getAvailableVideos();
+    JLabel videoLabel;
+    if (listOfVideos.length == 0){
+      Client.err.println("no videos available");
+      videoLabel = new JLabel("Available videos: NONE");
+    } else
+      videoLabel = new JLabel("Available videos");
+
+    menuPanel.add(videoLabel);
+
+    final JList _availableVideos = new JList(listOfVideos);
+    menuPanel.add(_availableVideos);
+    if (listOfVideos.length == 0){ 
+      setSize(200, 120);
+
+    // if there are available videos to get
+    } else {
+      setSize(200, (200 + (listOfVideos.length * 20)));
+
+      // ------ Date ------ //
+      JLabel dateLabel = new JLabel("Date to view video");
+      menuPanel.add(dateLabel);
+      
+      _dateField = new JTextField(8);
+      _dateField.setText("2003-07-24");
+      menuPanel.add(_dateField);
+      
+      // ------ Time ------ //
+      JLabel timeLabel = new JLabel("Time to view video");
+      menuPanel.add(timeLabel);
+      
+      _timeField = new JTextField(8);
+      _timeField.setText("14:30:00");
+      menuPanel.add(_timeField);
+      
+      // ------ Get Video ------ //
+      JButton startButton = new JButton("Retrieve video");
+      startButton.addActionListener(new ActionListener() {
+	  public void actionPerformed(ActionEvent evt) {
+	    _videoName = (String) _availableVideos.getSelectedValue();
+	    if (_videoName != null && 
+		_dateField.getText().trim().length() > 0 &&
+		_timeField.getText().trim().length() > 0){
+	      
+	      _date = _dateField.getText();
+	      _time = _timeField.getText();
+	      
+	      Client.out.println("selected video: " + _videoName);
+	      _client.loadVideo(_videoName, (_date+";"+_time));
+	      _client.initialize();
+	      shutdown();
+	    } else {
+	      Client.err.println("You must select a video and set the date and time");
+	    }
+	  }
+	});
+      menuPanel.add(startButton);
+    }
   }
 
   protected void processWindowEvent(WindowEvent e) {
