@@ -150,8 +150,8 @@ the learning process.  We employ an autonomic (feedback loop)
 controller that monitors clients' video status and adjusts the quality
 of the video according to the resources of each client.  We show in
 experimental trials that our system can successfully synchronize video
-for distributed clients while at the same time optimizing the video
-quality, given actual (fluctuating) bandwidth, by adaptively adjusting
+for distributed clients while, at the same time, optimizing the video
+quality given actual (fluctuating) bandwidth by adaptively adjusting
 the quality level for each participant.
 \end{abstract}
 
@@ -162,8 +162,7 @@ the quality level for each participant.
 \category{H.5.3}{\\Group and Organization Interfaces}{Computer-\\supported cooperative work, Synchronous interaction}
 \category{K.3.1}{Computer Uses In Education}{Collaborative learning, Distance learning}
 
-\terms{ALGORITHMS, MEASUREMENT, PERFORMANCE, EXPERIMENTATION, HUMAN
-FACTORS}
+\terms{ALGORITHMS, MEASUREMENT, PERFORMANCE, EXPERIMENTATION}
 
 \keywords{Synchronized Collaborative Video, Autonomic Controller}
 
@@ -253,7 +252,7 @@ well for typical lecture videos, where it is important, for instance,
 to see what the instructor has written on the blackboard after he/she
 stands aside, but probably not so important to see the instructor
 actually doing the writing, when his/her hand and body may partially
-occlude the blackboard.
+cover the blackboard.
 
 The remaining technical challenge is {\em synchronizing} the
 downloading and display of the image sequences among each of the
@@ -277,24 +276,24 @@ group.  Thus any user can select a video action, not just a
 
 Finally, the main innovation of this research concerns optimizing
 video quality in this context: A decentralized feedback control loop
-dynamically adjusts each video client's choice of both next image to
-display and also next image to retrieve from the semantic compression
-levels available.  The controller relies on sensors embedded in each
-client to periodically check what image is currently displaying,
-whether this image is ``correct'' for the current NTP time compared to
-what other clients are viewing, which images have already been
-buffered (cached) at that client, and what is the actual bandwidth
-recently perceived at that client.  Actuators are also inserted into
-the video clients, to modify local configuration parameters on
-controller command. The controller utilizes detailed information about
-the image sequences available at the video server, including image
-start and stop times (both the individual images and their start and
-stop times tend to be different at different compression levels), but
-unlike local client data, video server data is unlikely to change
-while the video is showing.  A single controller is used for all
-clients in the same user group, so it can detect ``skew'' across
-multiple clients, and may reside on the video server or on another
-host on the Internet.
+dynamically adjusts each video client's choice of both the next image
+to display and also the next image to retrieve from the semantic
+compression levels available.  The controller relies on sensors
+embedded in each client to periodically check what image is currently
+displaying, whether this image is ``correct'' for the current NTP time
+compared to what other clients are viewing, which images have already
+been buffered (cached) at that client, and what is the actual
+bandwidth recently perceived at that client.  Actuators are also
+inserted into the video clients, to modify local configuration
+parameters on controller command. The controller utilizes detailed
+information about the image sequences available at the video server,
+including image start and stop times (both the individual images and
+their start and stop times tend to be different at different
+compression levels), but unlike local client data, video server data
+is unlikely to change while the video is showing.  A single controller
+is used for all clients in the same user group, so it can detect
+``skew'' across multiple clients, and may reside on the video server
+or on another host on the Internet.
 
 In the next section, we further motivate the collaborative video
 viewing problem, provide background on the semantically compressed
@@ -302,7 +301,7 @@ video repository, and explain the technical difficulties of optimizing
 quality while synchronizing such semantically compressed videos. The
 following section presents our architecture and dynamic adaptation
 model, and its implementation in $\mathrm{AI}^2$TV (Adaptive
-Interactive Internet Team Video).  In the Evaluation section, we
+Interactive Internet Team Video).  In the evaluation section, we
 describe the criteria used to evaluate the effectiveness of our
 approach, and show empirical results obtained when applied to real
 lecture videos distributed for a recent Columbia Video Network
@@ -381,8 +380,8 @@ Technically, collaborative video sharing poses a twofold problem: on
 the one hand, it is mandatory to keep all users synchronized with
 respect to the content they are supposed to see at any moment during
 play time; on the other hand, it is important to provide each
-individual user with a frame rate that is optimized with respect to
-the user's available resources, which may vary during the course of
+individual user with a level of quality that is optimized with respect
+to the user's available resources, which may vary during the course of
 the video.
 
 One solution to the problem of balancing the group synchronization
@@ -390,9 +389,9 @@ requirement with the optimization of individual viewing experiences is
 to use videos with cumulative layering \cite{MCCANNE}, also known as
 scalable coding \cite{LI}.  In this approach, the client video player
 selects a quality level appropriate for that client's resources from a
-hierarchy of several different encodings or frame rates for that
-video. Thus a client could receive an appropriate quality of video
-content while staying in sync with the other members of the group.
+hierarchy of several different encodings for that video. Thus a client
+could receive an appropriate quality of video content while staying in
+sync with the other members of the group.
 
 % so why isn't the above approach good enough, do we do better?
 
@@ -480,9 +479,9 @@ assigned to each client.
 
 % Design of the system in general
 
-$\mathrm{AI}^2$TV involves several major components: a video server, video
-clients, an autonomic controller, and a common communications
-infrastructure, as shown in figure \ref{ai2tv_arch}
+$\mathrm{AI}^2$TV involves several major components: a video server,
+video clients, an autonomic controller, and a common communications
+infrastructure, as shown in figure \ref{ai2tv_arch}.
 
 \begin{figure}
   \centering
@@ -493,7 +492,6 @@ infrastructure, as shown in figure \ref{ai2tv_arch}
 
 %(FIGURE: ai2tv synchronization arch)
 % video server
-
 The video server provides the educational video content to the clients
 for viewing.  Each lecture video is stored in the form of a hierarchy
 of versions, produced by running the semantic compression tool
@@ -507,21 +505,32 @@ download access to the collection of index files and frames over HTTP.
 The task of each video client is to acquire video frames, display them
 at the correct times, and provide a set of basic video functions.
 Taking a functional design perspective, the client is composed of four
-major modules: a video display, a video buffer that feeds the display,
-a manager for fetching frames into the buffer, and a time controller.
+major modules: a time controller, video display, video buffer that
+feeds the display, and a manager for fetching frames into the buffer.
 
-The video display renders the JPEG frames into a window and provides a
-user interface for play, pause, goto and stop.  When any participant
-initiates such an action, all other group members receive the same
-command, thus all the video actions are synchronized.  Video actions
-are timestamped so that clients can respond to those commands in
-reference to the common time base.  The video display knows which
-frame to display by using the current (or goto) video time and display
-quality level to index into the frame index for the representative
-frame.  Before trying to render the frame, it asks the video buffer
-manager if the needed frame is available.  The video display also
-includes a control hook that enables external entities, like the
-autonomic controller, to adjust the current display quality level.
+The time controller's task is to ensure that a common video clock is
+maintained across clients.  It relies on NTP to synchronize the
+system's software clocks, therefore ensuring a common time base from
+which each client can reference the video indices.  Using this
+foundation, the task of each client is simplified to displaying the
+client's needed frame at the correct time.  Since all the clients
+refer to the same time base, then all the clients are showing
+semantically equivalent frames from the same or different quality
+levels.
+
+The video display renders the JPEG frames at the correct time into a
+window and provides a user interface for play, pause, goto and stop.
+When any participant initiates such an action, all other group members
+receive the same command, thus all the video actions are synchronized.
+Video actions are timestamped so that clients can respond to those
+commands in reference to the common time base.  The video display
+knows which frame to display by using the current (or goto) video time
+and display quality level to index into the frame index for the
+representative frame.  Before trying to render the frame, it asks the
+video buffer manager if the needed frame is available.  The video
+display also includes a control hook that enables external entities,
+like the autonomic controller, to adjust the current display quality
+level.
 
 The video manager constitutes a downloading daemon that continuously
 downloads frames at a certain level into the video buffer.  It keeps a
@@ -530,19 +539,10 @@ hash of the available frames and a count of the current reserve frames
 includes a control hook that enables external entities to adjust the
 current downloading quality level.
 
-The time controller's task is to ensure that a common video clock is
-maintained across clients.  It relies on NTP to synchronize the
-system's software clocks, therefore ensuring a common time base from
-which each client can reference the video indices.  The task of each
-then is to play the frames at their correct times -- and since all the
-clients refer to the same time base, then all the clients are showing
-semantically equivalent frames from the same or different quality
-levels.
-
 % autonomic controller
 
-The purpose of the autonomic controller is to ensure that -- given the
-synchronization constraint -- each client plays at its highest
+The purpose of the autonomic controller is to ensure that, given the
+synchronization constraint, each client plays at its highest
 attainable quality level.  The controller is itself a distributed
 system, whose design derives from a conceptual reference architecture
 for autonomic computing platforms proposed by Kaiser {\it et al.}
@@ -580,8 +580,8 @@ controller's coordination engine.  A set of helper functions tailored
 specifically for this application operate on this data structure and
 produce triggers for the coordinator.  When a trigger is raised, the
 coordination engine enacts an adaptation scheme, basically a workflow
-plan, which is executed on the end hosts by hooks provided to the
-actuators by the clients.
+plan, which is executed on the end hosts by taking advantage of the
+hooks provided to the actuators by the clients.
 
 % communications 
 
@@ -606,7 +606,7 @@ state with respect to the group (\texttt{EvaluateClient}) and the
 issuing of adaptation directives (\texttt{AdaptClient}) is carried out
 as a set of parallel steps.  Also note that the multiplicity of those
 parallel steps is dynamically determined via the number of entries in
-the \texttt{client} variable, which maps to a collection of
+the \texttt{clients} variable, which maps to a collection of
 $\mathrm{AI}^2$TV clients.
 
 %
@@ -630,12 +630,12 @@ In the situation where a client has relatively low bandwidth, below
 its baseline bandwidth level, the client may not be able download the
 next frame at the current quality level by the time it needs to begin
 displaying that frame.  Then both the client and buffer quality levels
-are adjusted downwards one level. If the client is already at the
+are adjusted downwards one level.  If the client is already at the
 lowest level (among those available from the video server), the
-controller will calculate the next possible frame that (most likely)
-can be successfully retrieved before its own start time - in order to
-remain synchronized with the rest of the group - and will adjust the
-client to jump ahead to that frame.
+controller will calculate the next possible frame that most likely can
+be successfully retrieved before its own start time while remaining
+synchronized with the rest of the group.  The client will then be
+directed to jump ahead to that frame.
 
 To take advantage of relatively high bandwidth situations, the buffer
 manager will start to accumulate a reserve buffer.  Once the buffer
@@ -650,15 +650,14 @@ manager is dropped back down one quality level.
 \subsection{Implementation} \label{implementation}
 
 Our system is implemented in Java. The video client uses
-\texttt{javax.swing} to render JPEG images.  The autonomic controller,
+\texttt{javax.swing} to render JPEG images.  The controller,
 Workflakes, is built on top of the open-source Cougaar multi-agent
-system \cite{COUGAAR}, which we adapted to operate as a decentralized
-workflow engine (explained further in \cite{ICSE}).  We used the
-Little-JIL graphical workflow specification language \cite{LJIL} for
-defining adaptation plans.  We chose a content-based publish-subscribe
-event system, Siena \cite{SIENA}, as our communication bus.
-
-% \comment{how many lines of code?}
+system \cite{COUGAAR}, which it extends to allow the orchestration of
+distributed software agents for autonomic purposes (explained further
+in \cite{ICSE}).  We used the Little-JIL graphical workflow
+specification language \cite{LJIL} for defining adaptation plans.  We
+chose a freely available, content-based, publish-subscribe event
+system, Siena \cite{SIENA}, as our communication bus.
 
 \section{Evaluation} \label{eval}
 
@@ -809,14 +808,14 @@ controller-assisted client is adversely exposed to a higher risk of
 missing frames, we also count the number of missed frames during a
 video session.  The scoring is a simple count of the missed frames.
 Note this scoring is kept separate from the measure of the relative
-quality to discriminate between levels of concern, although they both
-indicate QoS characteristics.
+quality (frame rate) to discriminate between levels of concern,
+although they both indicate QoS characteristics.
 
 There was only one instance in which a controller-assisted client
 missed two consecutive frames.  Upon closer inspection, the time
 region during this event showed that the semantically compressed video
 demanded a higher frame rate at the same time that the network
-bandwidth assigned to that client was relatively low.  The client was
+bandwidth available to that client was relatively low.  The client was
 able to consistently maintain a high video quality level after this
 epoch.
 
@@ -952,24 +951,24 @@ can run alongside the CVE in a separate window.
 
 We present an architecture and prototype system that allows
 geographically dispersed student groups to collaboratively view
-lecture videos in synchrony.  Our system employs an ``autonomic''
-(feedback loop) controller to autonomically and dynamically adapt the
-video quality according to each client's network bandwidth and other
-local resources.  We use a semantic compression algorithm, previously
-developed by other researchers specifically for lecture videos, to
-facilitate the synchronization of video content to student clients
-with possibly very limited resources.  We rely on that algorithm to
-guarantee that the semantic composition of the simultaneously viewed
-video frames is equivalent for all clients.  Our system then
-distributes appropriate quality levels (different compression levels)
-of the video to clients, automatically adjusted according to their
-current and fluctuating bandwidth resources.  We have demonstrated the
-advantages of this approach through experimental trials using
-bandwidth throttling.  Our approach is admittedly fixated on users
-with dialup level bandwidths, who still constitute a significant
-portion of the Internet user community \cite{dialup}, and does not
-directly address either synchronization or quality of service for
-broadband users.
+lecture videos in synchrony. $\mathrm{AI}^2$TV employs an
+``autonomic'' (feedback loop) controller to autonomically and
+dynamically adapt the video quality according to each client's network
+bandwidth and other local resources.  A semantic compression
+algorithm, previously developed by other researchers specifically for
+lecture videos, facilitates the synchronization of video content to
+student clients with possibly very limited resources.  We rely on that
+algorithm to guarantee that the semantic composition of the
+simultaneously viewed video frames is equivalent for all clients.  Our
+system then distributes appropriate quality levels (different
+compression levels) of the video to clients, automatically adjusted
+according to their current and fluctuating bandwidth resources.  We
+have demonstrated the advantages of this approach through experimental
+trials using bandwidth throttling.  Our approach is admittedly fixated
+on users with dialup level bandwidths, who still constitute a
+significant portion of the Internet user community \cite{dialup}, and
+does not directly address either synchronization or quality of service
+for broadband users.
 
 %ACKNOWLEDGMENTS are optional
 \section{Acknowledgments}
