@@ -69,7 +69,7 @@ public class WFHelperFunctions implements ExecutableTask {
   private FrameIndexParser fip;
   private FrameDesc[][] allFrames;
   private int numLevels;
-  /** if client has prefetched more than 2 frames, he's doing good, so bump him up */
+
   public final int HIGHEST_LEVEL = 0;
   public final int LOWEST_LEVEL = 4; 
   public final int PREFETCH_THRESHOLD = 4;
@@ -115,9 +115,9 @@ public class WFHelperFunctions implements ExecutableTask {
   public void execute(String method, Hashtable inParams, Hashtable outParams)
     throws Exception {
     if (method.equals("FindBase"))
-      findBase(inParams, outParams);
+      ; // findBase(inParams, outParams);
     else if (method.equals("EvaluateClient"))
-      evaluateClientWrtBase(inParams, outParams);
+      ; // evaluateClientWrtBase(inParams, outParams);
     else if (method.equals("AdaptClient"))
       adaptClient(inParams, outParams);
     else
@@ -211,7 +211,15 @@ public class WFHelperFunctions implements ExecutableTask {
    * @param inParams: hash of input paramters
    * @param outParams: hash of output paramters
    */
-  private void adaptClient(Hashtable inParams, Hashtable outParams) {
+  double timeOffset = -1;
+  int penalties = -1;
+  int prefetchedFrames = -1;
+  int clientLevel = -1;
+  int cacheLevel = -1;
+  int reserveFrames = -1;
+  FrameDesc fd = null;
+
+  private void adaptClient(Hashtable inParams, Hashtable outParams) {  
     clientAsset = (ClientAsset) inParams.get("clients");
     clientPG = clientAsset.getClientPG();
     clientFramePG = clientAsset.getFramePG();
@@ -227,17 +235,17 @@ public class WFHelperFunctions implements ExecutableTask {
     // double timeDownloaded = (double)clientFramePG.getTimeDownloaded()/1000;
 
     event = null;
-    double timeOffset = (double)clientFramePG.getTimeOffset()/1000;
-    int penalties = clientPG.getPenalties();
-    int prefetchedFrames = clientPG.getPrefetchedFrames();
-    int clientLevel = clientFramePG.getLevel();
-    int cacheLevel = clientPG.getCacheLevel();
-    int reserveFrames = clientPG.getReserveFrames();
+    timeOffset = (double)clientFramePG.getTimeOffset()/1000;
+    penalties = clientPG.getPenalties();
+    prefetchedFrames = clientPG.getPrefetchedFrames();
+    clientLevel = clientFramePG.getLevel();
+    cacheLevel = clientPG.getCacheLevel();
+    reserveFrames = clientPG.getReserveFrames();
 
-    logger.debug("- - - - - - - - - - - - - - - - - - - - ");
-    logger.debug("- - - - - WF Helper Functions - - - - - ");
-    logger.debug("");
-    logger.debug("");
+    // logger.debug("- - - - - - - - - - - - - - - - - - - - ");
+    // logger.debug("- - - - - WF Helper Functions - - - - - ");
+    // logger.debug("");
+    // logger.debug("");
     // logger.debug("client's avg WF->client: " + clientPG.getAvgDistWF2Client());
     // logger.debug("frame's info: " + timeShown + ", " + timeOffset + ", " + timeDownloaded);
     // logger.debug("- - -");
@@ -245,54 +253,60 @@ public class WFHelperFunctions implements ExecutableTask {
     // logger.debug("frame start=" + start + ",end=" + end + ",timeShown=" + timeShown
     // + ", clientid=" + clientPG.getId());
 
-    logger.debug("clientLevel: " + clientLevel);
-    logger.debug("cacheLevel: " + cacheLevel);
-    logger.debug("penalties: " + penalties);
-    logger.debug("prefetched: " + prefetchedFrames);
-    logger.debug("reserveFrames: " + reserveFrames);
+    // logger.debug("clientLevel: " + clientLevel);
+    // logger.debug("cacheLevel: " + cacheLevel);
+    // logger.debug("penalties: " + penalties);
+    // logger.debug("prefetched: " + prefetchedFrames);
+    // logger.debug("reserveFrames: " + reserveFrames);
 
     if (penalties > 0 || timeOffset > OFFSET_THRESHOLD || reserveFrames == RESERVE_THRESHOLD){
       if (clientLevel > (LOWEST_LEVEL - 1)){
-	logger.debug("!!! client is too slow, must skip frames !!!");
+	// logger.debug("!!! client is too slow, must skip frames !!!");
 	event = new Notification();
 	event.putAttribute(SienaConstants.AI2TV_CLIENT_ADJUST, "");
 	event.putAttribute(SienaConstants.CLIENT_ID, clientPG.getId());
-	FrameDesc fd = computeNextDownload(clientLevel, clientFramePG.getNum(), 
+	fd = computeNextDownload(clientLevel, clientFramePG.getNum(), 
 					   clientPG.getBandwidth(), 
 					   clientPG.getAvgDistWF2Client());
 	event.putAttribute(SienaConstants.JUMP_TO, fd.getNum());
       } else {
-	logger.debug("!!! client is too slow, setting client down a level !!!");
+	// logger.debug("!!! client is too slow, setting client down a level !!!");
 	event = new Notification();
-	addHeader(event, clientPG);
+	// addHeader(event, clientPG);
+	event.putAttribute(SienaConstants.AI2TV_CLIENT_ADJUST, "");
+	event.putAttribute(SienaConstants.CLIENT_ID, clientPG.getId());
 	event.putAttribute(SienaConstants.CHANGE_CLIENT_LEVEL_DOWN, "");
       }
 
     } else if (clientLevel == cacheLevel && prefetchedFrames >= PREFETCH_THRESHOLD){
-      logger.debug("!!! client is WAY FAST!  setting client CACHE UP a level !!!");
+      // logger.debug("!!! client is WAY FAST!  setting client CACHE UP a level !!!");
       event = new Notification();
-      addHeader(event, clientPG);
+      // addHeader(event, clientPG);
+      event.putAttribute(SienaConstants.AI2TV_CLIENT_ADJUST, "");
+      event.putAttribute(SienaConstants.CLIENT_ID, clientPG.getId());
       event.putAttribute(SienaConstants.CHANGE_CACHE_LEVEL_UP, "" );
     } else if (clientLevel != cacheLevel && prefetchedFrames >= PREFETCH_CHANGE_THRESHOLD) {
-      logger.debug("!!! client's cache is ready.  Setting client UP a level !!!");
+      // logger.debug("!!! client's cache is ready.  Setting client UP a level !!!");
       event = new Notification();
-      addHeader(event, clientPG);
+      // addHeader(event, clientPG);
+      event.putAttribute(SienaConstants.AI2TV_CLIENT_ADJUST, "");
+      event.putAttribute(SienaConstants.CLIENT_ID, clientPG.getId());
       event.putAttribute(SienaConstants.CHANGE_CLIENT_LEVEL_UP, "" );
     }
 
     if (event != null) {
-      logger.info("sending event: " + event);
+      // logger.info("sending event: " + event);
       try {
 	siena.publish(event);
       } catch (siena.SienaException e) {
 	System.err.println("Error in WF, AdaptClient Seina Publishing: " + e);
       }
     } else {
-      logger.debug("!!! client is normal, doing nothing !!!");      
+      // logger.debug("!!! client is normal, doing nothing !!!");      
     }
-    logger.debug("");
-    logger.debug("");
-    logger.debug("- - - - - - - - - - - - - - - - - - - - ");
+    // logger.debug("");
+    // logger.debug("");
+    // logger.debug("- - - - - - - - - - - - - - - - - - - - ");
   }
 
   /**
