@@ -20,7 +20,7 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
 
   private static final Logger logger = Logger.getLogger(WFSubscriber.class);
 
-  private static final long REFRESH_DURATION = 5000; // check clients every 5 secs
+  private static final long REFRESH_DURATION = 10000; // check clients every 5 secs
 
   static WFGauge myGauge;
   private long _id;
@@ -51,19 +51,15 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
   }
 
   /**
-   * loop through all clients and send out a probe to check each client status
+   * loop through all clients and send out a probe to check each client's status
    */
-  // Set clientIDs;	// set of clients that we will check
   Collection clientIDs;	// set of clients that we will check
   private void checkClients(){
-    // clientIDs = ((Hashtable)myGauge.getGroupClients()).keySet();
     clientIDs = ((Hashtable)myGauge.getGroupClients()).values();
+    if (clientIDs.size() == 0) {
+      return;
+    }
 
-    // for each client, get a new set of reports
-    // we should
-    // 1) check that the current times reported by
-    // the clients are all syncrhonized
-    // 2)
     ClientDesc currentClient;
     for (Iterator i=clientIDs.iterator(); i.hasNext(); ){
       currentClient = (ClientDesc) i.next();
@@ -95,8 +91,8 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
 
   private void handleNotification(Notification e){
     long now = System.currentTimeMillis();
-    ClientDesc currentClient;
     logger.debug("received " + e);
+
 
     // get the propagation delay
     AttributeValue absAttrib = e.getAttribute(SienaConstants.ABS_TIME_SENT);
@@ -113,15 +109,18 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
     String gid = e.getAttribute(SienaConstants.GID).stringValue();
     String id = uid + "@" + gid;
     Hashtable ht = myGauge.getGroupClients();
-    currentClient = (ClientDesc)ht.get(id);
+    ClientDesc currentClient = (ClientDesc)ht.get(id);
     // this basically registers the client into the hash table, so we don't have to 
     // check for it later
+
     if (currentClient == null) {
-      logger.debug("adding new client " + id);
-      ht.put(id, currentClient = new ClientDesc(id));
+      currentClient = new ClientDesc(id);
+      ht.put(id, currentClient);
       myGauge.getBucket().update(id, currentClient);
     }
+
     currentClient.setPenalties(0); // reset the penalties on each report
+
     if (e.getAttribute(SienaConstants.AI2TV_WF_REG) != null){
       // don't do anything as we register above.  I catch
       // this here so that I don't get an error later.
@@ -169,12 +168,11 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
       if (action.equals(SienaConstants.PLAY)) {
 	//check if clients are already running
 	if (! myGauge.isRunning()) {
-	  /* // nominal start time = 1st client start time	
-	  long st = myGauge.clock.currentTime(); // System.currentTimeMillis();
-	  myGauge.setStartTime(st);
-	  currentClient.setStartTime(st);
-	  */
-	  logger.debug("starting nominal");
+	  // nominal start time = 1st client start time	
+	 long st = myGauge.clock.currentTime(); // System.currentTimeMillis();
+	 myGauge.setStartTime(st);
+	 currentClient.setStartTime(st);
+	 logger.debug("starting nominal");
 	  myGauge.startNominal();
 	}
 	WFGauge.clock.startTime(absTimeSent);
@@ -186,18 +184,14 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
 	WFGauge.clock.stopTime();
 
       } else if (action.equals(SienaConstants.GOTO)) {
-
-	String clientid = (e.getAttribute(SienaConstants.UID).stringValue() + "@" + 
-			   e.getAttribute(SienaConstants.GID).stringValue());
-
-	// if we didn't send out the goto message
-	if (!clientid.equals("" + _id)){
+	long clientid = e.getAttribute(SienaConstants.CLIENT_ID).longValue();
+	// id of -1 is reserved for the WF
+	if (clientid != _id){
 	  WFGauge.clock.gotoTime(absTimeSent, e.getAttribute(SienaConstants.NEWTIME).intValue());
 	}
       } else {
 	// event that we don't know what action this is
 	// should throw an unknown error, or something
-	logger.debug("Received AI2TV VIDEO ACTION event: " + e);
       }
     } else if (e.getAttribute(SienaConstants.AI2TV_CLIENT_SHUTDOWN) != null){
       myGauge.removeClient(id);
@@ -211,13 +205,19 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
   }
 
   private void getClientInfo(Notification e, ClientDesc currentClient){
-    myGauge.setLastSampleTime(e.getAttribute(SienaConstants.ABS_TIME_SENT).longValue());
+    if (e.getAttribute(SienaConstants.ABS_TIME_SENT) != null)
+      myGauge.setLastSampleTime(e.getAttribute(SienaConstants.ABS_TIME_SENT).longValue());
     if (e.getAttribute(SienaConstants.PREFETCHED_FRAMES) != null)
       currentClient.setPrefetchedFrames(e.getAttribute(SienaConstants.PREFETCHED_FRAMES).intValue());
-    currentClient.setLevel(e.getAttribute(SienaConstants.LEVEL).intValue());
-    currentClient.setCacheLevel(e.getAttribute(SienaConstants.CACHE_LEVEL).intValue());
-    currentClient.setBandwidth(e.getAttribute(SienaConstants.BANDWIDTH).doubleValue());
-    currentClient.setFrameRate(e.getAttribute(SienaConstants.FRAME_RATE).intValue());
-    currentClient.setReserveFrames(e.getAttribute(SienaConstants.CLIENT_RESERVE_FRAMES).intValue());
+    if (e.getAttribute(SienaConstants.LEVEL) != null)
+      currentClient.setLevel(e.getAttribute(SienaConstants.LEVEL).intValue());
+    if (e.getAttribute(SienaConstants.CACHE_LEVEL) != null)
+      currentClient.setCacheLevel(e.getAttribute(SienaConstants.CACHE_LEVEL).intValue());
+    if (e.getAttribute(SienaConstants.BANDWIDTH) != null)
+      currentClient.setBandwidth(e.getAttribute(SienaConstants.BANDWIDTH).doubleValue());
+    if (e.getAttribute(SienaConstants.FRAME_RATE) != null)
+      currentClient.setFrameRate(e.getAttribute(SienaConstants.FRAME_RATE).intValue());
+    if (e.getAttribute(SienaConstants.CLIENT_RESERVE_FRAMES) != null)
+      currentClient.setReserveFrames(e.getAttribute(SienaConstants.CLIENT_RESERVE_FRAMES).intValue());
   }
 }
