@@ -30,7 +30,9 @@ public class ClientDesc {
 		fd.setStart (l);
 		fd.setNum (m);
 		fd.setEnd (r);
-		fd.setDownloadedTime(t);
+		// dp2041
+		// fd.setDownloadedTime(t);
+		fd.setFrameShownTime(t);
 		fd.setLevel (level);
 		fd.setSize (s);
 	}
