@@ -29,7 +29,7 @@ import java.util.Vector;
  */
 public class AI2TVPlugin extends ComponentPlugin {
 
-    private static final Logger logger = Logger.getLogger(TaskExpanderPlugin.class);
+    private static final Logger logger = Logger.getLogger(AI2TVPlugin.class);
     private IncrementalSubscription resourceTableSubscription;
     private IncrementalSubscription reportAssetSubscription;
 
