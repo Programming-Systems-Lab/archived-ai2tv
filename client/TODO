@@ -1,0 +1,37 @@
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+----
+c++:
+----
+
+done - create the header file.
+done - test the invocation of a java method
+done - test the creation of the java VM
+done - integrate and compile the MyAI2TVClient.cpp class
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+-----
+java:
+-----
+- ff
+- rw
+- pause
+- play
+
+done - test the invocation of a c++ method
+done - integrate and compile the AI2TVClient.java class
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+REDO ai2tv client
+
+- split up the former AI2TV classes.
+- create java client
+- create c++ client
+- NTP (central time server)
+- add the workgroup calendar
+
+done create JNI interface
+done histogram
+done array of equivalent classes.
+NA 2-D table -> speed up/slow down, pointer to WF: equivalent
+classes are currently (16/3/03) implemented using an on-the-fly
+calculation, which is fast enough for our purposes.

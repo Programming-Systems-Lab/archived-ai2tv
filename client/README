@@ -1,0 +1,22 @@
+FILE:   README for the AI2TV client
+AUTHOR: Dan Phung (dp2041@cs.columbia.edu)
+DATE:   19 March 2003
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+- add the c:\java1.4\jre\bin\client\ (directory holding jvm.dll) to
+  your path.  
+
+- go to the propertes page of the project and add the library
+  (c:\java1.4\lib\jvm.lib) there.
+- add to 
+  >tools>options>projects>vc++ build dirs> 
+  include dir: 
+    add java1.4/include
+        java1.4/include/win32
+        c:\pslroot\psl\chime\client94\jni
+  execute dir: 
+    add java1.4/jre/bin/client
+
+  > environment path 
+    c:\pslroot\psl\ai2tv\client (this is for the java lib dir)
+
