@@ -133,11 +133,7 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
 			       e.getAttribute(SienaConstants.TIME_SHOWN).longValue(),
 			       e.getAttribute(SienaConstants.TIME_OFFSET).intValue(),
 			       e.getAttribute(SienaConstants.TIME_DOWNLOADED).longValue());
-      myGauge.setLastSampleTime(e.getAttribute(SienaConstants.ABS_TIME_SENT).longValue());
-      currentClient.setLevel(e.getAttribute(SienaConstants.LEVEL).intValue());
-      currentClient.setCacheLevel(e.getAttribute(SienaConstants.CACHE_LEVEL).intValue());
-      currentClient.setFrameRate(e.getAttribute(SienaConstants.FRAME_RATE).intValue());
-      currentClient.setReserveFrames(e.getAttribute(SienaConstants.CLIENT_RESERVE_FRAMES).intValue());
+      getClientInfo(e, currentClient);
 			       
       if (e.getAttribute(SienaConstants.PREFETCHED_FRAMES) != null)
 	currentClient.setPrefetchedFrames(e.getAttribute(SienaConstants.PREFETCHED_FRAMES).intValue());
@@ -158,15 +154,7 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
 			       e.getAttribute(SienaConstants.TIME_SHOWN).longValue(),
 			       e.getAttribute(SienaConstants.TIME_OFFSET).intValue(),
 			       e.getAttribute(SienaConstants.TIME_DOWNLOADED).longValue());
-
-      if (e.getAttribute(SienaConstants.PREFETCHED_FRAMES) != null)
-	currentClient.setPrefetchedFrames(e.getAttribute(SienaConstants.PREFETCHED_FRAMES).intValue());
-
-      myGauge.setLastSampleTime(e.getAttribute(SienaConstants.ABS_TIME_SENT).longValue());
-      currentClient.setLevel(e.getAttribute(SienaConstants.LEVEL).intValue());
-      currentClient.setFrameRate(e.getAttribute(SienaConstants.FRAME_RATE).intValue());
-      currentClient.setCacheLevel(e.getAttribute(SienaConstants.CACHE_LEVEL).intValue());
-      currentClient.setReserveFrames(e.getAttribute(SienaConstants.CLIENT_RESERVE_FRAMES).intValue());
+      getClientInfo(e, currentClient);
       // logger.debug("WF -> client avg is: " + 
       // currentClient.getAvgDistWF2Client() + 
       // " +/- " + currentClient.getStddevDistWF2Client());
@@ -212,5 +200,16 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
       // should throw an unknown error, or something
       logger.debug("Received unknown event: " + e);
     }
+  }
+
+  private void getClientInfo(Notification e, ClientDesc currentClient){
+    myGauge.setLastSampleTime(e.getAttribute(SienaConstants.ABS_TIME_SENT).longValue());
+    if (e.getAttribute(SienaConstants.PREFETCHED_FRAMES) != null)
+      currentClient.setPrefetchedFrames(e.getAttribute(SienaConstants.PREFETCHED_FRAMES).intValue());
+    currentClient.setLevel(e.getAttribute(SienaConstants.LEVEL).intValue());
+    currentClient.setBandwidth(e.getAttribute(SienaConstants.BANDWIDTH).doubleValue());
+    currentClient.setCacheLevel(e.getAttribute(SienaConstants.CACHE_LEVEL).intValue());
+    currentClient.setFrameRate(e.getAttribute(SienaConstants.FRAME_RATE).intValue());
+    currentClient.setReserveFrames(e.getAttribute(SienaConstants.CLIENT_RESERVE_FRAMES).intValue());
   }
 }
