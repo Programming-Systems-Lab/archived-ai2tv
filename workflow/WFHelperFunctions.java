@@ -163,7 +163,7 @@ public class WFHelperFunctions implements ExecutableTask {
 
 	  if (penalties > 0) {
 	    ratio = bandwidth / _avgBandwidthNeeded[level];
-	    if (ratio >= 1)
+	    if (0 >= ratio || ratio >= 1 )
 	      ratio = DEFAULT_FRAME_RATE_ADJUSTMENT;
 	  
 	    logger.debug("ratio: " + ratio);	  
@@ -239,7 +239,7 @@ public class WFHelperFunctions implements ExecutableTask {
     // - - - - - - - - Adjustments made to clients who are BAD! - - - - - - - - //
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //
     if (penalties > 0 || timeOffset > OFFSET_THRESHOLD || reserveFrames == RESERVE_THRESHOLD){
-      clientPG.setAdapt(true);      
+
       if (clientLevel == LOWEST_LEVEL){
 	logger.debug("!!! client is too slow, must skip frames !!!");
 	FrameDesc fd = computeNextDownload(clientLevel, 
@@ -248,11 +248,13 @@ public class WFHelperFunctions implements ExecutableTask {
 					   clientPG.getBandwidth(), 
 					   clientPG.getAvgDistWF2Client());
 	if (fd != null){
+	  clientPG.setAdapt(true);
 	  adaptMethod += SienaConstants.JUMP_TO + ",";
 	  clientFramePG.setNum(fd.getNum());
 	}
       } else {
 	logger.debug("!!! client is too slow!  setting client/cache DOWN a level !!!");
+	clientPG.setAdapt(true);
 	clientPG.setLevel(clientLevel + 1);
 	clientPG.setCacheLevel(clientLevel + 1);
 	adaptMethod += SienaConstants.CHANGE_CLIENT_LEVEL + "," + 
@@ -396,6 +398,9 @@ public class WFHelperFunctions implements ExecutableTask {
     // should be showing next
     int j=0;
     FrameDesc fd = null;
+
+    if (bandwidth == 0)
+      return  null;
 
     for (; j<_allFrames[level].length; j++){
       fd = _allFrames[level][j];
