@@ -228,8 +228,18 @@ public class LogParser {
     }
     if (DEBUG == 1)
       output.println("found total score of: " + goodnessScore + " out of " + samples + " samples = " + (goodnessScore/samples));
-    // return goodnessScore/samples;
-    return goodnessScore; // no normalization (for missed frame count
+
+    // dp2041
+    // ya, this is bad, but it's the quickest hack.  to get only the
+    // WF-vs-noWF score (without missed frames) uncomment A) and
+    // comment B).  Also, do the same down below in the
+    // scoreMissedFrame method.
+
+    // A)
+    return goodnessScore/samples;
+
+    // B)
+    // return goodnessScore; // no normalization (for missed frame count)
   }
 
   private double scoreTrial(int theoreticalLevel, int currentLevel){
@@ -242,11 +252,6 @@ public class LogParser {
     } else {
       sampleScore = (double) -1 * numFramesPerLevel[theoreticalLevel] / numFramesPerLevel[currentLevel];
     }
-
-    // ya, this is bad, but it's the quickest hack.  to get only the
-    // WF-vs-noWF score (without missed frames) uncomment A) and
-    // comment B).  Also, do the same down below in the
-    // scoreMissedFrame method.
 
     // A)
     return sampleScore;
