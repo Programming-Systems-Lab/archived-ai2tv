@@ -42,7 +42,6 @@ class ClientProbe implements Runnable {
   }
 
   public void run() {
-    System.out.println("ClientProbe running !!! ");
     loopAlways = true;
     active = true;
     while (loopAlways) {
@@ -65,7 +64,7 @@ class ClientProbe implements Runnable {
       // mySiena = new ThinClient("udp:localhost:4444");
       mySiena = new ThinClient("ka:localhost:4444");
     } catch (InvalidSenderException ise) {
-      System.out.println ("Cannot connect to Siena bus");
+      Client.out.println ("Cannot connect to Siena bus");
       mySiena = null;
       loopAlways = false;
       active = false;
@@ -84,8 +83,8 @@ class ClientProbe implements Runnable {
 
   private void emit (FrameDesc fd) {
     if (fd != null) {
-      System.out.println("ClientProbe sending update: " + fd);
-      //System.out.println ("Sending Frame info");
+      // Client.out.println("ClientProbe sending update: " + fd);
+      //Client.out.println ("Sending Frame info");
       //update only necessary fields
       frameEvent.putAttribute("AI2TV_FRAME", "");
       frameEvent.putAttribute("leftbound", fd.getStart());
