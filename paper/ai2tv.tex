@@ -1,10 +1,20 @@
-% $\mathrm{AI}^2$TV
-%
 % $RCSfile$
 % $Revision$
 % $Date$
 % $Source$
 %
+%
+% ---------------------------------------------------------------------------
+% TODO:
+% - equate workflow controller +probes/gauges = feedback controller (only use this term).
+% - explain early on about the characteristic of fluctuations in bandwidth and
+%   high freq changes in video
+%
+% - final read = check for consistent tense
+% - translate ai2tv -> $\mathrm{AI}^2$TV
+%
+%
+% ---------------------------------------------------------------------------
 % This is "sig-alternate.tex" V1.3 OCTOBER 2002
 % This file should be compiled with V1.6 of "sig-alternate.cls" OCTOBER 2002
 %
@@ -31,7 +41,7 @@
 % (defaulted to X-XXXXX-XX-X/XX/XX).
 % e.g.
 % \CopyrightYear{2003} will cause 2002 to appear in the copyright line.
-% \crdata{0-12345-67-8/90/12} will cause 0-12345-67-8/90/12 to appear in the 
+% \crdata{0-12345-67-8/90/12} will cause 0-12345-67-8/90/12 to appear in the
 %  copyright line.
 %
 % ---------------------------------------------------------------------------
@@ -58,15 +68,14 @@
 %
 % --- Author Metadata here ---
 \conferenceinfo{ACM-MM 2004}{New York, NY USA}
-%\CopyrightYear{2001} 
+%\CopyrightYear{2001}
 % Allows default copyright year (2000) to be over-ridden - IF NEED BE.
 
-%\crdata{0-12345-67-8/90/01}  
+%\crdata{0-12345-67-8/90/01}
 % Allows default copyright data (0-89791-88-6/97/05) to be over-ridden - IF NEED BE.
 % --- End of Author Metadata ---
 
-\title{Using Workflow to Optimize QoS for Collaborative Client Video
-Synchronization}
+\title{Optimizing Quality for Collaborative Multi-client Video}
 %% \title{Alternate {\ttlit ACM} SIG Proceedings Paper in LaTeX
 %% Format\titlenote{(Produces the permission block, and
 %% copyright information). For use with
@@ -131,14 +140,14 @@ submission to \emph{ACM-MM 2004}, due 12:00 AM EDT: April 05, 2004.}}}}
 \maketitle
 
 %% groups. Participants in these groups usually have a disparity
-%% in network resources which can hamper productive dialog.  We 
+%% in network resources which can hamper productive dialog.  We
 \begin{abstract}
 The increasing popularity of distance learning and online courses has
 highlighted the lack of support for collaborative tools available for
 student groups. We present a design and implementation of
-$\mathrm{AI}^2$TV, a system that allows geographically dispersed
+ai2tv, a system that allows geographically dispersed
 participants to collaboratively view a video in synchrony.  In
-addition, this system uses an autonomic workflow controller that
+addition, this system uses an autonomic feedback controller that
 responds to client feedback and adjusts the quality of the video
 according to the resources of each client.  We show that our system
 can successfully synchronize video for distributed clients and
@@ -152,7 +161,7 @@ optimize the video quality by adaptively adjusting the frame rate.
 
 \terms{???}
 
-\keywords{Synchronized Collaborative Video, Autonomic Workflow}
+\keywords{Synchronized Collaborative Video, Autonomic Feedback Controller}
 
 % tech report number CUCS-009-04
 
@@ -168,154 +177,152 @@ optimize the video quality by adaptively adjusting the frame rate.
 % - motivate the use of video as distributed collaboration tool
 % - discuss briefly history of ai2tv design and imp
 % - present rest of paper and summarize achievements
-% 
+%
 % BACKGROUND
 % - discuss other projects on multiple client synchronization
 % - ai2tv project goals
 % - describe overview of semantic compression tool used
 % - introduce role of process workflow
 % - explain time based synchronization
-% 
+%
 % DESIGN AND IMPLEMENTATION
 % - design motivations of ai2tv
 % - workflow controller
-% 
+%
 % EVALUATION methods
 % - how to score synchronized state
 % - define quality in terms of better frame rate
-% - explain scoring system: decouple baseline evaluation and 
+% - explain scoring system: decouple baseline evaluation and
 % penalties missed frames.
-% 
+%
 % RESULTS
-% - showed ai2tv w/ and w/o workflow each compares: 
+% - showed ai2tv w/ and w/o workflow each compares:
 %                : one graph for baseline comparison
 %                : one graph for penalties
 % 1) synchronization was successful
 % 2) using workflow, QoS could be significantly increased
-% 
+%
 % RELATED WORK
 % - what are the other available online collaborative tools?
 % - what are other methods for multiple client synchronization
-% 
+%
 % CONCLUSION
 % - our system can be used as an aid to support collaborative
-% video viewing for students groups.  
+% video viewing for students groups.
 
 % (does this need a name? SYCOVI (SYnchronized COllaborative Video?)
-
-% final read = check for consistent tense
 
 \section{Introduction}
 A major shift in educational paradigms is the use of online courses,
 which have become increasingly more popular \cite{BELLER,DOE}.  Due to
 the ease in scheduling alongside a work schedule, one of the common
-type of students attending online courses is represented by working
-student that try to further her or his career through higher
+type of students of online courses are the non-traditional working
+student that is trying to further her or his career through higher
 certifications \cite{BURGESS:TRENDS}.  This student population usually
 varies geographically, since online courses allow students from any
-region to enroll.  The dispersed nature of the class prevents 
-from physically holding group study sessions, which is commonly regarded by students as
-a useful and productive practice.  Support for collaboration is a major concern in
-courses where group work is encouraged \cite{WELLS:COLLAB}, yet there
-are few tools that support distributed collaboration
-\cite{BURGESS:TRENDS}.
+region to enroll.  The dispersed nature of the class prevents students
+from physically holding group study sessions, which is commonly
+regarded by students as a useful and productive practice.  Support for
+collaboration is a major concern in courses where group work is
+encouraged \cite{WELLS:COLLAB}, yet there are few tools that support
+distributed collaboration \cite{BURGESS:TRENDS}.
 
-The area of collaboration that our contribution applies to is
+The area of collaboration that our contribution applies is
 collaborative video viewing.  In this scenario, students that are
 dispersed across different geographical regions can view lecture
-videos simultaneously and in a synchronized manner: within a video viewing session, 
-participants can play, pause, stop and go to certain frames synchronously as a group.
-The intent is to facilitate the review of lecture material during distributed 
-collaborative study sessions, in order, for instance, to solve some difficulty in a joint 
-project assignment, or to clarify some notion.
+videos simultaneously and in a synchronized manner: Within a video
+session, participants can play, pause, stop and go to certain frames
+synchronously as a group.  The intent is to facilitate the review of
+lecture material during distributed collaborative study sessions, in
+order, for instance, to solve some difficulty in a joint project
+assignment, or to clarify some misconceived lecture material.
 
 % - motivate the use of video as distributed collaboration tool
 Viewing video on the Internet requires relatively high bandiwdth
 resources.  Network traffic is usually erratic, which can lead to lost
-video content. Depending on the redundancy of video material, the lost content may or may not
-contain significant information. 
-To eliminate this uncertainty,
-we use a semantic compression package \cite{TIECHENG} to extract 
-relevant material and produce semantically rich videos .  
-Using a selected time window, the package
-summarizes the content over that time and extracts semantically rich
-key frames.  We discuss this work more extensively in section
-\ref{background}.
+video content. Depending on the redundancy of video material, the lost
+content may or may not contain significant information.  To eliminate
+this uncertainty, we use a semantic compression package
+\cite{TIECHENG} to extract relevant material and produce semantically
+rich videos.  The package summarizes the content within a shifting
+time window by extracting semantically rich key frames.  The resulting
+key frames compose the video that is streamed to the clients.  We
+discuss this process more extensively in section \ref{background}.
 
-Under the abovementioned semantic compression scheme, the quality of
-the video viewing expericence depends on the number of key frames
-extracted, which is a function of the time window length. When only
-the most semantically significant key frames are shown, the playback
-of a video may seem unnatural.  In order to provide an appropriate
-viewing experience to different clients, which may enjoy very
-different bandwidth and computer resources, we instruct the semantic
-compression algorithm to create more or less key frames depending on
-the available bandwidth. \footnote{For performance reasons, we
-actually precompute the key frames for several bandwidth levels and
-thus make available a number of different versions of the same video
-content, according to a hierarchy of semantic compression rates}.
+% introduce the discussion on video quality.
+A second but important focus in our project is providing good quality
+video to the clients.  Frame rate is commonly used as an indicator to
+evaluate quality of video (citations): higher being better.  Because
+the video from the semantic compression scheme produces randomly
+dispersed key frames, video playback is at a slower variable frame
+rate, which may seem unnatural to the viewer.  In order to provide an
+appropriate viewing experience to different clients, whom may have
+varying bandwidth and computer resources, we construct several
+different versions of the same video content and use a feedback
+controller to adjust the viewing level per client's resources.
 
 % - briefly discuss ai2tv design and imp
 In this paper we present our design and implementation of a
 collaborative video viewing tool, developed in the context of a larger
-project, called $\mathrm{AI}^2$TV (Adaptive Internet Interactive Team
-Video).  Our tool exploits semantic compression, and employs a time
-based synchronization scheme, a common event bus and an autonomic,
-workflow-based controller to respond to feedback from each of the
-clients invovled in a group viewing session, and fine tune their
-viewing experience.  We show that using these mecahnisms, we are able
-to synchronize content viewing across all clients, while ensuring an
-improved video quality to each of the the clients.
+project, called ai2tv (Adaptive Internet Interactive Team
+Video).  Our tool employs semantic compression, a time based
+synchronization scheme, a common event bus and an autonomic
+workflow-based controller to respond to feedback from the clients and
+fine tune their viewing experience.  We show that using these
+mechanisms we are able to synchronize content viewing across all
+clients while ensuring an improved video quality to each of the the
+clients.
 
 % - present rest of paper and summarize achievements
 In the rest of this paper, we present the background of previous
-research that supports our work.  We then present the design and
-implementation of $\mathrm{AI}^2$TV including the autonomic controller.
-We then present the experimental design and results of the evaluation
-of our system, and then we finish with related work and some conclusions.
+research that supports our work.  Next we present the design and
+implementation of ai2tv.  We then present the experimental
+design and results, and we finish with related work and a discussion
+of our conclusions.
+
 
 \section{Background} \label{background}
-% \section{The {\secit Body} of The Paper}
 % - discuss other projects on multiple client synchronization
 The advent of the Internet and the World Wide Web as a major means of
 communication has presented the educational community with the
-potential for great gains in the realm of accessibility to education.
-Among applications that support online educational collaboration
-(although they may not be geared specifically towards educational
-purposes), there are instant message applications, application and
-desktop sharing (WebEx, VNC), co-browsing \cite{CAPPS, LIEBERMAN,
-SIDLER}, and XXX.  Those applications facilitate mostly the
-communicative aspects of collaboration, supporting long-distance
-exchange of ideas and know-how among pairs or groups of collaborators.
-There is however a lack of tools that support also the collaborative
-review and use of educational material produced for an on-line course.
-Most distributed applications follow the metaphor of a Web portal,
-which registered users access individually to fetch multimedia
-material and complete assignments.  Only a few applications try to
-support cooperation in an on-line study environment: for example, Easy
-Teach and Learn proposes a virtual classroom architecture that allows
+potential for great gains in the realm of accessibility to education
+through eLearning.  Among applications that support online educational
+collaboration (although they may not be geared specifically towards
+educational purposes), there are instant message applications,
+application and desktop sharing (WebEx, VNC), co-browsing \cite{CAPPS,
+LIEBERMAN, SIDLER}, and XXX.  These applications, for the most part,
+facilitate the communicative aspects of collaboration such as the
+supporting long-distance exchange of ideas and know-how (peppo, what
+do you mean by know-how?) among collaborators.  However, there is a
+dearth of tools to support the collaborative review and use of
+educational material produced for on-line courses (cite JITE paper).
+Most eLearning applications follow the metaphor of a Web portal where
+registered users can individually access multimedia class material or
+post completed assignments.  Only a few applications support
+cooperation for on-line study environments: for example, Easy Teach
+and Learn proposes a virtual classroom architecture that allows
 multiuser synchronous participation, but only a simulated version of
 this system has been implemented \cite{WALTER}
 
 % - ai2tv project goals
-The work presented in this paper is a part $\mathrm{AI}^2$TV project,
-a multi-group effort aimed at developing a collaborative virtual
-environment for distributed team work.  The goal of $\mathrm{AI}^2$TV
-is to provide networks of multimedia content relevant to the work
-carried out by teams of users involved in the same project, such as
-audio/video recordings of group discussions and decisions, and
-informational and educational events.  $\mathrm{AI}^2$TV differs from
-many existing infrastructures that provide educational content in a
-networked context by its explicit focus on the teamwork aspects of
-on-line education.  In $\mathrm{AI}^2$TV, a multimedia provisioning
-subsystem is coupled with a collaborative Virtual Environment, named
-CHIME\cite{CHIME}.
+The work presented in this paper is a part of the ai2tv
+project, a multi-group effort aimed at developing a collaborative
+virtual environment for distributed team work.  The goal of
+ai2tv is to provide networks of multimedia content
+relevant to the work carried out by teams of users involved in the
+same project, such as audio/video recordings of group discussions and
+decisions, and informational and educational events.
+ai2tv differs from many existing infrastructures that
+provide educational content in a networked context by its explicit
+focus on the teamwork aspects of on-line education.
+
+% VECTORS (sys 1) and CHIME are mentioned in related work.
 
 %% These participants may have varying bandwidth
 %% resources from a 56k modem to broadband DSL (usually 1.5 Mbps download
 %% bandwidth) or cable internet (usually 30 Mbps download bandwidth).
 
-One of the requirements of the $\mathrm{AI}^2$TV multimedia subsystem
+One of the requirements of the ai2tv multimedia subsystem
 is the support for the synchronized viewing of streaming video by all
 members of a geographically distributed team. To enforce the metaphor
 of synchronous collaboration in the virtual environment, and for that
@@ -330,48 +337,54 @@ T1 lines.  Moreover, in such a setup, the communication and computing
 resources available to each user may widely and quickly vary in the
 course of the team work session.
 
-To address those issues and achieve synchronized viewing, we employ a
-semantic summarization tool \cite{TIECHENG} that reduces a video to a
-set of semantically significant key frames.
-
 (???FIGURE: semantic compression )
-(FIGURE: key frames hierarchy )
+(???FIGURE: key frames hierarchy )
+
+%% Thus, we use the window size as an indicator for the level of semantic
+%% compression.
 
 % - describe overview of semantic compression tool used
-The semantic summarization algorithm profiles video frames within a
-given time window and selects key frames that have the most semantic
-information.  By increasing the size of the window, a key frame will
-represent a larger time slice, which means that a larger window size
-will produce less key frames as compared to a smaller window size
-setting.  Thus, we use the window size as an indicator for the level
-of semantic compression.  Semantic summarization is used to create
-multiple versions of a video by specifying different levels of
-semantic compression.  Note that at each level, even though the number
-of key frames may differ, no semantic content is lost due to the
-nature of the semantic summarization algorithm.  To prepare a video
-for collaborative viewing, we pre-compute several sets of key frames,
-obtaining a hierarchy of semantic compression levels.
+To address those issues and achieve synchronized viewing, we employ a
+semantic summarization tool \cite{TIECHENG} that reduces a video to a
+set of semantically significant key frames.  This package operates on
+MPEG format videos and outputs sequences of JPG frames.  The semantic
+compression algorithm profiles video frames within a sliding time
+window and selects key frames that have the most semantic information.
+By increasing the size of the window, a key frame will represent a
+larger time slice, which means that a larger window size will produce
+less key frames as compared to a smaller window size setting.
+Semantic summarization is used to create multiple versions of a video
+by specifying different levels of semantic compression.  Note that at
+each level, even though the number of key frames may differ, no
+semantic content is lost due to the nature of the semantic
+summarization algorithm.  To prepare a video for collaborative
+viewing, we pre-compute several sets of key frames, obtaining a
+hierarchy of semantic compression levels.
 
-For our purposes, we define an $\mathrm{AI}^2$TV video as the
-compilation of key frames produced at the various different levels in
-that hierarchy.  We use a key frame index file to access a certain
-compression level of the $\mathrm{AI}^2$TV video.  Through the use of
-the $\mathrm{AI}^2$TV video we can provide semantically similar
-content to several clients with very diverse resources, by assigning
-to each client a compression level in the hierarchy that matches the
-overall amount of information transmitted to the available bandwidth.
-Since the scheme we use, being based on the preservation of semantic
-content, compresses information with a variable rate over time, and
-since across the Internet the effective bandwidth of a network
-connection is subject to fluctuations, we use an autonomic controller
-to modify on the fly the video level assigned to each
-$\mathrm{AI}^2$TV client in response to variations in network
-conditions and information load.
+For our purposes, we define an ai2tv video as the
+compilation of key frames produced from several different levels of
+semantic compression.  We use a key frame index file to access a
+certain compression level of the ai2tv video.  Through the
+use of the ai2tv video we can provide semantically similar
+content to several clients with diverse resources by adjusting a
+client's compression level.  To tune the level for each client we use
+a feedback controller to dynamically adapt the client's video viewing
+level in response to each client's current bandwidth.
 
-% - introduce role of process workflow
-The autonomic controller monitors the distributed $\mathrm{AI}^2$TV
-system composed of clients and video servers, analyzes incoming
-streams of monitoring data, and employs a workflow engine, named
+Due to the nature of the semantic compression algorithm and the random
+dispersion of the key frames the resultant ai2tv video stream plays at
+a variable frame rate.  Within the video stream there are pockets of
+relatively high frequency semantic change that result in a high demand
+frame rate during that time.  The client must be able to download and
+display all the video frames consistently in an environment of
+possibly erratic network bandwidth.  To aid the client in this task,
+the autonomic controller monitors the client's state and resources and
+adapts the client accordingly.
+
+% - introduce role of autonomic controller
+The autonomic controller monitors the distributed ai2tv system
+composed of clients and video servers, analyzes incoming streams of
+sensor data, and employs a workflow engine, named
 \em{Workflakes}\cite{PEPPO}, to execute as needed workflow processes
 that effect in a coordinated fashion the \em{dynamic adaptation} of
 the video viewing settings across a group of clients.  That dynamic
@@ -380,255 +393,128 @@ synchronized, in accordance with policies that implement an underlying
 distributed synchronization scheme, while at the same time fine tuning
 the quality of the viewing experience for individual clients.
 
-It is noticeable that the adjustments required to carry out the
-dynamic adaptation of $\mathrm{AI}^2$TV must be completed by the
-Workflakes coordinator within narrow time boundaries (in the order of
-one second or less), as mandated by the soft real-time nature of the
-application and the tight synchronization effects that the dynamic
-adaptation aims to achieve.
-
-%% \subsection{Tables}
-%% Because tables cannot be split across pages, the best
-%% placement for them is typically the top of the page
-%% nearest their initial cite.  To
-%% ensure this proper ``floating'' placement of tables, use the
-%% environment \textbf{table} to enclose the table's contents and
-%% the table caption.  The contents of the table itself must go
-%% in the \textbf{tabular} environment, to
-%% be aligned properly in rows and columns, with the desired
-%% horizontal and vertical rules.  Again, detailed instructions
-%% on \textbf{tabular} material
-%% is found in the \textit{\LaTeX\ User's Guide}.
-
-%% Immediately following this sentence is the point at which
-%% Table 1 is included in the input file; compare the
-%% placement of the table here with the table in the printed
-%% dvi output of this document.
-
-%% \begin{table}
-%% \centering
-%% \caption{Frequency of Special Characters}
-%% \begin{tabular}{|c|c|l|} \hline
-%% Non-English or Math&Frequency&Comments\\ \hline
-%% \O & 1 in 1,000& For Swedish names\\ \hline
-%% $\pi$ & 1 in 5& Common in math\\ \hline
-%% \$ & 4 in 5 & Used in business\\ \hline
-%% $\Psi^2_1$ & 1 in 40,000& Unexplained usage\\
-%% \hline\end{tabular}
-%% \end{table}
-
-%% To set a wider table, which takes up the whole width of
-%% the page's live area, use the environment
-%% \textbf{table*} to enclose the table's contents and
-%% the table caption.  As with a single-column table, this wide
-%% table will ``float" to a location deemed more desirable.
-%% Immediately following this sentence is the point at which
-%% Table 2 is included in the input file; again, it is
-%% instructive to compare the placement of the
-%% table here with the table in the printed dvi
-%% output of this document.
-
-
-%% \begin{table*}
-%% \centering
-%% \caption{Some Typical Commands}
-%% \begin{tabular}{|c|c|l|} \hline
-%% Command&A Number&Comments\\ \hline
-%% \texttt{{\char'134}alignauthor} & 100& Author alignment\\ \hline
-%% \texttt{{\char'134}numberofauthors}& 200& Author enumeration\\ \hline
-%% \texttt{{\char'134}table}& 300 & For tables\\ \hline
-%% \texttt{{\char'134}table*}& 400& For wider tables\\ \hline\end{tabular}
-%% \end{table*}
-%% % end the environment with {table*}, NOTE not {table}!
-
-%% \subsection{Figures}
-%% Like tables, figures cannot be split across pages; the best placement
-%% for them is typically the top or the bottom of the page nearest their
-%% initial cite.  To ensure this proper ``floating'' placement of
-%% figures, use the environment \textbf{figure} to enclose the figure and
-%% its caption.
-
-%% This sample document contains examples of \textbf{.eps}
-%% and \textbf{.ps} files to be displayable with \LaTeX.  More
-%% details on each of these is found in the \textit{Author's Guide}.
-
-%% \begin{figure}
-%% \centering
-%% % \epsfig{file=fly.eps}
-%% \caption{A sample black and white graphic (.eps format).}
-%% \end{figure}
-
-%% \begin{figure}
-%% \centering
-%% % \epsfig{file=fly.eps, height=1in, width=1in}
-%% \caption{A sample black and white graphic (.eps format)
-%% that has been resized with the \texttt{epsfig} command.}
-%% \end{figure}
-
-
-%% As was the case with tables, you may want a figure
-%% that spans two columns.  To do this, and still to
-%% ensure proper ``floating'' placement of tables, use the environment
-%% \textbf{figure*} to enclose the figure and its caption.
-%% \begin{figure*}
-%% \centering
-%% \epsfig{file=flies.eps}
-%% \caption{A sample black and white graphic (.eps format)
-%% that needs to span two columns of text.}
-%% \end{figure*}
-%% and don't forget to end the environment with
-%% {figure*}, not {figure}!
-
-%% Note that either {\textbf{.ps}} or {\textbf{.eps}} formats are
-%% used; use
-%% the \texttt{{\char'134}epsfig} or \texttt{{\char'134}psfig}
-%% commands as appropriate for the different file types.
-
-%% \begin{figure}
-%% \centering
-%% \psfig{file=rosette.ps, height=1in, width=1in,}
-%% \caption{A sample black and white graphic (.ps format) that has
-%% been resized with the \texttt{psfig} command.}
-%% \end{figure}
-
-%% \subsection*{A {\secit Caveat} for the \TeX\ Expert}
-%% Because you have just been given permission to
-%% use the \texttt{{\char'134}newdef} command to create a
-%% new form, you might think you can
-%% use \TeX's \texttt{{\char'134}def} to create a
-%% new command: \textit{Please refrain from doing this!}
-%% Remember that your \LaTeX\ source code is primarily intended
-%% to create camera-ready copy, but may be converted
-%% to other forms -- e.g. HTML. If you inadvertently omit
-%% some or all of the \texttt{{\char'134}def}s recompilation will
-%% be, to say the least, problematic.
-
 \section{Design} \label{design}
 
-% design of a the system in general 
+% Design of a the system in general
 The design of our system involves several major components: a video
-server, a number of video clients and an externalized autonomic
-controller.
+server, video clients, and an externalized autonomic controller.
+
 %
 %(FIGURE: ai2tv synchronization arch)
-%
-The video server provides the multimedia educational content to the
-clients for viewing.  The semantic compression package operates on
-MPEG format videos and outputs sequences of JPG frames.  An
-$\mathrm{AI}^2$TV video is produced by running off-line the tool
-multiple times with settings for different compression levels; that
-produces several sets of JPG frames, which are indexed by a frame
-index file.  The task of the video server then is to simply provide
-remote download access to these frames.
 
+% video server
+The video server provides the multimedia educational content to the
+clients for viewing.  The provided content, an ai2tv video, is
+produced by running the tool multiple times with settings for
+different compression levels, which produces several sets of JPG
+frames that are indexed by a frame index file.  The task of the video
+server is to simply provide remote download access to these frames.
+
+% video client
 The task of video clients is to acquire video frames, display them at
 the correct time, and provide a set of basic video functions,
 specifically play, pause, goto, and stop.  Given the simple video
 server model, this task can be achieved by keeping a video clock,
 downloading the frames of the video for a given quality level, and
-displaying a given frame at its representative time. The clocks of all
-clients and the server are kept in sync using NTP \cite{NTP}, so that
-each client can use its local clock with a guarantee that it refers to
-a common time base. Taking a functional design perspective, the client
-is thus composed of three major modules, devoted respectively to time
-keeping, video fetching and caching, and video display. The role of
-the cache element is particularly important, since it is in cahrge to
-acquire the content to be shown and passes it over to the display
-module. Also, as explained below, it is the locus where adaptation
-takes place in the client.
+displaying a given frame at its representative time.  The clocks of
+all clients are kept in sync using NTP \cite{NTP} so that each client
+can use its local clock with a guarantee that it refers to a common
+time base. Taking a functional design perspective, the client is thus
+composed of three major modules: the time controller, video cache
+controller, and video display. The role of the cache controller is
+particularly important, since it is in charge of acquiring the content
+to be shown and it is the locus where adaptation takes place in the
+client.
 
+% autonomic controller
 The externalized autonomic controller provides the mechanisms that
 allow client actions and video content to be synchronized across
 multiple clients. The controller is itself a distributed system, whose
-design derives from a reference conceptual architecture for autonomic
-computing platforms proposed by Kaiser \cite{refarch}.  (XXX figure of
-ref arch here). According to that architecture, \emph{sensors} attached
-to elements of the target system of the autonomic platform
-continuously collect data and send it to \emph{gauges}.  The role of
-gauges is to analyze the data flow from multiple sensors and figure
-out whether some adaptation is needed by the target system. If so,
-they send a trigger to the controller's core, a coordination component
-that is in charge to enact a set of corresponding changes onto
-(possibly) multiple components of the target system.  To achieve that,
-this coordinator orchestrates, according to a defined plan, the work
-of a cohort of computations (referred to as \emph{effectors}) , which are
-executed at the target system end. That coordination plan may need to
-account for complex and dynamic sequencing and logic dependencies
-among the various units of work represented by effectors' executions,
-and may need to offer provisions for contingency planning and
-compensations. The conceptual architecture does not indicate or
-mandate a preferred approach to building the coordinator in a way that
-complies with those requirements; however, a valid option to specify
-and enact that kind of coordination plans - and the one experimented
-with in the context of this work - is offered by workflow technology.
+design derives from a conceptual reference architecture for autonomic
+computing platforms proposed by Kaiser \cite{refarch}.  (??? figure of
+ref arch here). According to that architecture, sensors attached to
+elements of the target system of the autonomic platform continuously
+collect data and send it to gauges.  The role of the gauges is to
+analyze the data flow from multiple sensors and deterine whether some
+adaptation is needed by the target system.  If so, they send a trigger
+to the controller's core, a coordination component that is in charge
+of enacting a set of corresponding changes onto (possibly) multiple
+components of the target system.  To achieve that, this coordinator
+orchestrates, according to a defined plan, the work of a cohort of
+computations (referred to as effectors), which are executed at the
+target system.  That coordination plan may need to account for complex
+and dynamic sequencing and logic dependencies among the various units
+of work represented by effectors' executions and may need to offer
+provisions for contingency planning and compensations. The conceptual
+architecture does not indicate or mandate a preferred approach to
+building the coordinator in a way that complies with those
+requirements.  However, a valid option to specify and enact the
+coordination plans - and the one chosen in the context of this work -
+is offered by workflow technology.
 
-This autonomic architecture effectively provides a close control loop
+% should this stuff go to the BG or Discussion section? 
+This autonomic architecture effectively provides a closed control loop
 that can be superimposed on a target system that does not have
-built-in autonomic features.  it can take a reactive stance
-(\emph{detect-and respond}), resulting in a feedback loop, and also a
-proactive stance (\emph{detect-and-anticipate}), resulting in a
-feed-forward loop.  The architecture remains also largely orthogonal
-and disjoint from the target system and its own specifics, thus
-representing a general-purpose tool that can be employed independently
-from the application domain.
+built-in autonomic features.  It can take a reactive stance
+(detect-and respond), resulting in a feedback loop, and also a
+proactive stance (detect-and-anticipate), resulting in a feed-forward
+loop.  The architecture remains also largely orthogonal and disjoint
+from the target system and its own specifics, thus representing a
+general-purpose tool that can be employed independently from the
+application domain. (???we should cite some other computing feedback
+controller system (IBM's lotus notes/apache stuff)
 
-In $\mathrm{AI}^2$TV, the architecture described above collects
-information on the state and resources of clients, gauges the
-collective synchronization state of a group of clients, and employs
-Workflakes to plan and bring about adjustments to individual clients
-in the group to enforce synchronization and optimize the viewing
-experience.
+% 999 ------------------------- CURRENT ------------------------- %
 
-Communication within the distributed controller is provided by an
-event communication bus based on the publish/subscribe paradigm (in
-the current implementation of $\mathrm{AI}^2$TV, we use the
-Siena\cite{Siena} event-based middleware).
+% communciation bus and sensors
+Communication within the distributed system is provided by an event
+communication bus based on the publish/subscribe paradigm.  The reason
+for choosing this communication model is that it inherently decouples
+the physical location of the communicating entities.  Events
+transmitted onto the event bus include video actions, such as pause
+and stop, which are time stamped so that clients can respond to these
+directives in reference to the common time base.  Embedded in each
+client are sensors that periodically publish events to the autonomic
+controller to allow it to monitor the state and resources of each
+client.
 
-Events transmitted onto the event bus include video actions, such as
-pause and stop.  These video actions are time stamped so that clients
-can respond to these directives in reference to the common time base.
-Besides the occasional video actions, other events circulate on the
-bus, emitted by sensors embedded in the cache of individual clients:
-those events allow to monitor the state of each client with respect to
-the acquired video conent and its ability to fetch and display that
-content in time at some compression level in the hierarchy provided by
-the $\mathrm{AI}^2$TV video.
-%PEPPO - NOTE: here I would show an example of those events, i.e. its content in terms
-%of attribute/value pairs with a bit of explanation.
+%% PEPPO - NOTE: here I would show an example of those events, i.e. its
+%% content in terms pof attribute/value pairs with a bit of explanation.
+%% (dan suggests you move this example to the implementation section)
 %
-Gauges that receive and process those events are embedded together
-with the Workflakes coordinator, for expediency of design and to
-minimize the communication latency when a trigger requesting some
-adaptation must be sent from the gauges to Workflakes.  Gauges use a
-set of helper functions that implement the $\mathrm{AI}^2$TV
+Gauges receive the events sent by the sensors and evaluate the
+client's ability to fetch and display the correct content in time,
+respective of some compression level in the hierarchy provided by the
+ai2tv.  These gauges are embedded together with the Workflakes
+coordinator for expediency of design and to minimize the communication
+latency between the gauges and Workflakes when adaptation is needed.
+Gauges use a set of helper functions that implement the ai2tv
 synchronization scheme, to evaluate periodically (e.g. each second) if
-a group of clients is in sync at that time, and, if not, to decide
-which clients need to be adapted and how.  Adaptation directives,
-based on those decisions and executed under the orchestration of
-Workflakes, take once more the form of events that are sent by
-Workflakes onto the bus, and are received by the caching module of
-impacted clients.  Effectors is thus implemented as code within the
-cache, which responds to incoming adaptation events by modifying how
-the cache goes about fetching video content and handing it over to the
-display module of the $\mathrm{AI}^2$TV client.
+a group of clients is in sync at that time, and, if not, to trigger
+appropriate adaptation directives.  These directives, which are
+executed under the orchestration of Workflakes, are sent in the form
+of events onto the bus and are received only by the impacted clients.
+Effectors respond to incoming adaptation events by executing the
+directives, such as changing the quality level or modifying the cache
+fetching level.
 
-Notice how, by having sensors and effectors placed onto the cache of
-the clients (as opposed to the display module), the autonomic
-controller deals with video content that is about to be displayed
-(rather than being currently displayed). That way, it puts in place a
-detect-and-anticipate control loop, which takes preemptive rather than
-reactive action; that is very important for our purposes, since we
-want to avoid as much as possible situations that can lead to
-synchronization faults, rather than recovering from them.
+%% we actually have sensors and effectors in the display module
+%% as well.  though most of the ``intelligent'' adjustment happens in
+%% the cache controller, the sensor and effector act on the client display
+%% and cache controller.
+% 
+%% Notice how, by having sensors and effectors placed onto the cache of
+%% the clients (as opposed to the display module), the autonomic
+%% controller deals with video content that is about to be displayed
+%% (rather than being currently displayed). That way, it puts in place a
+%% detect-and-anticipate control loop, which takes preemptive rather than
+%% reactive action; that is very important for our purposes, since we
+%% want to avoid as much as possible situations that can lead to
+%% synchronization faults, rather than recovering from them.
 
 \section{Implementation} \label{implementation}
 
-%Though the designs of both systems are not drastically different other
-%than the synchronization architecture, the implementations of the two
-%systems vary drastically other than the video server, which is simply
-%a web server that provides access to the $\mathrm{AI}^2$TV video.
-%
-The $\mathrm{AI}^2$TV video display is implemented in Java and simply
+The ai2tv video display is implemented in Java and simply
 renders the JPG frame in a window.  The video frame display controller
 gets a list of available frames from the cache controller.  The
 display client has a separate control for quality level that allows
@@ -645,12 +531,9 @@ decided by the workflow controller.  The cache controller keeps a hash
 of the available frames and a count of the current reserve frames
 (frames buffered) for a given quality level.
 
-%% and uses a thread sleep function to control the time
-%% controller thread from hogging the processor.
-
 The time keeping scheme uses the hardware clock as the base for its
 internal video clock and  to ensure that the system clocks across
-the $\mathrm{AI}^2$TV system are synchronized.  The separation of the
+the ai2tv system are synchronized.  The separation of the
 synchronization scheme greatly simplifies the rest of the system
 because it clarifies the functional responsibilities of the other
 components.  Each client plays the video frames at the correct time
@@ -694,9 +577,10 @@ controller is dropped back down to the client level.  This incremental
 increase in quality level prevents the client from entering a cycle
 where it is repeatedly downgraded several levels due to a high
 frequency change in frames.  There are pockets of high frequency
-frames within the $\mathrm{AI}^2$TV video that reflects a portion of
-the original video that has a large amount of semantic change.
+frames within the ai2tv video that reflects a portion of the original
+video that has a large amount of semantic change.
 
+%% need more stuff about the WF, such as the lil jil stuff, cougaar, etc.
 The workflow controller allows the clients to take advantage or adjust
 to relative deviations in bandwidth that occurs during a video
 session.  Also, due to pockets of high frequency semantic change in
@@ -727,9 +611,19 @@ method on a selected set of client configurations, specifically, 1, 2,
 3, 5 and 10 clients running a video for 5 minutes.  A two-tailed
 t-test is used to measure the significance of any difference found.
 
+Because the probing scheme depends on a thread sleep method, the
+relative deviation of the probing time must also evaluated.  We will
+measure this uncertainty by calculating the standard deviation from
+the mean and median of each probe instance and provide a ???STAT score
+for all trials.  Also note that there may be an underlying system
+clock deviation across all clients due to the guarantees of NTP, which
+have been shown to be on the order of tens of milliseconds (??? cite
+NTP study).  We purport that the sum of these deviations to have a
+minimal impact on our evaluations.
+
 \textit{Evaluating Quality of Service} \\
 % since the semantic compression algorithm ensures that semantic information is preserved.
-A major component of $\mathrm{AI}^2$TV is the workflow component whose
+A major component of ai2tv is the workflow component whose
 purpose is to increase the video quality for the clients.  For our
 situation, a higher video quality means a higher frame rate.  Since we
 are trying to measure how much better or worse the workflow adjusts
@@ -739,6 +633,14 @@ the average bandwidth per level.  This value is computed by summing
 the total size of the frames for a certain level and dividing by the
 total video time.  This value provides the bandwidth needed on average
 for the cache controller to download the next frame on time.
+
+Now that we know how much bandwidth a client needs on average, we can
+throttle the bandwidth to that client to match that average.  This
+procedure presents a baseline client model that is based on averages,
+which may not be realistic but is a close approximation.  Using the
+average as the baseline doesn't account for high frequency changes in
+the video frames (make sure that we've discussed this before) and
+intermittent fluctuations in network bandwidth.
 
 A baseline client also needs a context in which it is the baseline, so
 we also use a bandwidth throttling mechanism \cite{shaperd} at the
@@ -785,16 +687,159 @@ the significance of any difference found.
 
 \section{Results} \label{results}
 
+
+
 \section{Discussion} \label{discussion}
+
+It is noticeable that the adjustments required to carry out the
+dynamic adaptation of ai2tv must be completed by the Workflakes
+coordinator within narrow time boundaries (in the order of one second
+or less), as mandated by the soft real-time nature of the application
+and the tight synchronization effects that the dynamic adaptation aims
+to achieve.
+
+
+Liu et al. provide a comprehensive summary of the mechanisms used in
+video multicast for quality and fairness adaptation as well as netowrk
+and coding requirements.  To frame our work in that context we
+
+%% This article surveys existing solutions to adaptive video multicast,
+%% providing a taxonomy of solutions according to several distinct
+%% features. The authors also review the principal techniques from both
+%% video coding and network transport perspectives. Finally, they discuss
+%% the evaluation methodologies and metrics for adaptive video multicast
+%% systems.
 
 \section{Related Work} \label{related}
 
-Other work being done on CSCW schemes?  Other multiclient synchronous 
+A preliminary design and implementation of these project goals was
+completed in VECTORS \cite{SUHIT}.  This system uses a different
+synchronization scheme and is tightly coupled with a collaborative
+virtual environment (CVE) called CHIME \cite{CHIME}.  Due to the
+decentralized synchronization scheme employed in this design and
+because of the heavy weight nature of the CVE, the system failed to
+provide an adequate level of synchronziation.
+
+Other related work falls in the topics of
+
+% ----------------------------
+% education related support:
+% ----------------------------
+[9] distance learning: two way vid/aud/data communication shared among
+participants.
+http://www.etv.state.ms.us/inter-net/home.html
+
+- Guerri: A real-time e-learning system via satellite based on JMF and Windows Media
+
+- liu: The WSML system: web-based synchronization multimedia lecture system, for
+the production of a multimedia lecture (synchronization is like, when you
+get to a certain page, that triggers audio to play, etc.)
+
+% -------------------------------
+% All the synchronization schemes
+% -------------------------------
+
+- lienhart: Universal synchronization scheme for distributed audio-video capture on heterogeneous computing platforms 
+- similar to our scheme that synchronizes state on timestamps, 
+
+% -------------------------------
+% multicast to several clients same video content
+% -------------------------------
+- choi: A synchronization method for real time surround display using clustered systems
+
+% ----------------------------
+% video quality of services
+% ----------------------------
+
+quantifying video quality
+- wang: Studying streaming video quality: from an application point of view
+- uses wmaplayer/real player, and for streaming media
+while there have has been previous work on quantifying video quality from
+an application point of view, that work is out of the scope of this
+paper.  
+- thakur: A dynamic controller for optimal layering of video (not to multiple clients)
+
+calls for the need of adjusting quality-resource trade-offs as
+necessary to achieve timeliness requirements.
+- krasic: Priority-progress streaming for quality-adaptive multimedia, 
+uses ADU's to do this funky/complex layering technique with quality, 
+but basically it uses a quality upgrade technique using a buffer
+with a proactive stance just like us.  (prefetch window, etc.)
+
+whole underlying arch (OS -> aplication) for QoS related issues
+- cui: Supporting QoS for ubiquitous multimedia service deliveryk
+inda relevant, but not enough information to know what they're talking
+about.  They do say that i) self-adaptive service delivery framework
+is needed.  we don't provide a framework, but an implementation.
+
+video streaming adjustment for qos
+GOOD! - tan: Content-sensitive video streaming over low bitrate and
+lossy wireless network, very similar. 
+- lots of discussion on the semantic compression, which seems to
+be very close to tiecheng's paper.
+- they use RTP (SCR w/ UDP: Streaming protocol)
+- no results/analysis
+
+% ---------------------
+% shared action control
+% ---------------------
+song: The co-opticon
+- collaborative control of camera for education, not much results, 
+all users have to wait their turn.
+
+- liao: Shared interactive video for teleconferencing
+- very cool, able to interact in a meeting.  interactive elements
+like camera view, presentation directing.  control real world devices
+in the video.  we take a step back and follow the def: 
+
+a video app is interactive if the user affects the flow of the video
+and that influence in turn, affects the user's future choices.  [12]
+http://www.acm.org/sigchi/bulletin/1996.2/eckert.html
+
+middle for ensuring consistency in collaborating groups of distributed
+people. 
+GOOD! - Vogel: Consistency control for distributed interactive
+media intro has good refs, spatially distributed clients, interact
+synchronously with shared media.  optmistic vs. pessimistic mechanisms.
+optmistic mechanisms: allow inconsistencies to happen and then 
+deal with the afterwards.
+pessimistic mechanisms: prevent inconsistencies by locking/central state.
+- requires that the interactive media employ RTP
+
+
+% ----------------------------
+% Similar to our video hierarchy
+% ----------------------------
+- shipman: Generation of interactive multi-level video summaries: hyperhitchcock
+- good figures.  Work done here is similar to the video hierarchy
+that is precomputed.  This application also presents the hierarchy
+as an architecture for traversing the different video levels.
+- lei: Rate adaptation transcoding for precoded video streams
+- neumann: Multicast streaming of hierarchical MPEG-4 presentations
+
+% ----------------------------
+Other work being done on CSCW schemes?  Other multiclient synchronous
 systems (MOOs and MUDs), what else?
+
+do we need to have related work wrt to the semantic compression stuff, or
+is that out of the scope of the paper?
+
+other semantic compression algs: can we simply say that our choice is arbitrary?
+
+- phung: High level segmentation of instructional videos based on content density 
+- Wang: Learning-based linguistic indexing of pictures with 2--d MHMMs
+- Tarel: On the choice of similarity measures for image retrieval by example
+- Jing: An effective region-based image retrieval framework
+- Goh: DynDex: a dynamic and non-metric space indexer
+- slaney: Multimedia edges: finding hierarchy in all dimensions,
+automating the table of contents.
+
 
 \section{Future Work} \label{con}
 
 Try a push model with the server.  Integrate streaming audio.
+
+add smarter video content discovery ability
 
 \section{Conclusions}
 
@@ -814,8 +859,6 @@ Matias Pelenur also helped.
 %  and remember to run:
 % latex bibtex latex latex
 % to resolve all references
-%
-
 \subsection{References}
 %% Generated by bibtex from your ~.bib file.  Run latex,
 %% then bibtex, then latex twice (to resolve references)
