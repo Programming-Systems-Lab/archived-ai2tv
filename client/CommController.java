@@ -29,7 +29,7 @@ import siena.*;
  *
  *
  *
- * @version	$$
+ * @version	$Revision$
  * @author	Dan Phung (dp2041@cs.columbia.edu)
  */
 class CommController implements Notifiable{
@@ -40,7 +40,6 @@ class CommController implements Notifiable{
   private Client _client;
   private ThinClient _mySiena;
   private String _sienaServer;
-  private Filter filter;
   private boolean _isActive = false;
   
   /**
@@ -51,7 +50,6 @@ class CommController implements Notifiable{
    * @param sienaServer: point of contact to the Siena communications layer.
    */
   CommController(Client c, long id, String server){
-    _isActive = true;
     _client = c;
     clientID = id;
     _mySiena = null;
@@ -66,7 +64,7 @@ class CommController implements Notifiable{
    * note: dp2041: is there a better way to do this?  
    */
   private void setupFilter() throws siena.SienaException {
-    filter = new Filter();
+    Filter filter = new Filter();
     filter.addConstraint("AI2TV_VIDEO_ACTION", "UP_LEVEL");
     _mySiena.subscribe(filter, this);
 
@@ -89,11 +87,6 @@ class CommController implements Notifiable{
     filter = new Filter();
     filter.addConstraint("AI2TV_VIDEO_ACTION", "GOTO");
     _mySiena.subscribe(filter, this);
-
-    // WF related actions
-    filter = new Filter();
-    filter.addConstraint("AI2TV_FRAME_UPDATE", "");
-    _mySiena.subscribe(filter, this);
   }
 
   /**
@@ -106,6 +99,7 @@ class CommController implements Notifiable{
       // subsribe to the events (specified in the method)
       setupFilter();
       // Client.out.println("subscribing for " + filter.toString());
+      _isActive = true;
 
     } catch (siena.comm.PacketSenderException e) {
       // what is this?
@@ -115,7 +109,6 @@ class CommController implements Notifiable{
       // } catch (siena.comm.InvalidSenderException e) {
       Client.out.println ("Cannot connect to Siena bus: "  + e);
       // mySiena = null;
-      _isActive = false;
       // e.printStackTrace();
     }
   }
@@ -127,9 +120,32 @@ class CommController implements Notifiable{
     Client.out.println("Shutting down CommController");
     Client.out.println("Unsubscribing to Siena server");
     try {
+      Filter filter = new Filter();
+      filter.addConstraint("AI2TV_VIDEO_ACTION", "UP_LEVEL");
       _mySiena.unsubscribe(filter, this);
+
+      filter = new Filter();
+      filter.addConstraint("AI2TV_VIDEO_ACTION", "DOWN_LEVEL");
+      _mySiena.unsubscribe(filter, this);
+
+      filter = new Filter();
+      filter.addConstraint("AI2TV_VIDEO_ACTION", "PLAY");
+      _mySiena.unsubscribe(filter, this);
+
+      filter = new Filter();
+      filter.addConstraint("AI2TV_VIDEO_ACTION", "STOP");
+      _mySiena.unsubscribe(filter, this);
+
+      filter = new Filter();
+      filter.addConstraint("AI2TV_VIDEO_ACTION", "PAUSE");
+      _mySiena.unsubscribe(filter, this);
+
+      filter = new Filter();
+      filter.addConstraint("AI2TV_VIDEO_ACTION", "GOTO");
+      _mySiena.unsubscribe(filter, this);
+
     } catch (siena.SienaException e) {
-      Client.out.println("error:" + e);
+      Client.err.println("error:" + e);
     }
     Client.out.println("Shutting down Siena server");
     _mySiena.shutdown();
@@ -179,19 +195,6 @@ class CommController implements Notifiable{
       } else {
 	Client.err.println("AI2TV_VIDEO_ACTION: Notification Error, received unknown attribute: " + attrib);
       }
-
-    } else if (name.equals("AI2TV_FRAME_UPDATE") && 
-	       event.getAttribute("CLIENT_ID").longValue() == _client.getID()){
-      Client.out.println("found a WF commmand to do something, directed to ME!");
-      Client.out.println("");
-      if (event.getAttribute("CHANGE_LEVEL") != null){
-	_client.changeLevel(event.getAttribute("CHANGE_LEVEL").toString());
-      } else if (event.getAttribute("GOTO_FRAME") != null){
-	_client.setNextFrame(event.getAttribute("GOTO_FRAME").intValue());
-      } else {
-	Client.err.println("AI2TV_FRAME_UDPATE: Notification Error, received unknown attribute: " + attrib);
-      }
-
     } else {
       Client.err.println("Notification Error, received unknown name: " + name);
     }
