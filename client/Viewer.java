@@ -20,8 +20,19 @@ import java.util.Hashtable;
 import javax.swing.*;
 import javax.swing.event.*;
 
-/*
- * Viewer.java
+/** 
+ * Very simple viewer.  The steps to showing an image are:
+ * 1) load an image into the Viewer's memory using loadImage(String filename)
+ * 2) use displayImage(String filename) to display the image.
+ *
+ * Note: that this viewer can only take up to 65536 images, then it
+ * wraps around and starts using the same indices.
+ *
+ * WF related probes:
+ * 1) 
+ *
+ * @version	$$
+ * @author	Dan Phung (dp2041@cs.columbia.edu)
  */
 class Viewer extends JFrame {
   private Image _image;
@@ -31,12 +42,8 @@ class Viewer extends JFrame {
   private MediaTracker _mediaTracker;
   private Toolkit toolkit;
   private Client _client;
-  private String _lastImage;
-  protected boolean _newFrame;
-  protected int _imageIndex;
-  protected int _viewIndex;
 
-  // items related to the viewer display
+  // members related to the display components
   private Canvas _mainCanvas;
   private Color _mainCanvasBG;
   private Color _mainCanvasFG;
@@ -48,23 +55,30 @@ class Viewer extends JFrame {
   private JTextField _time;
   private JSlider _slider;
 
+  // members involved in video frame 
+  private String _lastImage;
+  protected boolean _newFrame;
+  protected int _imageIndex;
+  protected int _viewIndex;
   private Hashtable _images;
 
+
   /**
-   * note that this viewer can only take up to 65536 images, then it wraps around and 
-   * stars using the same indices
+   * Create the Viewer and associate it with the Client.
    *
-   *
+   * @param c: parent client to communicate actions to.
    */
   Viewer(Client c) {
+    // initialize internal members
     _client = c;
-    _newFrame = true;
+    _newFrame = false;
     _images = new Hashtable();
     _imageIndex = 0;
     _viewIndex = 0;
-
     toolkit = Toolkit.getDefaultToolkit();
     _mediaTracker = new MediaTracker(this);
+
+    // declare some AWT and Swing related members
     _mainCanvasFG = Color.white;
     _mainCanvasBG = Color.white;
     Container cp = getContentPane();
@@ -72,23 +86,23 @@ class Viewer extends JFrame {
     setResizable(false);
     _lastImage = "";
 
-    _filename = "ai2tv_ready.jpg";
-    _image = toolkit.createImage(_filename);
-    _mediaTracker.addImage(_image, 0);
-    
+    // create the panels
     _mainPanel = new JPanel();
     _mainPanel.setLayout(new BorderLayout());
-
     _bottomPanel = new JPanel();
     _bottomPanel.setLayout(new BorderLayout());
-
     _buttonPanel = new JPanel();
     _buttonPanel.setLayout(new FlowLayout());
+
+    // add elements to the panels,main canvas, and content pane
     addButtons();
     createSlider();
-    
     _bottomPanel.add(_buttonPanel, BorderLayout.NORTH); 
     _bottomPanel.add(_slider, BorderLayout.SOUTH); 
+    _mainCanvas = paintImage();
+    _mainPanel.add(_mainCanvas, BorderLayout.CENTER);
+    cp.add(_mainPanel, BorderLayout.CENTER);
+    cp.add(_bottomPanel, BorderLayout.SOUTH);
 
     addWindowListener(new WindowAdapter() {
 	public void windowClosing(WindowEvent e) {
@@ -96,18 +110,18 @@ class Viewer extends JFrame {
 	}
       });
 
-    _mainCanvas = paintImage();
-    _mainPanel.add(_mainCanvas, BorderLayout.CENTER);
-
-
-    cp.add(_mainPanel, BorderLayout.CENTER);
-    cp.add(_bottomPanel, BorderLayout.SOUTH);
+    // load the ready image and start the viewer
+    _filename = "ai2tv_ready.jpg";
+    loadImage(_filename);
+    displayImage(_filename);
 
     show();
   }
 
   /**
-   * main function that repaints of the frame
+   * main function that repaints the frame image
+   *
+   * @param g: graphics object to paint to
    */
   void paintFrame(Graphics g){
     long foo = _client.currentTime();
@@ -120,9 +134,8 @@ class Viewer extends JFrame {
       _lastImage = _filename;
       g.drawImage(_image, 0, 0, null);
     }
-    
+      
     if (_newFrame){
-      Client.out.println("imageShown called: " + _client.currentTime());
       _client.imageShown();
       _newFrame = false;
       // don't know when I should do the following
@@ -132,7 +145,9 @@ class Viewer extends JFrame {
   
 
   /**
-   * main paint thread that handles the repainting of the image
+   * main paint thread that refreshes the Viewer display.
+   *
+   * @return the created canvas
    */
   private Canvas paintImage() {
     Canvas newCanvas = new Canvas() {
@@ -166,7 +181,7 @@ class Viewer extends JFrame {
   }
 
   /** 
-   * add the button panel
+   * add the button panel to the Viewer display
    */
   private void addButtons() {
     _time = new JTextField(4);
@@ -199,24 +214,10 @@ class Viewer extends JFrame {
 	}
       });
     _buttonPanel.add(stopButton);
-
-    /*
-    JButton goButton = new JButton("Go");
-    _goField = new JTextField(3);
-    goButton.addActionListener(new ActionListener() {
-	public void actionPerformed(ActionEvent evt) {
-	  Client.out.println("Go field contents <" + _goField.getText() + ">");
-	  _client.goPressed(Integer.parseInt(_goField.getText()));
-	  _goField.setText("");
-	}
-      });
-    _buttonPanel.add(goButton);
-    _buttonPanel.add(_goField);
-    */
   }
 
   /**
-   * create the slider
+   * create the slider of the Viewer display
    */
   private void createSlider(){
     int startTime = 0; 
@@ -224,8 +225,6 @@ class Viewer extends JFrame {
     _slider = new JSlider(JSlider.HORIZONTAL, 0, endTime, startTime);
     _slider.setMajorTickSpacing(60); // set the tick spacing to 1 min each
     _slider.setPaintTicks(true);
-    // _slider.setMinorTickSpacing(60); // set the tick spacing to 1 min each
-    // _slider.createStandardLabels(60); // set the tick spacing to 1 min each
     _slider.addChangeListener(new ChangeListener() {
 	public void stateChanged(ChangeEvent e) {
 	  JSlider source = (JSlider)e.getSource();
@@ -243,7 +242,11 @@ class Viewer extends JFrame {
   // - - - - - - ENTRY FUNCTIONS USED BY CLIENT - - - - - - - //
 
   /**
-   * tells the viewer whether the frame just showed is a new frame
+   * tells the viewer whether the frame to be shown is a new frame, usually
+   * the usage is to set the value to true.
+   * 
+   * @param value: true/false depending on if the next frame to be
+   * shown is new.
    */
   void setNewFrame(boolean value){
     _newFrame = value;
@@ -251,14 +254,12 @@ class Viewer extends JFrame {
 
   /**
    * displays given image filename.  filename must refer to 
-   * a previously downloaded file.
+   * a previously loaded file using loadImage(String).
    * 
    * @param filename: image file to display
    */
   void displayImage(String filename) {
-    Client.out.println("displayImage called: " + _client.currentTime());
-    // _image = toolkit.createImage(filename);
-    // _mediaTracker.addImage(_image, 0);
+    // Client.out.println("displayImage called: " + _client.currentTime());
     ImageIndexPair pair = (ImageIndexPair) _images.get(filename);
     if (pair != null){
       _image = pair.image;
@@ -271,7 +272,10 @@ class Viewer extends JFrame {
   }
 
   /**
-   *
+   * load the image into memory.  the specified file must be local 
+   * to this system.
+   * 
+   * @param filename: image file to display.  
    */  
   void loadImage(String filename) {
     Image image = toolkit.createImage(filename);
@@ -285,12 +289,11 @@ class Viewer extends JFrame {
     } catch (InterruptedException e){
       Client.err.println("Viewer error in loading image: " + e);
     }
-
   }
   // - - - - - - DONE: ENTRY FUNCTIONS USED BY CLIENT - - - - - - - //
 
   /**
-   *
+   * main is used mainly for testing.
    */  
   public static void main(String[] args) {
 

@@ -13,13 +13,18 @@ done - integrate and compile the MyAI2TVClient.cpp class
 java:
 -----
 
+- need to add a notion of being able to stop what it's doing and plan
+  for something to happen in the future.
+- NTP
+- Calendar
+- add documentation (ie the WF API)
+- add probes
+- write the WF functions
 - need to check that the change levels, etc WF commands are sent to the 
   right client.
 
-- add WF
-- NTP
-- Calendar
-
+done - client: add the canceling of current download when a missed file happens.
+done - add WF
 done - ff
 done - rw
 done - pause

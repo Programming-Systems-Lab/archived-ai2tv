@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2001: The Trustees of Columbia University in the City of New York.  All Rights Reserved
  *
- * Copyright (c) 2001: @author Giuseppe Valetto
+ * Copyright (c) 2001: @author Dan Phung
  * Last modified by:  Dan Phung (dp2041@cs.columbia.edu)
  *
  * CVS version control block - do not edit manually
@@ -21,102 +21,142 @@ import siena.comm.*;
 import psl.ai2tv.gauge.FrameDesc;
 
 /**
- * Probes the client for status updates
+ * Very simple probing architecture.  Set a probe with a certain time.
+ * Later in the future, unset the probe with another time and a message. 
+ * The difference in times (second - first) along with the message gets 
+ * sent to the server.
+ *
+ * Manages probing by watching the "set" value of each probe and
+ * sending a message when a probe is unset.  The objective of this
+ * class is to measure the timing of certain events.
+ *
+ * @version	$$
+ * @author	Dan Phung (dp2041@cs.columbia.edu)
  */
-class ClientProbe implements Runnable {
+class ClientProbe {
   /** interval between probe events in ms.' */
-  private long interval;
-  private boolean loopAlways = true;
-  private boolean active; 
-  ThinClient mySiena;
-  private Notification frameEvent;
+  ThinClient _mySiena;
+  private Notification _frameEvent;
   private Client _client;
-  private CacheController cache;
+  String _sienaServer;
 
-  ClientProbe (Client c) {
+  private int _probeIndex;
+
+  // for speed, i'm going to try using an array first
+  // private Vector _probes; //
+  private long[] _probeTimes;
+
+  /**
+   * create a ClientProbe
+   *
+   * @param c: associated client
+   * @param sienaServer: location of the Siena server
+   * @param numProbes: max number of probes that are going to be set
+   */
+  ClientProbe (Client c, String sienaServer, int numProbes) {
     _client = c;
-    active = false;
-    mySiena = null;
-    cache = null;
+    _mySiena = null;
+    _sienaServer = sienaServer;
     setupSiena();
+    
+    _probeIndex = 0;
+    _probeTimes = new long[numProbes];
+    for (int i=0; i<_probeTimes.length; i++)
+      _probeTimes[i] = 0;
   }
 
-  public void run() {
-    loopAlways = true;
-    active = true;
-    while (loopAlways) {
-      if (active) {
-	try {
-	  Thread.currentThread().sleep(interval);		
-	} catch (InterruptedException ie) {
-	  //do nothing
-	}
-      }
-      //send probe message
-      emit(_client.getCurrFrame());
-    }
-
-  }
-
-
+  /**
+   * Connect to the Siena server and setup some minor details
+   */
   private void setupSiena() {
     try {
-      // mySiena = new ThinClient("udp:localhost:4444");
-      mySiena = new ThinClient("ka:localhost:4444");
+      _mySiena = new ThinClient(_sienaServer);
     } catch (InvalidSenderException ise) {
       Client.out.println ("Cannot connect to Siena bus");
-      mySiena = null;
-      loopAlways = false;
-      active = false;
+      _mySiena = null;
       ise.printStackTrace();	
     }
     // trying to optimize by calling constructors for events only once
-    frameEvent = new Notification();
-    frameEvent.putAttribute("AI2TV_FRAME", "frame_ready");
-    frameEvent.putAttribute("ClientID", _client.getID());
-    frameEvent.putAttribute("leftbound", 0);	
-    frameEvent.putAttribute("rightbound", 0);
-    frameEvent.putAttribute("moment", 0);
-    frameEvent.putAttribute("level", -1); 
-    frameEvent.putAttribute("probeTime", 0);
+    _frameEvent = new Notification();
+
+    // ask peppo if it really makes a difference if we add these now...
+    /*
+    _frameEvent.putAttribute("AI2TV_FRAME", "frame_ready");
+    _frameEvent.putAttribute("CLIENT_ID", _client.getID());
+    _frameEvent.putAttribute("leftbound", 0);	
+    _frameEvent.putAttribute("rightbound", 0);
+    _frameEvent.putAttribute("moment", 0);
+    _frameEvent.putAttribute("level", -1); 
+    _frameEvent.putAttribute("probeTime", 0);
+    */
   }
 
-  private void emit (FrameDesc fd) {
+  /**
+   * publish an update of the state of the client 
+   */
+  private void sendUpdate(){
+    FrameDesc fd = _client.getCurrFrame();
+    Notification event = new Notification();
     if (fd != null) {
       // Client.out.println("ClientProbe sending update: " + fd);
       //Client.out.println ("Sending Frame info");
-      //update only necessary fields
-      frameEvent.putAttribute("AI2TV_FRAME", "");
-      frameEvent.putAttribute("leftbound", fd.getStart());
-      frameEvent.putAttribute("rightbound", fd.getEnd());
-      frameEvent.putAttribute("moment", fd.getNum());
-      frameEvent.putAttribute("level", fd.getLevel());
-      frameEvent.putAttribute("bandwidth", _client.getBandwidth());
-      frameEvent.putAttribute("probeTime", System.currentTimeMillis());
+      _frameEvent.putAttribute("AI2TV_FRAME", "");
+      _frameEvent.putAttribute("CLIENT_ID", _client.getID());
+      _frameEvent.putAttribute("leftbound", fd.getStart());
+      _frameEvent.putAttribute("rightbound", fd.getEnd());
+      _frameEvent.putAttribute("moment", fd.getNum());
+      // _frameEvent.putAttribute("timeShown", _client.getTimeCurrFrameShown());
+      _frameEvent.putAttribute("level", fd.getLevel());
+      _frameEvent.putAttribute("bandwidth", _client.getBandwidth());
+      _frameEvent.putAttribute("probeTime", System.currentTimeMillis());
+
       try { 
-	mySiena.publish(frameEvent);
+	_mySiena.publish(_frameEvent);
       } catch (SienaException se) {
 	se.printStackTrace();	
       }
+
     }
   }
 
-  void setTarget(CacheController cc) { cache = cc; }
-  void setProbingFrequency (long f) {interval = f; }
-
-  void stopProbe() { loopAlways = false; }
-
-  public void setActive(boolean flag) {
-    active = flag;
+  /**
+   * get the current time set by the probe
+   * 
+   * @param ID: the ID of the probe
+   * @return the time associated with given ID
+   */
+  long getTimeProbe(int ID){
+    if (ID >= 0 && ID < _probeTimes.length)
+      return _probeTimes[ID];
+    return -1;
   }
-
-  public boolean isActive() { return active; }
 
   /**
-   * shutdown the thread
+   * set the probe's time start
+   *
+   * @param ID: the ID of the probe
+   * @param time: start of time associated with this probe
    */
-  public void shutdown() { 
-    loopAlways = false; 
-    active = false; 
+  void startTimeProbe(int ID, long time){
+    if (ID >= 0 && ID < _probeTimes.length)
+      _probeTimes[ID] = time;    
   }
+
+  /**
+   * unsetting the probe causes a message to be sent.
+   *
+   * @param ID: the ID of the probe
+   * @param time: ending time of probe
+   * @param natureOfMessage: header to message to be sent that expounds upon 
+   * nature of this probe.
+   */
+  void endTimeProbe(int ID, long time, String natureOfMessage){
+    // long diff = _time - _probeTimes[ID];
+    if (ID >= 0 && ID < _probeTimes.length){
+      Client.debug.println("sending an update: time diff: " + (time - _probeTimes[ID]));
+      _frameEvent.putAttribute(natureOfMessage, (time - _probeTimes[ID]));
+      sendUpdate();
+    }
+  }
+
 }

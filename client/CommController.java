@@ -21,43 +21,50 @@ import psl.ai2tv.gauge.*;
 import siena.*;
 
 /**
- * The Communications Controller of the AI2TV client.  Controls TCP
- * and UDP server/client ports.
+ * The Communications Controller of the AI2TV client.  Main layer
+ * of communication handling is done through Siena events.
+ *
+ * WF related probes:
+ * 1)  
+ *
+ *
  *
  * @version	$$
  * @author	Dan Phung (dp2041@cs.columbia.edu)
  */
-
 class CommController implements Notifiable{
-  /** interval between probe events in ms.' */
-  private long probeDelay;
-  private boolean loopAlways = true;
-
-  private Notification frameEvent;
-  private String clientID;
-  private Client _client;
-
   public static final int DEBUG = 0;
 
-  private boolean _isActive = false;
-
+  private Notification frameEvent;
+  private long clientID;
+  private Client _client;
   private ThinClient _mySiena;
-
+  private String _sienaServer;
   private Filter filter;
-
-  String _mySienaServer;
-    
-  CommController(Client c, String id, String sienaServer){
-    probeDelay = 10000;
+  private boolean _isActive = false;
+  
+  /**
+   * create a CommController
+   *
+   * @param c: higher level client to communicate with
+   * @param id: ID of the associated client, to be sent out with each message
+   * @param sienaServer: point of contact to the Siena communications layer.
+   */
+  CommController(Client c, long id, String server){
     _isActive = true;
     _client = c;
     clientID = id;
     _mySiena = null;
+    _sienaServer = server;
     setupSienaListener();
-    _mySienaServer = sienaServer;
   }
 
-  // dp2041: is there a better way to do this?
+  /**
+   * setup the filters describing what this subscriber want to
+   * receive.
+   * 
+   * note: dp2041: is there a better way to do this?  
+   */
   private void setupFilter() throws siena.SienaException {
     filter = new Filter();
     filter.addConstraint("AI2TV_VIDEO_ACTION", "UP_LEVEL");
@@ -89,10 +96,14 @@ class CommController implements Notifiable{
     _mySiena.subscribe(filter, this);
   }
 
+  /**
+   * setup the communications link
+   */
   private void setupSienaListener(){
     try {
-      _mySiena = new ThinClient("ka:localhost:4444");
+      _mySiena = new ThinClient(_sienaServer);
 
+      // subsribe to the events (specified in the method)
       setupFilter();
       // Client.out.println("subscribing for " + filter.toString());
 
@@ -104,12 +115,14 @@ class CommController implements Notifiable{
       // } catch (siena.comm.InvalidSenderException e) {
       Client.out.println ("Cannot connect to Siena bus: "  + e);
       // mySiena = null;
-      loopAlways = false;
       _isActive = false;
       // e.printStackTrace();
     }
   }
 
+  /**
+   * showdown the communications layer
+   */
   void shutdown(){
     Client.out.println("Shutting down CommController");
     Client.out.println("Unsubscribing to Siena server");
@@ -122,12 +135,30 @@ class CommController implements Notifiable{
     _mySiena.shutdown();
   }
   
-  public void notify(Notification e) {
-    handleNotification(e);
+  /**
+   * recieve a notification from the Siena server
+   *
+   * @param event: Notification sent from the Siena server
+   */
+  public void notify(Notification event) {
+    handleNotification(event);
   };
 
-  public void notify(Notification [] s) { }
+  /**
+   * recieve some notifications from the Siena server
+   *
+   * @param events: Notifications sent from the Siena server
+   */
+  public void notify(Notification [] events) { 
+    for (int i=0; i<events.length; i++)
+      handleNotification(events[i]);      
+  }
 
+  /**
+   * parse, interpret and handle the notification
+   *
+   * @param event: Notification sent by the Siena server
+   */
   private void handleNotification(Notification event){
     Client.out.println("handleNotification(): I just got this event:" + event + ": at : " 
 		       + Calendar.getInstance().getTime());
@@ -167,8 +198,8 @@ class CommController implements Notifiable{
   }
 
   // --------- Viewer initiated actions ---------- //
-  /*
-   *
+  /**
+   * publish the notification that the PLAY button was pressed
    */
   void playPressed(){
     // need to publish the notification that we are need to start playing.
@@ -178,6 +209,9 @@ class CommController implements Notifiable{
     publishNotification(event);
   }
 
+  /**
+   * publish the notification that the PAUSE button was pressed
+   */
   void pausePressed(){
     // need to publish the notification that we are need to start playing.
     Notification event = new Notification();
@@ -186,6 +220,9 @@ class CommController implements Notifiable{
     publishNotification(event);
   }
 
+  /**
+   * publish the notification that the STOP button was pressed
+   */
   void stopPressed(){
     Notification event = new Notification();
     event.putAttribute("AI2TV_VIDEO_ACTION", "STOP");
@@ -193,6 +230,11 @@ class CommController implements Notifiable{
     publishNotification(event);
   }
 
+  /**
+   * publish the notification that the GOTO slider was used
+   *
+   * @param gotoTime: time indicated by the new position of the slider
+   */
   void gotoPressed(int gotoTime){
     Notification event = new Notification();
     event.putAttribute("AI2TV_VIDEO_ACTION", "GOTO");
@@ -201,6 +243,11 @@ class CommController implements Notifiable{
     publishNotification(event);
   }
   
+  /**
+   * handle the actual publishing to the Siena server
+   *
+   * @param event: Notification to publish
+   */
   private void publishNotification(Notification event){
     try{
       Client.out.println("publishing event: " + Calendar.getInstance().getTime());
@@ -214,8 +261,6 @@ class CommController implements Notifiable{
   
 
   // void setTarget(CacheController cc) { cache = cc; }
-  void setProbingFrequency (long f) {probeDelay = f; }
-  void stopProbe() { loopAlways = false; }
   boolean isActive() { return _isActive; }
   void setActive(boolean flag) {
     _isActive = flag;

@@ -29,8 +29,6 @@ import psl.ai2tv.gauge.FrameIndexParser;
  *
  * Note: the bandwidth window can be adjusted to buffer
  * the accuracy of the current bandwidth calculation.
- *
- * Note: isDownloaded checks physically if the file is there.
  * 
  * TODO:
  * - need to think about permissions ie. protected vs. private
@@ -38,38 +36,55 @@ import psl.ai2tv.gauge.FrameIndexParser;
  * and reach the end (thread is finished, run method has completed)
  * and the Viewer rewinds to a missing frame.  then the frame requested
  * must be downloaded at that time.
+ *
+ * WF related probes
+ * 1)
+ *
+ * @version	$$
+ * @author	Dan Phung (dp2041@cs.columbia.edu)
  */
 public class CacheController extends Thread {
+  // hack to slow down the cache controller, used for testing.
+  private int _slowdown = 0;
 
+  // the higher level associated client
+  protected Client _client;
+
+  // members related to tracking what to download and what is downloaded.
   protected FrameIndexParser framesInfo;
   protected int progress[];
-  protected String frameFileName;
-  protected int currLevel;
   protected FrameDesc currFrame;
   protected int numLevels;
   protected String _cacheDir;
   protected String _baseURL;
   protected Set _cache;
 
-  protected Client _client;
+  protected boolean _isActive;
+  protected boolean _interrupt;
   
+  // bandwidth measurement related members
   protected int _bandwidthWindowMax;
   protected int _bandwidthWindow;
   protected long _totalBytes;
   protected long _totalTime;
 
-  protected boolean _isActive;
-  protected boolean _interrupt;
 
-  public CacheController(Client c, String cacheDir, String baseURL, String frameFile) {
+  /**
+   * Create a CacheController.  Immediately begins to download at the client's 
+   * set level.  Note that the downloading method holds intelligence to 
+   * resume interrupted/incomplete downloads.
+   * 
+   * @param c: parent client to download files for
+   * @param cacheDir: directory name of target downloaded files
+   * @param baseURL: base URL of the files to download from
+   */
+  public CacheController(Client c, String cacheDir, String baseURL) {
     _client = c;
     _cache = new HashSet();
     if (cacheDir.endsWith("/"))
       _cacheDir = cacheDir;
     else 
       _cacheDir = cacheDir + "/";
-    frameFileName = frameFile;
-    currLevel = _client.getLevel();
     currFrame = null;
     _interrupt = false;
 
@@ -94,50 +109,40 @@ public class CacheController extends Thread {
       progress[i] = 0;
   }
 	
+  /**
+   * interrupt the current download
+   */
   void interruptDownload() {
     _interrupt = true;
     this.interrupt();
   }
 
-  public int getLevel() { return currLevel; }
-  public void setLevel(int i) { currLevel = i; }
-
-  /*
-  public FrameDesc getNextFrame() {
-    return nextFrame();
-  }
-  */	
-
+  /**
+   * set the next frame for the CacheController to download.
+   *
+   * NOTE: UNTESTED!!!
+   *
+   * @param frame: filename of next frame
+   */
   public void setNextFrame(String frame){
+    if (frame.endsWith(".jpg"))
+      frame = frame.substring(0, (frame.length() - 4));
     long nextframe = Long.parseLong(frame);
-    progress[currLevel] = nextFrameInLevel(currLevel, nextframe);
-  }
-
-  public void changeLevelDown(long now) {
-    if (currLevel  < numLevels -1 ) { 
-      currLevel++;
-      Client.out.print ("Down to level " + currLevel + " : ");
-      progress[currLevel] = nextFrameInLevel(currLevel, now);
-    }
-  }
-
-  public void changeLevelUp(long now) {
-    if (currLevel > 0)	{
-      currLevel --;
-      Client.out.print ("Up to level " + currLevel + " : ");
-      progress[currLevel] = nextFrameInLevel(currLevel, now);
-    }
+    progress[_client.getLevel()] = nextFrameInLevel(_client.getLevel(), nextframe);
   }
 	
+  /**
+   * @return next frame in the level of the client.
+   */
   public FrameDesc getNextFrame() {
-    FrameDesc[] curr = framesInfo.frameData()[currLevel];
-    int index = progress[currLevel];
+    FrameDesc[] curr = framesInfo.frameData()[_client.getLevel()];
+    int index = progress[_client.getLevel()];
     if (index < curr.length) {
       if (! curr[index].isDownloaded()){
 	// try {
 	// Thread.currentThread().sleep(downloadInterval);
 	/*
-	Client.out.println("level <" + currLevel + 
+	Client.out.println("level <" + _client.getLevel() + 
 			   "> index <" + index + 
 			   "> bandwidth <" + getBandwidth() + ">");
 	Client.out.println("CacheController downloading file: " + _baseURL + curr[index].getNum() + ".jpg");
@@ -148,7 +153,7 @@ public class CacheController extends Thread {
 	  _client.loadImage(_cacheDir + curr[index].getNum() + ".jpg");
 	}
       }
-      progress[currLevel] = index + 1;
+      progress[_client.getLevel()] = index + 1;
       currFrame = curr[index];		
       return currFrame;
     }
@@ -156,6 +161,13 @@ public class CacheController extends Thread {
       return null;
   }
 	
+  /**
+   * gets the next frame in the level.
+   * 
+   * @param level: the level of the frame
+   * @param now: the time at which to find corresponding next frame
+   * @return the next frame in the given level according to now.
+   */
   private int nextFrameInLevel (int level, long now) {
     
     FrameDesc[] curr = framesInfo.frameData()[level];
@@ -168,6 +180,50 @@ public class CacheController extends Thread {
     }
     //Client.out.print("\n");
     return i;
+  }
+
+  /**
+   * return the current bandwidth value
+   */
+  double getBandwidth() {
+    if (_totalTime == 0)
+      return 0;
+    else 
+      return (_totalBytes / _totalTime);
+  }
+
+  /**
+   * continually download frames at this levell
+   */
+  public void run(){
+    _isActive = true;
+    while(_isActive){
+      getNextFrame();
+    }
+    _isActive = false;
+  }
+
+  /**
+   * @return whether the CacheController is currently active.
+   */
+  public boolean isActive(){
+    return _isActive;
+  }
+
+  /**
+   * shutdown the CacheController thread.
+   */
+  void shutdown(){
+    _isActive = false;
+  }
+
+  /**
+   * check whether a file has been downloaded
+   * @param 
+   * @return whether the specified file is already downloaded.
+   */
+  boolean isDownloaded(String filename){
+    return _cache.contains(_cacheDir + filename);
   }
 
   /**
@@ -242,6 +298,13 @@ public class CacheController extends Thread {
 	    _interrupt = false;
 	    return false;
 	  }
+
+	  // hack to slow down the cach controller a bit, for testing purposes.
+	  if (_slowdown > 0){
+	    try { sleep(_slowdown); }
+	    catch (InterruptedException e){ }
+	  }
+	  
 	  downloadFile.write(c);
 	}
       }
@@ -268,41 +331,6 @@ public class CacheController extends Thread {
 
     _cache.add(saveFile);
     return true;
-  }
-
-  double getBandwidth() {
-    if (_totalTime == 0)
-      return 0;
-    else 
-      return (_totalBytes / _totalTime);
-  }
-
-  public void run(){
-    _isActive = true;
-    while(_isActive){
-      getNextFrame();
-    }
-    _isActive = false;
-  }
-
-  public boolean isActive(){
-    return _isActive;
-  }
-
-  /**
-   * shutdown the CacheController thread.
-   */
-  void shutdown(){
-    _isActive = false;
-  }
-
-  /**
-   * check whether a file has been downloaded
-   * @param 
-   * @return whether the specified file is already downloaded.
-   */
-  boolean isDownloaded(String filename){
-    return _cache.contains(_cacheDir + filename);
   }
 
   /**

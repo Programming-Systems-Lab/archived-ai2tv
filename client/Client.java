@@ -23,7 +23,8 @@ import psl.ai2tv.gauge.*;
  * work happens.  The client only responds after receiving a play command from the Siena
  * server, which calls commPlay to start the viewing.
  *
- * right now the "Client" is also impersonating the time controller...
+ * right now the "Client" is also impersonating the time controller but this function
+ * will be replaced by an NTP server in the future.
  *
  * [CommController] <--siena--> WF
  *       /\
@@ -38,9 +39,8 @@ import psl.ai2tv.gauge.*;
  *        [Viewer]
  * 
  *
- * 
- * QUESTIONS: 
- * 
+ * WF related probes:
+ * 1)  
  *
  * 
  *
@@ -55,6 +55,7 @@ class Client {
   // purposes
   private class AI2TVJNIJava{}
 
+  // output streams for debugging info
   public static PrintStream out; 
   public static PrintStream err;
   public static PrintStream debug; 
@@ -63,10 +64,8 @@ class Client {
   private CacheController _cache;
   private CommController _comm;
   private Viewer _viewer;
-  // private ClientProbe _probe;
-  private Thread _probeThread;
-  private int _level;
 
+  private int _level;
   private long _startTime;
   private long _pausedTime;
   private long _pausedStartTime;
@@ -86,10 +85,10 @@ class Client {
   private long _timeCurrFrameShown;  // time that the current image was first shown
 
   // we should have these in a config file
-  private String _cacheDir = "cache/";
-  private String _baseURL = "http://www1.cs.columbia.edu/~suhit/ai2tv/1/";
-  private String _sienaServer = "ka:localhost:4444";
-  private String _frameFile = "frame_index.txt";
+  public static final String _cacheDir = "cache/";
+  public static final String _baseURL = "http://www1.cs.columbia.edu/~suhit/ai2tv/1/";
+  public static final String _sienaServer = "ka:localhost:4444";
+  public static final String _frameFile = "frame_index.txt";
   public static final long FRAME_RATE = 30; // 30 frames / second
   public static final long CHECK_RATE = 250; // check if frame is downloaded this often (ms)
 
@@ -100,7 +99,11 @@ class Client {
    */
   private long _lookahead = 1000;
 
-  /** */
+  static ClientProbe probe;
+
+  /** 
+   * Create an AI2TV Client
+   */
   Client(){
     // out = System.out;
     // err = System.err;  
@@ -128,23 +131,22 @@ class Client {
     _viewer = new Viewer(this);
     _comm = new CommController(this, _id, _sienaServer);
 
-    _cache = new CacheController(this, _cacheDir, _baseURL, _frameFile);
+    _cache = new CacheController(this, _cacheDir, _baseURL);
     _cache.start(); // start the thread to download frames
     _currFrame = null;
     _nextFrame = null;
     _neededFrame = null;
 
-    startProbe();
+    probe = new ClientProbe(this, _sienaServer, 10); // we will have 10 probes set
   }
 
+  /**
+   * get the parsed FramesIndexParser
+   *
+   * @return initialized FrameIndexParser data structure
+   */
   FrameIndexParser getFramesInfo(){
     return _framesInfo;
-  }
-
-  private void startProbe(){
-    // _probe = new ClientProbe(this);
-    // _probeThread = new Thread(_probe);
-    // _probeThread.start();
   }
 
   private FrameDesc getFrame(int level, long now){
@@ -185,7 +187,6 @@ class Client {
   }
   
   void shutdown(){
-    // _probe.shutdown();
     _isActive = false;
   }
 
@@ -211,13 +212,15 @@ class Client {
 
   void imageShown(){
     _timeCurrFrameShown = currentTime();
+    if (probe.getTimeProbe(0) > 0)
+      probe.endTimeProbe(0, _timeCurrFrameShown, "timeShown");
     
     if (_currFrame != null){
       long lateness = _timeCurrFrameShown - _currFrame.getStart()*1000/30;
       debug.println("image: " + _currFrame.getNum() + " shown at: " + _timeCurrFrameShown + 
 		    " late: " + lateness + " (ms)");
 
-      _comm.sendUpdate();  // send an update to the other clients
+      // _comm.sendUpdate();  // send an update to the other clients
     }
     // 999
     // need to send an update to 
@@ -245,7 +248,7 @@ class Client {
 }
   
   private void checkNextFrame(){
-    _nextFrame = getFrame(_cache.getLevel(), currentTime() + _lookahead);
+    _nextFrame = getFrame(_level, currentTime() + _lookahead);
 	    
     if (_nextFrame == null){
       out.println("Are we at the end of the Video?");
@@ -269,6 +272,7 @@ class Client {
       // out.println("Time is: " + currentTime() + " trying to show frame: " + _neededFrame.getNum());
       if (_cache.isDownloaded(_neededFrame.getNum() + ".jpg")){
 	// then show it.
+	probe.startTimeProbe(0, _neededFrame.getStart()*1000/30);
 	_viewer.setNewFrame(true);		
 	_viewer.displayImage(_cacheDir + _neededFrame.getNum() + ".jpg");
 
@@ -278,7 +282,7 @@ class Client {
 	// from here, the Viewer tries to load in the image, and calls this object's 
 	// imageShown method after the image is actually painted on the screen.
       } else {
-	Client.debug.println(_neededFrame.getNum() + ".jpg was not downloaded");
+	Client.debug.println(_neededFrame.getNum() + ".jpg was not downloaded in time for showing!");
       }
     }
     // }
@@ -296,8 +300,6 @@ class Client {
    */
   public void commPlay(){
     out.println("commPlay received");
-    // _probe.setActive(true);
-    // _probe.setProbingFrequency (5000);
     
     // have we started, if not, this is it!
     if (_startTime == 0){
@@ -352,13 +354,11 @@ class Client {
     if (change.indexOf("UP") != -1){
       if (_level > 0){
  	_level--;
-	_cache.changeLevelUp(currentTime());
       }
       
     } else {
       if (_level < _framesData.length){
  	_level++;
- 	_cache.changeLevelDown(currentTime());
       }
      }
   }

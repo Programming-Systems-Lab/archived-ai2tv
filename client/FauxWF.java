@@ -1,11 +1,26 @@
+/*
+ * @(#)FauxWF.java
+ *
+ * Copyright (c) 2001: The Trustees of Columbia University in the City of New York.  All Rights Reserved
+ *
+ * Copyright (c) 2001: @author Dan Phung
+ * Last modified by: Dan Phung (dp2041@cs.columbia.edu)
+ *
+ * CVS version control block - do not edit manually
+ *  $RCSfile$
+ *  $Revision$
+ *  $Date$
+ *  $Source$
+ */
 package psl.ai2tv.client;
 
 import java.util.Calendar;
 import siena.*;
 
 /**
- *
+ * Stub WF to test out WF functions.
  */
+
 class FauxWF extends Thread implements Notifiable {
   private boolean _isActive;
   private ThinClient _mySiena;
@@ -17,15 +32,13 @@ class FauxWF extends Thread implements Notifiable {
     _isActive = false;
     _mySiena = null;
 
-    _earlyThreshold = 2;  // threshold for max number of early frames
-    _lateThreshold = 2;  // threshold for min number of late frames
+    _earlyThreshold = -1000;  // threshold for max ms of being early
+    _lateThreshold = 1000;  // threshold for min ms of being late
 
     setupSienaListener();
   }
 
   public void notify(Notification e) {
-    // System.out.println("I just got this event:");
-    System.out.println(e.toString());
     handleNotification(e);
   }
 
@@ -40,20 +53,24 @@ class FauxWF extends Thread implements Notifiable {
     if (name.equals("AI2TV_FRAME")){
       clientID = event.getAttribute("CLIENT_ID").longValue();
 
-      // first we see if the level needs to be changed.
-      int early = event.getAttribute("earlyframes").intValue();
-      int late = event.getAttribute("lateframes").intValue();
-      int missed = event.getAttribute("missedframes").intValue();
+      long timeShown = event.getAttribute("timeShown").longValue();
+      int currFrame = event.getAttribute("moment").intValue(); // DEBUG
+      int leftbound = event.getAttribute("leftbound").intValue(); // DEBUG
+      double bandwidth = event.getAttribute("bandwidth").doubleValue(); // DEBUG
       int level = event.getAttribute("level").intValue();
-      
-      if (early > _earlyThreshold && level > 0){
-	System.out.println("Sending some uppers");
-	changeLevel("UP", clientID);
 
-      } else if (late > _lateThreshold && level < 4) {
-	System.out.println("Sending some downers");
+      // first we see if the level needs to be changed.
+      // Client.debug.println("currFrame: (leftbound) attribute: " + leftbound);
+      // Client.debug.println("currFrame: (moment) attribute: " + currFrame);
+      long diff = timeShown - leftbound*1000/30;
+      System.out.println("difference is: " + diff);
+      /*
+      if (diff < _earlyThreshold)
+	changeLevel("UP", clientID);
+      else if (diff < _earlyThreshold)      
 	changeLevel("DOWN", clientID);
-      }      
+      */
+
     } else {
       System.out.println("Error: NOT equal to AI2TV_FRAME name");
     }
@@ -85,7 +102,6 @@ class FauxWF extends Thread implements Notifiable {
 
   private void publishNotification(Notification event){
     try{
-      System.out.println("publishing event: " + Calendar.getInstance().getTime() + ": " + event);
       _mySiena.publish(event);
     } catch (siena.SienaException e){
       System.err.println("CommController publishing sienaException: " + e);
