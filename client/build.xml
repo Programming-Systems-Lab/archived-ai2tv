@@ -66,8 +66,6 @@
     <exec executable="${CPP_COMPILER}">
       <arg line=" -I${JAVADIR}/include -I${JAVADIR}/include/win32 -MD ${JNIPREFIX}CPP.cpp ${JAVADIR}/lib/jvm.lib" />
     </exec>
-
-    <copy file="${BUILD}/psl/ai2tv/client/AI2TVJNIJava.class" todir="." />
   </target>
 
   <!-- this command wasn't found in the ant tasks list.-->
