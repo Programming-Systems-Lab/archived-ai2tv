@@ -126,7 +126,8 @@ class AI2TVJNIJava{
    * 
    * @param info: login information
    */
-  void setLoginInfo(String info){
+  void setLoginInfo(String login, String password, String server,
+		    String uid, String gid){
     ; // _client.login(info);
   }
 

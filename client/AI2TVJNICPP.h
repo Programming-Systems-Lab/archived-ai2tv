@@ -52,7 +52,8 @@ class AI2TVJNICPP
   void setBaseURL(char* url);
   char* getBaseURL();
 
-  void setLoginInfo(char* info);
+  void setLoginInfo(const char* login, const char* passwd, const char* server
+		    const char* uid, const char* gid);
   void loadVideo(char* name, char* date);
   void initialize();
   int getAvailableVideos(char videoList[3][10]);

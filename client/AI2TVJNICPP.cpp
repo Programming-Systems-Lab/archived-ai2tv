@@ -282,10 +282,18 @@ char* AI2TVJNICPP::getBaseURL(){
  * 
  * @param info: login information
  */
-void AI2TVJNICPP::setLoginInfo(char* info){
+void AI2TVJNICPP::setLoginInfo(const char* login,
+			       const char* password, 
+			       const char* server, 
+			       const char* uid, 
+			       const char* gid){
   jmethodID mid;
-  mid = _env->GetMethodID(_class, "setLoginInfo","(Ljava/lang/String;)V");
-  _env->CallVoidMethod(_obj, mid, _env->NewStringUTF(info));  
+  mid = _env->GetMethodID(_class, "setLoginInfo","(Ljava/lang/String;,Ljava/lang/String;,Ljava/lang/String;,Ljava/lang/String;,Ljava/lang/String;)V");
+  _env->CallVoidMethod(_obj, mid, _env->NewStringUTF(login),
+		       _env->NewStringUTF(password),
+		       _env->NewStringUTF(server)
+		       _env->NewStringUTF(uid),
+		       _env->NewStringUTF(gid));
 }
 
 /**
