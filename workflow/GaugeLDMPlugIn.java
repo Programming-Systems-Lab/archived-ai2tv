@@ -119,8 +119,6 @@ public class GaugeLDMPlugIn
 				  cd.getFrameRate(), cd.getBandwidth(), sampleTime, cd.getPrefetchedFrames(), 
 				  cd.getReserveFrames(), cd.getAvgDistWF2Client(), cd.getPenalties()
 				  ));
-      if (cd.getPenalties() > 0)
-	cd.setPenalties(0);
       ca.setFramePG(makeFramePG(fd.getLevel(), fd.getNum(), fd.getStart(), fd.getEnd(), 
 				fd.getTimeShown(), fd.getTimeOffset(), fd.getTimeDownloaded()
 				));
