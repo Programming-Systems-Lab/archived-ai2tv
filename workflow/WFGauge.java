@@ -6,6 +6,12 @@ import java.util.Iterator;
 
 class WFGauge extends GroupGauge {
 
+	private GaugeLDMPlugIn LDMHandle = null;
+	
+	public void setLDMHandle(GaugeLDMPlugIn pi) {
+		LDMHandle = pi;	
+	}
+
 	// overrides of GroupGauge
 	
 	protected GaugeComm setupCommunications() 
@@ -54,15 +60,24 @@ class WFGauge extends GroupGauge {
 			// update the bucket is the time of the last info about a client
 			// is within the time of the last sample and this moment
     		if ( t <= elapsed && t > bucket.getTime())
-    			bucket.update(id, fd);			
+    			bucket.update(id, cd);			
 		}
 		
 		bucket.setTime(elapsed);
 	}
-  
-  protected void publishStatus() {
-  	//pass it to LDM plugin for publication
 
+	
+	protected void evaluateStatus(long elapsed) {
+		fillBucket(elapsed);
+  		publishStatus();
+  		//clearStatus();
+	}
+
+
+	protected void publishStatus() {
+		//pass it to LDM plugin for publication
+  		//System.out.println (bucket);
+  		LDMHandle.setReport(bucket);
   }
   
   protected FrameIndexParser setFrameInfo() {

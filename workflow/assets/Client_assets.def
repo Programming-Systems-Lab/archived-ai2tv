@@ -1,0 +1,11 @@
+;!generate: org.cougaar.domain.planning.ldm.asset.AssetWriter -Ppsl.ai2tv.workflow.assets Client_assets.def
+;;
+;;  Copyright (c) 2001: The Trustees of Columbia University in the
+;;  City of New York, Peppo Valetto. All Rights Reserved. 
+;;
+;; Basis for generating class definitions for Subclasses of Assets
+;;
+
+[ClientAsset psl.ai2tv.workflow.ClientAssetAdapter]
+slots = ClientPG, FramePG
+doc=Representation of a GW Service

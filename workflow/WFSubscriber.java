@@ -5,6 +5,7 @@ import siena.comm.*;
 
 import java.util.Hashtable;
 import java.io.IOException;
+import siena.SienaException;
 
 import psl.ai2tv.gauge.*;
 
@@ -12,8 +13,10 @@ class WFSubscriber extends SimpleGaugeSubscriber {
 	
 	private WFGauge myGauge;
 	
-	public WFSubscriber(WFGauge wfg) {
+	public WFSubscriber(WFGauge wfg) 
+		throws SienaException, IOException {
 		myGauge = wfg;	
+		setup();
 	}
 
 	public void notify(Notification e) {
@@ -24,11 +27,11 @@ class WFSubscriber extends SimpleGaugeSubscriber {
     	currentClient = (ClientDesc)ht.get(id);
     	if (currentClient == null) {
     		ht.put(id, currentClient = new ClientDesc(id));
-    		myGauge.getBucket().add(id);	
+    		myGauge.getBucket().update(id, currentClient);	
     	}
     	
     	if (e.getAttribute("Start") != null) {
-    		//new client up,, update the gauge  with its info
+    		//new client up, update the gauge  with its info
     		System.out.println("Connecting Client - " + id);
     		long st = e.getAttribute("Start").longValue();
     		// if this is the first client issuing a "Start", start the gauge thread

@@ -1,0 +1,11 @@
+;!generate: org.cougaar.domain.planning.ldm.asset.AssetWriter -Ppsl.ai2tv.workflow.assets Report_assets.def
+;;
+;;  Copyright (c) 2001: The Trustees of Columbia University in the
+;;  City of New York, Peppo Valetto. All Rights Reserved. 
+;;
+;; Basis for generating class definitions for Subclasses of Assets
+;;
+
+[ReportAsset psl.ai2tv.workflow.ReportAssetAdapter]
+slots = BucketPG
+doc=Representation of a gauge sample
