@@ -28,8 +28,7 @@ public class GaugeLDMPlugIn
 
 	private WFGauge gauge;
 	private TimeBucket bucket;
-	private ReportAsset report;
-	
+
 	private ReportAsset repProto;
 	private ClientAsset clientProto;
     private RootFactory factory;
@@ -59,7 +58,7 @@ public class GaugeLDMPlugIn
     }
 
 	public void execute() {
-		logger.debug("--- STARTED excution slice of " + getClass().getName());
+		//logger.debug("--- STARTED excution slice of " + getClass().getName());
 		/*
 		try {
 			wait(250);
@@ -67,7 +66,7 @@ public class GaugeLDMPlugIn
 			
 		}
 		*/
-		logger.debug("--- ENDED excution slice of " + getClass().getName());
+		//logger.debug("--- ENDED excution slice of " + getClass().getName());
 	
 	}
 
@@ -86,8 +85,13 @@ public class GaugeLDMPlugIn
 
 	private void publishReport() {
 		long sampleTime = bucket.getTime();
-		report = (ReportAsset)factory.createInstance("ReportProto");
+		ReportAsset report = (ReportAsset)factory.createInstance("ReportProto");
 		report.setItemIdentificationPG(makeIdentificationPG("TimeBucket-" + sampleTime));
+
+        NewBucketPG bucketPG = (NewBucketPG) factory.createPropertyGroup("BucketPG");
+        bucketPG.setGroup(new Vector());
+        report.setBucketPG(bucketPG);
+
 		//report.getBucketPG().getGroup().clear();
 		Iterator allClients = bucket.getGroupState().keySet().iterator();
 		ClientAsset ca;

@@ -19,6 +19,7 @@ import java.util.Calendar;
 import java.util.Vector;
 
 import siena.*;
+import psl.ai2tv.SienaConstants;
 
 /**
  * Stub WF to test out WF functions.
@@ -77,7 +78,7 @@ class FauxWF extends Thread implements Notifiable {
     if (name.equals("AI2TV_FRAME")){
       clientID = event.getAttribute("CLIENT_ID").longValue();
 
-      int currFrame = event.getAttribute("moment").intValue(); // DEBUG
+      int currFrame = event.getAttribute(SienaConstants.MOMENT).intValue(); // DEBUG
       int leftbound = event.getAttribute("leftbound").intValue(); // DEBUG
       double bandwidth = event.getAttribute("bandwidth").doubleValue(); // DEBUG
       int level = event.getAttribute("level").intValue();

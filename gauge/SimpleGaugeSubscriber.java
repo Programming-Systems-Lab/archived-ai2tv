@@ -27,11 +27,12 @@ public abstract class SimpleGaugeSubscriber implements GaugeSubscriber {
             if (server != null) {
 
                 mainSiena = new ThinClient(server);
-                logger.debug("Connnected to server at " + ((ThinClient)mainSiena).getServer());
+
+                //logger.debug("Connnected to server at " + ((ThinClient)mainSiena).getServer());
             }
             else {
                 mainSiena = new HierarchicalDispatcher();
-                ((HierarchicalDispatcher) mainSiena).setReceiver(new UDPPacketReceiver(sienaPort));
+                ((HierarchicalDispatcher) mainSiena).setReceiver(new KAPacketReceiver(sienaPort));
 	            logger.debug ("Siena Server Up: " + new String(((HierarchicalDispatcher) mainSiena).getReceiver().address()));
             }
 
@@ -42,10 +43,14 @@ public abstract class SimpleGaugeSubscriber implements GaugeSubscriber {
 	    gaugeFilter = new Filter();
 		gaugeFilter.addConstraint("FRAME", Op.EQ, "frame_ready");	
 	    mainSiena.subscribe(gaugeFilter, this);
+
+        Filter filter = new Filter();
+        filter.addConstraint("AI2TV_FRAME", "");
+        mainSiena.subscribe(filter, this);
 	}
 
     public void notify(Notification s[]) {
     	// I never subscribe for patterns anyway. 
-    } 
-		
+    }
+
 }

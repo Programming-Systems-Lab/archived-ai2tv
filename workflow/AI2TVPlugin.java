@@ -136,7 +136,13 @@ public class AI2TVPlugin extends ComponentPlugin {
 
                 // add resources for this diagram
 
-                resourceTable.addResource(diagram, "clients", reportAsset.getBucketPG().getGroup());
+                Vector group = reportAsset.getBucketPG().getGroup();
+                if (group == null) {
+                    logger.warn("group in reportAsset.getBucketPG() is null!");
+                    continue;
+                }
+
+                resourceTable.addResource(diagram, "clients", group);
 
                 // for base client we just instantiate a new ClientAsset
                 ClientAsset baseClient = (ClientAsset) factory.createInstance("ClientProto");

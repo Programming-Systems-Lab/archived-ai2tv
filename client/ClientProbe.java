@@ -19,11 +19,12 @@ import siena.*;
 import siena.comm.*;
 
 import psl.ai2tv.gauge.FrameDesc;
+import psl.ai2tv.SienaConstants;
 
 /**
  * Very simple probing architecture.  Set a probe with a certain time.
- * Later in the future, unset the probe with another time and a message. 
- * The difference in times (second - first) along with the message gets 
+ * Later in the future, unset the probe with another time and a message.
+ * The difference in times (second - first) along with the message gets
  * sent to the server.
  *
  * Manages probing by watching the "set" value of each probe and
@@ -46,7 +47,7 @@ class ClientProbe {
   // private Vector _probes; //
   private long[] _probeTimes;
 
-  /**
+    /**
    * create a ClientProbe
    *
    * @param c: associated client
@@ -58,7 +59,7 @@ class ClientProbe {
     _mySiena = null;
     _sienaServer = sienaServer;
     setupSiena();
-    
+
     _probeIndex = 0;
     _probeTimes = new long[numProbes];
     for (int i=0; i<_probeTimes.length; i++)
@@ -74,7 +75,7 @@ class ClientProbe {
     } catch (InvalidSenderException ise) {
       Client.out.println ("Cannot connect to Siena bus");
       _mySiena = null;
-      ise.printStackTrace();	
+      ise.printStackTrace();
     }
     // trying to optimize by calling constructors for events only once
     _frameEvent = new Notification();
@@ -83,47 +84,47 @@ class ClientProbe {
     /*
     _frameEvent.putAttribute("AI2TV_FRAME", "frame_ready");
     _frameEvent.putAttribute("CLIENT_ID", _client.getID());
-    _frameEvent.putAttribute("leftbound", 0);	
+    _frameEvent.putAttribute("leftbound", 0);
     _frameEvent.putAttribute("rightbound", 0);
     _frameEvent.putAttribute("moment", 0);
-    _frameEvent.putAttribute("level", -1); 
+    _frameEvent.putAttribute("level", -1);
     _frameEvent.putAttribute("probeTime", 0);
     */
   }
 
   /**
-   * publish an update of the state of the client 
+   * publish an update of the state of the client
    */
   private void sendUpdate(){
-    _frameEvent.putAttribute("AI2TV_FRAME", "");
-    _frameEvent.putAttribute("CLIENT_ID", _client.getID());
-    _frameEvent.putAttribute("bandwidth", _client.getBandwidth());
+    _frameEvent.putAttribute(SienaConstants.AI2TV_FRAME, "");
+    _frameEvent.putAttribute(SienaConstants.CLIENT_ID, _client.getID());
+    _frameEvent.putAttribute(SienaConstants.BANDWIDTH, _client.getBandwidth());
 
 
     // this element must be the last one added, as we are doing a
     // timing measurement to find the distance to the WF.
-    _frameEvent.putAttribute("probeTime", System.currentTimeMillis());
-    try { 
+    _frameEvent.putAttribute(SienaConstants.PROBE_TIME, System.currentTimeMillis());
+    try {
       _mySiena.publish(_frameEvent);
     } catch (SienaException se) {
-      se.printStackTrace();	
+      se.printStackTrace();
     }
   }
 
   private void addFrameInfo(){
     FrameDesc fd = _client.getCurrFrame();
     if (fd != null) {
-      _frameEvent.putAttribute("leftbound", fd.getStart());
-      _frameEvent.putAttribute("rightbound", fd.getEnd());
-      _frameEvent.putAttribute("moment", fd.getNum());
-      _frameEvent.putAttribute("level", fd.getLevel());
-        _frameEvent.putAttribute("size", fd.getSize());
+      _frameEvent.putAttribute(SienaConstants.LEFTBOUND, fd.getStart());
+      _frameEvent.putAttribute(SienaConstants.RIGHTBOUND, fd.getEnd());
+      _frameEvent.putAttribute(SienaConstants.MOMENT, fd.getNum());
+      _frameEvent.putAttribute(SienaConstants.LEVEL, fd.getLevel());
+        _frameEvent.putAttribute(SienaConstants.SIZE, fd.getSize());
     }
   }
 
   /**
    * get the current time set by the probe
-   * 
+   *
    * @param ID: the ID of the probe
    * @return the time associated with given ID
    */
@@ -141,7 +142,7 @@ class ClientProbe {
    */
   void startTimeProbe(int ID, long time){
     if (ID >= 0 && ID < _probeTimes.length)
-      _probeTimes[ID] = time;    
+      _probeTimes[ID] = time;
   }
 
   /**
@@ -149,7 +150,7 @@ class ClientProbe {
    *
    * @param ID: the ID of the probe
    * @param time: ending time of probe
-   * @param natureOfMessage: header to message to be sent that expounds upon 
+   * @param natureOfMessage: header to message to be sent that expounds upon
    * nature of this probe.
    */
   void endTimeProbe(int ID, long time, String natureOfMessage){
@@ -162,8 +163,8 @@ class ClientProbe {
 	addFrameInfo();
       sendUpdate();
 
-      Client.probeOutput.println("image: " + _client.getCurrFrame().getNum() + 
-				 " shown at: " + _probeTimes[ID] + 
+      Client.probeOutput.println("image: " + _client.getCurrFrame().getNum() +
+				 " shown at: " + _probeTimes[ID] +
 				 " late: " + (time - _probeTimes[ID]) + " (ms)");
     }
   }

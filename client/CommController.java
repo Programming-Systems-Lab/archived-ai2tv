@@ -18,6 +18,7 @@ import java.io.*;
 import java.util.Calendar;
 import java.net.*;
 import psl.ai2tv.gauge.*;
+import psl.ai2tv.SienaConstants;
 import siena.*;
 
 /**
@@ -41,8 +42,8 @@ class CommController implements Notifiable{
   private ThinClient _mySiena;
   private String _sienaServer;
   private boolean _isActive = false;
-  
-  /**
+
+    /**
    * create a CommController
    *
    * @param c: higher level client to communicate with
@@ -65,27 +66,27 @@ class CommController implements Notifiable{
    */
   private void setupFilter() throws siena.SienaException {
     Filter filter = new Filter();
-    filter.addConstraint("AI2TV_VIDEO_ACTION", "UP_LEVEL");
+    filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, SienaConstants.UP_LEVEL);
     _mySiena.subscribe(filter, this);
 
     filter = new Filter();
-    filter.addConstraint("AI2TV_VIDEO_ACTION", "DOWN_LEVEL");
+    filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, SienaConstants.DOWN_LEVEL);
     _mySiena.subscribe(filter, this);
 
     filter = new Filter();
-    filter.addConstraint("AI2TV_VIDEO_ACTION", "PLAY");
+    filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, SienaConstants.PLAY);
     _mySiena.subscribe(filter, this);
 
     filter = new Filter();
-    filter.addConstraint("AI2TV_VIDEO_ACTION", "STOP");
+    filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, SienaConstants.STOP);
     _mySiena.subscribe(filter, this);
 
     filter = new Filter();
-    filter.addConstraint("AI2TV_VIDEO_ACTION", "PAUSE");
+    filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, SienaConstants.PAUSE);
     _mySiena.subscribe(filter, this);
 
     filter = new Filter();
-    filter.addConstraint("AI2TV_VIDEO_ACTION", "GOTO");
+    filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, SienaConstants.GOTO);
     _mySiena.subscribe(filter, this);
   }
 
@@ -121,27 +122,27 @@ class CommController implements Notifiable{
     Client.out.println("Unsubscribing to Siena server");
     try {
       Filter filter = new Filter();
-      filter.addConstraint("AI2TV_VIDEO_ACTION", "UP_LEVEL");
+      filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, SienaConstants.UP_LEVEL);
       _mySiena.unsubscribe(filter, this);
 
       filter = new Filter();
-      filter.addConstraint("AI2TV_VIDEO_ACTION", "DOWN_LEVEL");
+      filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, SienaConstants.DOWN_LEVEL);
       _mySiena.unsubscribe(filter, this);
 
       filter = new Filter();
-      filter.addConstraint("AI2TV_VIDEO_ACTION", "PLAY");
+      filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, SienaConstants.PLAY);
       _mySiena.unsubscribe(filter, this);
 
       filter = new Filter();
-      filter.addConstraint("AI2TV_VIDEO_ACTION", "STOP");
+      filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, SienaConstants.STOP);
       _mySiena.unsubscribe(filter, this);
 
       filter = new Filter();
-      filter.addConstraint("AI2TV_VIDEO_ACTION", "PAUSE");
+      filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, SienaConstants.PAUSE);
       _mySiena.unsubscribe(filter, this);
 
       filter = new Filter();
-      filter.addConstraint("AI2TV_VIDEO_ACTION", "GOTO");
+      filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, SienaConstants.GOTO);
       _mySiena.unsubscribe(filter, this);
 
     } catch (siena.SienaException e) {
@@ -183,7 +184,7 @@ class CommController implements Notifiable{
     AttributeValue attrib = event.getAttribute(name);
     Client.out.println("handle notification: name: " + name);
     Client.out.println("handle notification: attrib: " + attrib);
-    if (name.equals("AI2TV_VIDEO_ACTION")){
+    if (name.equals(SienaConstants.AI2TV_VIDEO_ACTION)){
       if (attrib.toString().equals("\"PLAY\"")){
 	_client.commPlay(); 
       } else if (attrib.toString().equals("\"STOP\"")){
@@ -207,7 +208,7 @@ class CommController implements Notifiable{
   void playPressed(){
     // need to publish the notification that we are need to start playing.
     Notification event = new Notification();
-    event.putAttribute("AI2TV_VIDEO_ACTION", "PLAY");
+    event.putAttribute(SienaConstants.AI2TV_VIDEO_ACTION, "PLAY");
     Client.out.println("CommController publishing event: " + event);
     publishNotification(event);
   }
@@ -218,7 +219,7 @@ class CommController implements Notifiable{
   void pausePressed(){
     // need to publish the notification that we are need to start playing.
     Notification event = new Notification();
-    event.putAttribute("AI2TV_VIDEO_ACTION", "PAUSE");
+    event.putAttribute(SienaConstants.AI2TV_VIDEO_ACTION, "PAUSE");
     Client.out.println("CommController publishing event: " + event);
     publishNotification(event);
   }
@@ -228,7 +229,7 @@ class CommController implements Notifiable{
    */
   void stopPressed(){
     Notification event = new Notification();
-    event.putAttribute("AI2TV_VIDEO_ACTION", "STOP");
+    event.putAttribute(SienaConstants.AI2TV_VIDEO_ACTION, "STOP");
     Client.out.println("CommController publishing event: " + event);
     publishNotification(event);
   }
@@ -240,7 +241,7 @@ class CommController implements Notifiable{
    */
   void gotoPressed(int gotoTime){
     Notification event = new Notification();
-    event.putAttribute("AI2TV_VIDEO_ACTION", "GOTO");
+    event.putAttribute(SienaConstants.AI2TV_VIDEO_ACTION, "GOTO");
     event.putAttribute("NEWTIME", gotoTime);
     Client.out.println("CommController publishing event: " + event);
     publishNotification(event);
