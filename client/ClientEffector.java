@@ -31,7 +31,9 @@ class ClientEffector implements Notifiable {
   ThinClient _siena;
   private Notification _frameEvent;
   private Client _client;
+  private ClientProbe _clientProbe;
   String _sienaServer;
+
 
   /**
    * create a ClientEffector
@@ -39,8 +41,9 @@ class ClientEffector implements Notifiable {
    * @param c: associated client
    * @param sienaServer: location of the Siena server
    */
-  ClientEffector (Client c, String sienaServer) {
+  ClientEffector (Client c, String sienaServer, ClientProbe probe) {
     _client = c;
+    _clientProbe = probe;
     _siena = null;
     _sienaServer = sienaServer;
     setupSiena();
@@ -167,12 +170,13 @@ class ClientEffector implements Notifiable {
    */
   void publishUpdate(long ppd){
     Notification event = new Notification();
-    event.putAttribute(SienaConstants.LEVEL, _client.getLevel());
-    event.putAttribute(SienaConstants.FRAME_RATE, _client.getFrameRate());
-    event.putAttribute(SienaConstants.CACHE_LEVEL, _client.getCacheLevel());    
-    event.putAttribute(SienaConstants.CLIENT_RESERVE_FRAMES, _client.getReserveFrames());
     event.putAttribute(SienaConstants.AI2TV_WF_UPDATE_REPLY, "");
     event.putAttribute(SienaConstants.PREV_PROP_DELAY, ppd);
+    event.putAttribute(SienaConstants.LEVEL, _client.getLevel());
+    event.putAttribute(SienaConstants.BANDWIDTH, _client.getBandwidth());
+    event.putAttribute(SienaConstants.FRAME_RATE, _client.getFrameRate());
+    event.putAttribute(SienaConstants.CACHE_LEVEL, _client.getCacheLevel());
+    event.putAttribute(SienaConstants.CLIENT_RESERVE_FRAMES, _client.getReserveFrames());
     event.putAttribute(SienaConstants.PREFETCHED_FRAMES, _client.getNumPrefetchedFrames(_client.getCacheLevel()));
     addFrameInfo(event);
     publishNotification(event);      

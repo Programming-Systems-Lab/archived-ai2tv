@@ -92,12 +92,14 @@ class ClientProbe {
    */
   private void sendUpdate(){
     _frameEvent.putAttribute(SienaConstants.AI2TV_FRAME, "");
-    _frameEvent.putAttribute(SienaConstants.CLIENT_ID, _client.getID());
     _frameEvent.putAttribute(SienaConstants.LEVEL, _client.getLevel());
+    _frameEvent.putAttribute(SienaConstants.BANDWIDTH, _client.getBandwidth());
+    _frameEvent.putAttribute(SienaConstants.FRAME_RATE, _client.getFrameRate());
     _frameEvent.putAttribute(SienaConstants.CACHE_LEVEL, _client.getCacheLevel());
     _frameEvent.putAttribute(SienaConstants.CLIENT_RESERVE_FRAMES, _client.getReserveFrames());
-    _frameEvent.putAttribute(SienaConstants.BANDWIDTH, _client.getBandwidth());
     _frameEvent.putAttribute(SienaConstants.PREFETCHED_FRAMES, _client.getNumPrefetchedFrames(_client.getCacheLevel()));
+
+    _frameEvent.putAttribute(SienaConstants.CLIENT_ID, _client.getID());
     _frameEvent.putAttribute(SienaConstants.ABS_TIME_SENT, System.currentTimeMillis());
 
     try {
@@ -148,7 +150,6 @@ class ClientProbe {
       int diff = (int)(time - _probeTimes[ID]);
       _frameEvent.putAttribute(natureOfMessage, diff);
       _frameEvent.putAttribute(SienaConstants.PROBE_TIME, diff);
-      _frameEvent.putAttribute(SienaConstants.FRAME_RATE, _client.getFrameRate());
 
       if (natureOfMessage.equals(SienaConstants.TIME_OFFSET))
 	addFrameInfo(diff);
