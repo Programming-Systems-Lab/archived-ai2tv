@@ -1,7 +1,7 @@
 /*
  * @(#)Viewer.java
  *
- * Copyright (c) 2001: The Trustees of Columbia University in the City of New York.  All Rights Reserved
+ * Copyright (c) 2003: The Trustees of Columbia University in the City of New York.  All Rights Reserved
  *
  * Copyright (c) 2001: @author Dan Phung
  * Last modified by: Dan Phung (dp2041@cs.columbia.edu)
@@ -109,7 +109,8 @@ class Viewer extends JFrame {
 	public void windowClosing(WindowEvent e) {
 	  _client.shutdown();
 	  
-	  System.exit(0);
+	  // this is the right way to close, not that Sys.exit stuff.
+	  dipose();
 	}
       });
 
