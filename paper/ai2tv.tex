@@ -76,16 +76,8 @@
 % Allows default copyright data (0-89791-88-6/97/05) to be over-ridden - IF NEED BE.
 % --- End of Author Metadata ---
 
+% \title{Optimizing Quality for Video Sharing in Synchronous Collaboration}
 \title{Optimizing Quality for Collaborative Video Viewing}
-%% \title{Alternate {\ttlit ACM} SIG Proceedings Paper in LaTeX
-%% Format\titlenote{(Produces the permission block, and
-%% copyright information). For use with
-%% SIG-ALTERNATE.CLS. Supported by ACM.}}
-%% \subtitle{[Extended Abstract]
-%% \titlenote{A full version of this paper is available as
-%% \textit{Author's Guide to Preparing ACM SIG Proceedings Using
-%% \LaTeX$2_\epsilon$\ and BibTeX} at
-%% \texttt{www.acm.org/eaddress.htm}}}
 %
 % You need the command \numberofauthors to handle the "boxing"
 % and alignment of the authors under the title, and to add
@@ -160,7 +152,7 @@ of the video according to the resources of each client.  We show in
 experimental trials that our system can successfully synchronize video
 for distributed clients while at the same time optimizing the video
 quality, given actual (fluctuating) bandwidth, by adaptively adjusting
-	       the quality level for each participant.
+the quality level for each participant.
 \end{abstract}
 
 % A category with the (minimum) three required fields
@@ -223,14 +215,12 @@ FACTORS}
 % tech report number CUCS-009-04
 \section{Introduction}
 
-\comment{I have no idea which citations from the original Introduction
-are germane here, so please add any appropriate.}
-
 Distance learning programs such as the Columbia Video Network have
 evolved from fedexing lecture video tapes to their off-campus students
-to instead streaming the videos over the Internet. The lectures are
+to instead streaming the videos over the Internet, which is also done
+by the Stanford Center for Professional Development.  The lectures are
 sometimes delivered ``live'', while in progress on campus, but
-frequently are postprocessed and packaged for students to watch (and
+frequently are post-processed and packaged for students to watch (and
 re-watch) at their convenience.  This introduces the possibility of
 forming ``study groups'' among off-campus students who view the
 lecture videos together, and pause the video for discussion when
@@ -238,19 +228,19 @@ desired, thus approximating the pedagogically valuable discussions of
 on-campus students.  Although the instructor is probably not available
 for these discussions, this may be an advantage, since on-campus
 students are rarely afforded the opportunity to pause, rewind and
-fastforward their instructors' lectures.
+fast-forward their instructors' lectures.
 
 However, what we call {\em collaborative video viewing} by multiple
 geographically dispersed users is not yet supported by conventional
 Internet-video technology.  It is particularly challenging to support
 WISIWYS (what I see is what you see) when some of the users are
-relatively disadvantaged with respect to bandwidth (e.g., dialup
+relatively disadvantaged with respect to bandwidth (e.g., dial-up
 modems) and local computer resources (e.g., archaic graphics cards,
 small disks).  We have adopted technology (developed by others, Liu
 and Kender \cite{TIECHENG}) for ``semantically compressing'' MPEG2
-videos into sequences of still JPEG images.  This technology
+videos into sequences of still JPG images.  This technology
 automatically selects the most semantically meaningful frames to show
-for each time epoch, and can generate different sequences of JPEG
+for each time epoch, and can generate different sequences of JPG
 images for a range of different compression (bandwidth) levels.  This
 approach works very well for typical lecture videos, where it is
 important, for instance, to see what the instructor has written on the
@@ -260,12 +250,12 @@ body may partially occlude the blackboard.
 
 The remaining technical challenge is {\em synchronizing} the
 downloading and display of the image sequences among each of the
-distributed user clients, including support for shared video actions
-such as pause, rewind, etc.  Further, if student groups do indeed
-sometimes pause the videos, or rewind to a point already available in
-local buffers (caches), it is desirable to take advantage of the
-then-idle network connection to prefetch future images at a higher
-quality level.
+distributed user clients, including support for shared video player
+actions such as pause, rewind, etc.  Further, if student groups do
+indeed sometimes pause the videos, or rewind to a point already
+available in local buffers (caches), it is desirable to take advantage
+of the then-idle network connection to prefetch future images at a
+higher quality level.
 
 We have developed an approach to achieving this, using three
 mechanisms working in tandem.  First, the software clocks of the video
@@ -282,21 +272,22 @@ Finally, the main innovation of this research concerns optimizing
 video quality in this context: A decentralized feedback control loop
 dynamically adjusts each video client's choice of both next image to
 display and also next image to retrieve from the semantic compression
-levels available.  The controller relies on sensors into each client
-to periodically check what image is currently displaying, whether this
-image is ``correct'' for the current NTP time compared to what other
-clients are viewing, which images have already been buffered (cached)
-at that client, and what is the actual bandwidth recently perceived at
-that client.  Actuators are also inserted into the video clients, to
-modify local configuration parameters on controller command. The
-controller utilizes detailed information about the image sequences
-available at the video server, including image start and stop times
-(both the individual images and their start and stop times tend to be
-different at different compression levels), but unlike local client
-data, video server data is unlikely to change while the video is
-showing.  A single controller is used for all clients in the same user
-group, so it can detect ``skew'' across multiple clients, and may
-reside on the video server or on another host on the Internet.
+levels available.  The controller relies on sensors embedded in each
+client to periodically check what image is currently displaying,
+whether this image is ``correct'' for the current NTP time compared to
+what other clients are viewing, which images have already been
+buffered (cached) at that client, and what is the actual bandwidth
+recently perceived at that client.  Actuators are also inserted into
+the video clients, to modify local configuration parameters on
+controller command. The controller utilizes detailed information about
+the image sequences available at the video server, including image
+start and stop times (both the individual images and their start and
+stop times tend to be different at different compression levels), but
+unlike local client data, video server data is unlikely to change
+while the video is showing.  A single controller is used for all
+clients in the same user group, so it can detect ``skew'' across
+multiple clients, and may reside on the video server or on another
+host on the Internet.
 
 In the next section, we further motivate the collaborative video
 viewing problem, provide background on the semantically compressed
@@ -311,179 +302,81 @@ lecture videos distributed for a recent Columbia Video Network
 course. We compare to related work, and then summarize our
 contributions.
 
-\begin{comment}
-The increasing popularity of online courses is causing the educational
-system to shift away from the conventional practice of only offering
-on-campus lecture based courses \cite{BELLER,DOE}.  These online
-courses attract a high number of non-traditional working students
-because the course work can be scheduled according to the scheduling
-needs of each student \cite{BURGESS}.  In addition, online courses
-allow students from any region to enroll, leading to a geographically
-diverse student population.
-
-To cater to the growing number of online students, universities have
-begun taping on-campus course lectures and providing them to
-off-campus students \cite{CVN,SCPD}.  This practice introduces the
-term of distance learning to describe students enrolled in a local
-program yet attending the courses off-campus.  With the addition of
-lecture videos to the available online materials, online students have
-access to a greater wealth of information, yet online universities
-also have a more complex set of student needs to fulfill.
-
-Traditionally, the courses intended for online students are geared
-towards individual learning practices.  The introduction of a whole
-new set of courses from on-campus lectures introduced courses that are
-sometimes designed for group work.  Because these classes are attended
-by both on-campus and off-campus students, the students need tools
-that allow group collaboration among a set of remote participants.
-Support of synchronous collaboration remains a major concern in
-courses where group work is encouraged \cite{WELLS}, yet there are few
-educational tools that allow synchronous collaboration across a group
-of online students \cite{BURGESS}.  The educational tools commonly
-provided for online students are accessed through a personalized Web
-portal \cite{PHOENIX,CAPELLA}, which does not provide explicit tools
-for group work.
-
-$\mathrm{AI}^2$TV contributes to the area of synchronous collaboration
-support, and more specifically, to collaborative video viewing.  In
-this scenario, students that are dispersed across different
-geographical regions can view a lecture video simultaneously and in a
-synchronized manner.  Within a video session, participants can play,
-pause, stop and go to certain sections in the video synchronously as a
-group.  Therefore a WYSIWIS (What You See Is What I See) invariant is
-upheld for all participants.  Note that this invariant applies to
-semantic equivalence and not identical video frames.
-$\mathrm{AI}^2$TV provides the ability for a group of students to
-review a lecture video so that if a participant has a question about a
-certain topic, he/she can pause the video and ask questions to other
-participants about the material and be assured that all the
-participants are referencing the same material.  
-
-% - motivate the use of video as distributed collaboration tool
-
-The erratic nature of network traffic imposes a significant obstacle
-to the problem of providing the group review of video across the
-Internet.  Viewing video on the Internet requires relatively high
-bandwidth resources and lossy network connections can lead to missing
-video content.  Furthermore, the differences of network and computing
-resources available to dispersed users in the same collaboration group
-can be very significant.  Collaborative video viewing poses a twofold
-problem: on the one hand, it is mandatory to keep all users
-synchronized with respect to the content they are supposed to see at
-any moment during play time; on the other hand, it is important to
-provide each individual user with a frame rate that is optimized with
-respect to the user's available resources, which may vary during the
-course of the video.
-
-% - briefly discuss $\mathrm{AI}^2$TV design and imp
-In this paper we present an architecture and adaptation model to
-address both of the above problems for collaborative video viewing.
-Our approach employs a time based synchronization scheme with an
-autonomic controller entity.  The term \textit{autonomic} is borrowed
-from IBM to mean a self-managing system that uses software based
-closed-loop feedback control\cite{IBM}.  Their terminology applies to
-the self-management of data centers whereas our work applies to the
-domain of multi-user video synchronization.  The autonomic controller
-tunes the working parameters of the client's video player in order to
-dynamically adjust the video quality levels of the various users in a
-group.  We show that it is possible to synchronize content viewing
-across all clients while ensuring an high video quality to each of the
-the clients.
-
-% - present rest of paper and summarize achievements
-In the rest of this paper, we present the motivating problem and
-introduce background research that supports this work.  Next, we
-explain in detail the architecture and the approach taken in our
-solution within the $\mathrm{AI}^2$TV project.  We then present the
-criteria used to evaluate the effectiveness of the approach, together
-with the corresponding results, and we finish with related work and a
-summary of our contributions.
-\end{comment}
-
 \section{Motivation and Background} \label{background}
 % - discuss other projects on multiple client synchronization
+The increasing popularity of online universities has prompted many
+universities to begin providing online certification tracks that use
+pre-taped on-campus lectures.  Traditionally, online courses are
+provided through a Web portal interface, such as those at the
+University of Phoenix or Capella University, which are designed for
+individual students with a self-motivated learning style.
+Contrastly, in many on-campus courses, students are encouraged to
+study in groups in order to better learn the material.  For off-campus
+students viewing the pre-taped lecture, this practice is difficult
+because of their separation by geographic distance.  Support of
+synchronous collaboration remains a major concern in courses where
+group work is encouraged \cite{WELLS}, yet there are few educational
+tools that allow synchronous collaboration across a group of online
+students \cite{BURGESS}.
 
-The advent of the Internet and the World Wide Web as a major means of
-communication has presented the educational community with the
-potential for great gains in the realm of accessibility to education
-through e-Learning.  A variety of e-Learning applications that support
-individual study practices exist, and typically follow the metaphor of
-a Web portal where registered users can individually browse class
-material or post completed assignments \cite{PHOENIX,CAPELLA}.
-Several other applications can be used to provide some level of
-support to online educational collaboration, although they may not be
-geared specifically towards educational purposes.  Among them, some
-are geared towards asynchronous forms of collaboration, (for example
-Web-based bulletin boards and discussion groups); others, such as
-instant messaging, application and desktop sharing \cite{WEBEX, VNC},
-and co-browsing \cite{CAPPS, LIEBERMAN, SIDLER} facilitate mostly the
-communicative aspects of synchronous collaboration, such as the
-long-distance sharing of ideas and knowledge among their users.
-However, there are few tools that provide an on-line study environment
-to support synchronous collaborative study practices, such as the
-group review of educational material produced for on-line courses
-\cite{WELLS}.  For example, Easy Teach and Learn proposes a virtual
-classroom architecture that allows multiuser synchronous
-participation, but only a simulated version of this system has been
-implemented \cite{WALTER}.
+There are some available tools that will allow online collaboration,
+though they may not be geared specifically for educational purposes.
+Some of these tools use asynchronous forms of communication, such as
+bulletin boards and discussion groups.  Others tools, such as instant
+messaging, application and desktop sharing \cite{WEBEX, VNC}, and
+co-browsing \cite{CAPPS, LIEBERMAN, SIDLER} facilitate the
+communicative aspects of synchronous collaboration but are not
+designed specifically for educational purposes thus can be cumbersome
+when used as such.
 
 % - ai2tv project goals
-The work presented in this paper is a part of the $\mathrm{AI}^2$TV
-project, a multi-group effort aimed at developing a collaborative
-virtual environment for distributed team study.  $\mathrm{AI}^2$TV
-differs from many existing approaches that provide educational content
-in a networked context because of its explicit focus on the teamwork
-aspects of on-line education, and hence on synchronous collaboration.
-Within $\mathrm{AI}^2$TV, an important goal is to provide support for
-the collaborative use of multimedia content relevant to the work
-carried out by a team of users involved in the same project, such as
-audio/video recordings of lectures, meetings, workshops and other
-informational and educational events.
+$\mathrm{AI}^2$TV contributes to the area of synchronous collaboration
+support, and more specifically, to collaborative video sharing.  The
+work presented in this paper is a part of a larger effort to provide a
+collaborative virtual environment for distributed team study.  That
+project's goal is to provide support for the collaborative use of
+multimedia content relevant to the work carried out by a team of users
+involved in the same project, such as audio/video recordings of
+lectures, meetings, workshops and other informational and educational
+events.  In this paper, we focus on the aspect of video sharing for
+synchronous collaboration.
 
-One of the requirements of the multimedia support within the
-$\mathrm{AI}^2$TV virtual environment is the synchronized viewing of
-streaming video by all members of a geographically distributed team.
-To enforce the metaphor of synchronous collaboration in a virtual
-environment and for collaboration to be effective, all team members
-must be viewing the same content at all times so that discussion of
-the material can be coherent.  Synchronized viewing, however, is
-particularly difficult in an Internet context: dispersed team members
-may enjoy very diverse connectivity, ranging for example from 56k
-modem, to DSL, to cable, to T1 lines.  Moreover, the communication and
-computing resources available to each user may widely and quickly vary
-in the course of the team work session.
-
-To deal with these constraints, we adaptively control the distribution
-and presentation of the multimedia to all team members.  To be usable,
-that control must achieve synchronized viewing without unreasonably
-constraining the quality of the viewing experience of individual
-users; for example, a "worst case scenario" in which the experience of
-all members in a team is degraded to match that of the member with the
-least resources is not acceptable. On the contrary, any valid solution
-must reconcile the mandatory requirement of synchronized viewing with
-an efficient use of the resources of individual users.
+Viewing video on the Internet usually requires relatively high
+bandwidth resources and lossy network connections can lead to lost
+video content.  For group review of lecture videos, the lost content
+may severely disrupt the progression of the group.  Furthermore, the
+differences in network and computing resources available to dispersed
+users in the same collaboration group can prevent some students from
+participating.  Collaborative video sharing poses a twofold problem:
+on the one hand, it is mandatory to keep all users synchronized with
+respect to the content they are supposed to see at any moment during
+play time; on the other hand, it is important to provide each
+individual user with a frame rate that is optimized with respect to
+the user's available resources, which may vary during the course of
+the video.
 
 One solution to the problem of balancing the group synchronization
 requirement with the optimization of individual viewing experiences is
 to use videos with cumulative layering \cite{MCCANNE}, also known as
-scalable coding \cite{LI}.  In this approach, the client software is
-instructed to display video content at a quality level appropriate for
-that client's resources, which is selected from a hierarchy of several
-different encodings or frame rates for that video.
+scalable coding \cite{LI}.  In this approach, the client video player
+selects a quality level appropriate for that client's resources from a
+hierarchy of several different encodings or frame rates for that
+video. Thus a client could receive an appropriate quality of video
+content while staying in sync with the other members of the group.
 
 % - describe overview of semantic compression tool used
-Either fixed rate or variable rate schemes can be equally employed. In
-$\mathrm{AI}^2$TV, we take advantage of a semantic summarization
-package that was developed at Columbia University by Liu and Kender
-\cite{TIECHENG} which reduces a video to a set of semantically
-significant key frames.  That tool operates on MPEG format videos and
-outputs sequences of JPG frames, some of which are displayed in figure
-\ref{sem_video}.  Its semantic compression algorithm profiles video
-frames within a sliding time window and selects key frames that have
-the most semantic information.  By increasing the size of the window,
-a key frame will represent a larger time slice, which means that a
-larger window size will produce less key frames as compared to a
-smaller window size setting.
+In $\mathrm{AI}^2$TV, we use semantic summarization to produce a video
+with cumulative layering.  The semantic summarization package
+developed at Columbia University by Liu and Kender \cite{TIECHENG}
+reduces a video to a set of semantically significant key frames.  That
+tool operates on MPEG format videos and outputs sequences of JPG
+frames, some of which are displayed in figure \ref{sem_video}.  Its
+semantic compression algorithm profiles video frames within a sliding
+time window and selects key frames that have the most semantic
+information.  By increasing the size of the window, a key frame will
+represent a larger time slice, which means that a larger window size
+will produce less key frames as compared to a smaller window size
+setting.  
 
 \begin{figure}
   \centering
@@ -492,24 +385,27 @@ smaller window size setting.
   \label{sem_video}
 \end{figure} 
 
-The semantic compression package is used to produce the layered videos
-provided to clients.  A conceptual diagram of a video is shown in
-figure \ref{sem_video}.  Note that the semantic compression algorithm
-produces a random distribution of key frames, hence the video produced
-by the package plays back at a variable frame rate.  The variability
-in the frame rate implies that there are pockets of relatively high
-frequency semantic change that result in sections in the video that
-demand a higher frame rate.  The variable frame rate video adds
-complexity to the bandwidth demands of the client yet its semantic
-focus ensures that relevant content is unlikely to get lost, which is
-a significant property in the context of an educational application.
+A conceptual diagram of a layered video produced from semantic
+compression is shown in figure \ref{sem_video}.  Note that the
+semantic compression algorithm produces a random distribution of key
+frames, hence the video produced by the package plays back at a
+variable frame rate.  The variability in the frame rate implies that
+there are pockets of relatively high frequency semantic change that
+result in sections in the video that demand a higher frame rate.  The
+variable frame rate video adds complexity to the bandwidth demands of
+the client yet its semantic focus ensures that relevant content is
+unlikely to get lost, which is a significant property in the context
+of an educational application.
 
 Also, in figure \ref{sem_video}, the bottom-left in-set shows the
 juxtaposition of individual frames from two different quality levels.
 Each frame has a representative time interval \texttt{[start:end]}.
 For the higher level, Frame 1a represents the interval from 1:00 to
 1:03, and Frame 1b represents the interval from 1:04 to 1:10.  For the
-lower level, Frame 2 represents the entire interval of 1:00 to 1:10.
+lower level, Frame 2 represents the entire interval from 1:00 to 1:10.
+In this diagram, Frame 2 is semantically equivalent to Frame 1a and
+1b, though in reality, the start and end times would not match up as
+ideally as our example.
 
 Through the use of the $\mathrm{AI}^2$TV video, we can provide
 semantically equivalent content to several clients with diverse
@@ -692,7 +588,7 @@ $\mathrm{AI}^2$TV clients.
   \centering
   \hspace*{-5mm}
   \epsfig{file=ljil.eps, width=8cm}
-  \caption{Workflow diagram }
+  \caption{$\mathrm{AI}^2$TV Workflow diagram }
   \label{ljil}
 \end{figure}
 
@@ -843,9 +739,10 @@ A primary goal of the $\mathrm{AI}^2$TV system is to increase the
 video quality for the clients.  With respect to the evaluation of
 video quality of services, Liu et. al describes several local metrics
 such as frame rate, loss rate, delay jitter, image resolution, and
-human spatial-temporal contrast-sensitivity \cite{LIU}.  We do not
-address global metrics such as fairness, as described in \cite{LIU}.
-For our situation, a higher video quality means a higher frame rate.
+human spatial-temporal contrast-sensitivity \cite{LIU2003}.  We do not
+address global metrics such as fairness, as described in
+\cite{LIU2003}.  For our situation, we focus on frame rate as a
+measure of video quality.
 
 To attain a quantitative measure of the quality of service provided by
 a client assisted by the autonomic controller, we use a scoring system
@@ -960,7 +857,7 @@ Our approach to synchronization can be classified as a distributed
 adaptive scheme that employs a global clock and operates in a
 proactive way.  The main difference with respect to other approaches,
 such as the Adaptive Synchronization Protocol \cite{ASP},
-\cite{GONZALEZ}, or \cite{LIU} (which can all be used equally for
+\cite{GONZALEZ}, or \cite{LIUSYNC} (which can all be used equally for
 inter- and intra-stream applications) is that it is not based on the
 idea of play-out delay.  Instead, it takes advantage of layered
 semantic compression coupled with buffering to "buy more time" for
@@ -1009,24 +906,6 @@ work very well, due to the heavy-weight CVE burden on local
 resources. Video quality optimization was not addressed.  The new
 implementation of $\mathrm{AI}^2$TV presented here can run alongside
 the CVE in a separate window.
-
-\comment{I don't know what cites might belong in above paragraph, if any.}
-
-\begin{comment}
-A different design and implementation of the concepts outlined here
-was completed in VECTORS \cite{VECTORS}.  That system uses a
-peer-to-peer architecture to implement a synchronization scheme, and
-does away with the central controller, following a design that is
-often employed in gaming systems.  Moreover, in VECTORS, the
-synchronization machinery is tightly coupled with a collaborative
-virtual environment (CVE) called CHIME \cite{CHIME}.  A number of
-peer-to-peer distributed synchronization schemes, such as the Flow
-Synchronization Protocol \cite{FSP} exist.  In the case of the VECTORS
-application, however, the decentralized synchronization scheme failed
-to provide an adequate level of synchronization, due to the
-communication overhead among the peers, as well as the heavy-weight
-nature of the CVE hosting the synchronization components.
-\end{comment}
 
 \section{Conclusion}
 
