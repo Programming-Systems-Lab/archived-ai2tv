@@ -9,7 +9,7 @@ import psl.ai2tv.gauge.*;
 /**
 	Envelopes info about a client: its ID, its state and its GUI elements.
 */
-class ClientBar {
+class ClientBar extends ClientDesc {
 
 	/** contains client ID */
 	private JLabel label;
@@ -27,8 +27,7 @@ class ClientBar {
 	private FrameDesc fd;
 	
 	ClientBar(String name, int max) {
-		startTime = 0;
-		fd = new FrameDesc();
+		super(name);
 				
 		label = new JLabel (name);
 		bar = new JProgressBar(0, max);
@@ -43,21 +42,8 @@ class ClientBar {
 	    System.out.println ("Added Client Panel - " + label.getText());
 	}
 	
-	void setFrame(int l, int m, int r, long t, int level) {
-		fd.setStart (l);
-		fd.setNum (m);
-		fd.setEnd (r);
-		fd.setDownloadedTime(t);
-		fd.setLevel (level);
-	}
-	
-	FrameDesc getFrame() { return fd; }
-	
-	
 	JLabel getLabel() { return label; }
 	JProgressBar getBar() { return bar; }
 	JPanel getClientPanel() { return clientPanel; }
 
-	long getStartTime() { return startTime; }
-	void setStartTime(long st) { startTime = st; } 
 }

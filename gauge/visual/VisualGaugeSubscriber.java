@@ -15,32 +15,14 @@ import psl.ai2tv.gauge.*;
 	Updates also visual bars with progress
 */
 class VisualGaugeSubscriber 
-	 implements GaugeSubscriber {
+	 extends SimpleGaugeSubscriber {
 	
-	private Filter gaugeFilter;
-	private HierarchicalDispatcher mainSiena;
 	private VisualGauge theGauge;	
 	
 	public VisualGaugeSubscriber(VisualGauge gg) 
 		throws SienaException, IOException {
 		theGauge = gg;
 		setup();
-	}
-	
-	/** Siena and subscriptions initialization */
-	private void setup() 
-		throws SienaException, IOException {
-	    mainSiena = new HierarchicalDispatcher();
-	    mainSiena.setReceiver(new UDPPacketReceiver(sienaPort));
-	    System.out.println ("Siena Server Up: " + new String(mainSiena.getReceiver().address()));
-
-	    Filter startFilter = new Filter();
-	    startFilter.addConstraint("Start", Op.ANY, (String)null);
-	    mainSiena.subscribe(startFilter, this);
-	    
-	    gaugeFilter = new Filter();
-		gaugeFilter.addConstraint("FRAME", Op.EQ, "frame_ready");	
-	    mainSiena.subscribe(gaugeFilter, this);
 	}
 	
 	/**
@@ -98,7 +80,4 @@ class VisualGaugeSubscriber
             
 	}
 
-    public void notify(Notification s[]) {
-    	// I never subscribe for patterns anyway. 
-    } 
 }
