@@ -76,7 +76,7 @@ public class FrameDesc {
 	public void setDownloadedTime(long t) { downloadedTime = t; }
 	
 	public void setEquivalents(Vector v) { equivalents = v; }
-	public Iterator getEquivalents() { return equivalents; }
+	public Iterator getEquivalents() { return equivalents.iterator(); }
 	
 	public String toString() {
 		String s = " : level =  " + level + " frame # = " + num + " < " + start + " - " + end + " >";
