@@ -39,7 +39,7 @@ class ClientProbe
 				}
 			}
 			//send probe message
-			emit(cache.currFrame);
+			emit(cache.getCurrFrame());
 		}
 
 	}

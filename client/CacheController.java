@@ -12,25 +12,20 @@ import psl.ai2tv.gauge.FrameIndexParser;
 
 public class CacheController {
 
-  private FrameIndexParser framesInfo;
-  private int progress[];
+  protected FrameIndexParser framesInfo;
+  protected int progress[];
   private String frameFileName;
   private File frameFile = null;
-  private int currLevel;
-  FrameDesc currFrame;
-  private int numLevels;
-  private long downloadInterval;
+  protected int currLevel;
+  protected FrameDesc currFrame;
+  protected int numLevels;
   String cacheDir = "cache";
   String baseURL = "http://www1.cs.columbia.edu/~suhit/ai2tv/1/";
-	
-  Client _client;
 
-  public CacheController(String name, double rate, Client c) {
-    _client = c;
+  public CacheController(String name, double rate) {
     frameFileName = name;
     currLevel = 0;
     currFrame = null;
-    downloadInterval = (long)(1000/rate);
     framesInfo = new FrameIndexParser(frameFileName);
     progress = new int[framesInfo.levels()];
     for (int i = 0; i < progress.length; i++)
@@ -60,7 +55,7 @@ public class CacheController {
     }
   }
 	
-  private FrameDesc nextFrame() {
+  protected FrameDesc nextFrame() {
     System.out.println("getting the next frame");    
     FrameDesc[] curr = framesInfo.frameData()[currLevel];
     int index = progress[currLevel];

@@ -57,7 +57,7 @@ class Client {
 
     start = paused = pausedStart = 0;
 
-    _cache = new CacheController(frameFile, framerate, this);
+    _cache = new CacheController(frameFile, framerate);
     _viewer = new Viewer();
     _comm = new CommController("AI2TV", sienaServer, null, _viewer, _cache);
 
