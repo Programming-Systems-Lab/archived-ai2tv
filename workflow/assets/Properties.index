@@ -1,0 +1,38 @@
+- - - - - List of machine generated PropertyGroups - - - - -
+* BucketPG
+representation of a gauge sample
+    long SampleTime;	//moment of the sample
+    Vector Group;	//set of clients in the same group and sampled; includes ClientAsset instances
+* ClientPG
+representation of an A2TV client as sampled
+    String Id;	//unique client ID
+    String Host;	//host name
+    double Bandwidth;	//last bandwidth measure
+    long SampleTime;	// moment of the sample - same as the equivalent field in BucketPG
+* FramePG
+representation of a downloaded video frame
+    int Level;	//hierarchy level
+    int Num;	//frame number
+    int Start;	//start of the represented frame interval
+    int End;	//end of the represented frame interval
+* global
+- - - - - Permuted index of PropertyGroupSlots - - - - -
+* Bandwidth
+    ClientPG
+* End
+    FramePG
+* Group
+    BucketPG
+* Host
+    ClientPG
+* Id
+    ClientPG
+* Level
+    FramePG
+* Num
+    FramePG
+* SampleTime
+    BucketPG
+    ClientPG
+* Start
+    FramePG

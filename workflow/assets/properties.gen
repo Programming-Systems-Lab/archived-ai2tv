@@ -1,0 +1,13 @@
+properties.gen
+ClientPG.java
+NewClientPG.java
+ClientPGImpl.java
+FramePG.java
+NewFramePG.java
+FramePGImpl.java
+BucketPG.java
+NewBucketPG.java
+BucketPGImpl.java
+PropertyGroupFactory.java
+AssetSkeleton.java
+Properties.index
