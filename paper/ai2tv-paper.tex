@@ -1,0 +1,114 @@
+% to compile this file into a pdf or ps use the following
+% 1) latex whitepaper.tex
+% for ps: 2) dvips -K whitepaper -o
+% for pdf: 2) ps2pdf whitepaper.ps whitepaper.pdf
+\documentclass[12pt]{article}
+\usepackage{fancyheadings}
+\usepackage{doublespace}
+\usepackage{enumerate}
+\usepackage{graphics}
+
+% \usepackage{doublespace}
+
+% commands used to control margins
+\usepackage{geometry}
+\geometry{verbose,letterpaper,lmargin=45mm,rmargin=45mm}
+% \textheight=9.3in
+\topmargin=.2in
+
+% command used to control between-line spacing
+\renewcommand{\baselinestretch}{1}
+
+\pagestyle{fancy}
+\cfoot{}
+\lhead{}
+\rhead{\rm\thepage\ of \pageref{'LastPage'}}
+\chead{\emph{Evaluating QoS of Distributed Video Synchrony}}
+
+\title{Process Migration Policy Manager}
+
+\author{
+ \textbf{Dan B. Phung, Peppo Valetto, Gail Kaiser}\\
+Computer Science Department\\
+Columbia University\\
+\{phung, valetto, kaiser\}@cs.columbia.edu
+}
+
+\date{
+\parbox[b][0ex]{0em}{\hspace*{-12.5em}\raisebox{37ex}{\fbox{For submission to 
+\emph{ACM-MM 2004}, due 12:00 AM EDT: April 05, 2004.}}}}
+
+keywords: collaboration, mutlimedia synchrony, 
+
+Three approaches: 
+- introduce a new and useful tool for synchronized multimedia.  
+  : I doubt this is useful
+
+
+  The increasing popularity of online courses has highlighted the
+  problemmatic differences in computing resources of the participating
+  student population.  In courses that require collaboration among
+  students, these differences in computing resources....
+    coursework there is a need
+- introduce and discuss the scoring system
+  : maybe
+
+- comparison of systems.  
+  : will suhit ever finish?
+
+\begin{document}
+
+We only focus on network bandwidth as the commodity resource.
+(is this a valid assumption?)
+
+geographically dispersed, varying network resources.
+
+scope: education videos, scoring system.
+
+devils advocate:
+- share desktops
+  - just use vnc, and have everybody connect
+  - just use remote desktop
+  - use WebEx
+
+
+
+
+\begin{singlespace}
+\maketitle
+\end{singlespace}
+
+\begin{abstract}\noindent
+
+keywords: 
+
+\end{abstract}
+
+\section{Introduction} \label{sec:intro}
+
+Use case scenarios.
+
+%% need to find out: 
+%% - what's state information is available to the our framework?
+%%   > when does a process need to be migrated (when does a proc die?)
+%%   > what resources are available (what system can we move to?)
+
+\subsection{Motivation} 
+
+\subsection{Contributions} \label{sec:contrib}
+goals: 
+
+\subsection{Evaluation} \label{sec:eval}
+
+\subsection{Quality of Service} \label{sec:qos}
+
+\section{Workflow} \label{sec:wf}
+
+\section{Results} \label{sec:results}
+\section{Related Work} \label{sec:related}
+\section{Future Work} \label{sec:future}
+\section{Conclusion} \label{sec:con}
+\section{Acknowledgements} \label{sec:ack}
+
+\label{'LastPage'}
+\end{document}
