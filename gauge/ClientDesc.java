@@ -20,12 +20,13 @@ public class ClientDesc {
 	
 
 		
-	public void setFrame(int l, int m, int r, long t, int level) {
+	public void setFrame(int l, int m, int r, long t, int level, int s) {
 		fd.setStart (l);
 		fd.setNum (m);
 		fd.setEnd (r);
 		fd.setDownloadedTime(t);
 		fd.setLevel (level);
+		fd.setSize (s);
 	}
 	
 	public FrameDesc getFrame() { return fd; }

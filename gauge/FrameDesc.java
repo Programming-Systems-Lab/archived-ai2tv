@@ -29,23 +29,28 @@ public class FrameDesc {
 	/** time at which the Frame was downloaded */
 	private long downloadedTime;
 	
-	/** Vector containing the FrameDeac of all the equivalent frames to this frame */
+	/** Vector containing the FrameDesc of all the equivalent frames to this frame */
 	private Vector equivalents;
 	
+	/** size in bytes of the frame */
+	private int size;
+
 	public FrameDesc() {
 		level = -1;
 		num = -1;
 		start = -1;
 		end = -1;
+		size = -1;
 		downloadedTime = -1;	
 		equivalents = null;
 	}
 	
-	public FrameDesc(int n, int s, int e, int level) {
+	public FrameDesc(int n, int s, int e, int level, int sz) {
 		num = n;
 		start = s;
 		end = e;
 		this.level = level;
+		size = sz;
 		//System.out.println ("Frame is " + num + ": < " + start + " : " + end +  ">");
 	}
 	
@@ -64,6 +69,8 @@ public class FrameDesc {
 	public void setEnd (int e) { end = e; }
 	public int getLevel() { return level; }
 	public void setLevel(int l) { level = l; }
+	public int getSize() { return level; }
+	public void setSize(int s) { size = s; }
 	
 	public long getDownloadedTime() {return downloadedTime; }
 	public void setDownloadedTime(long t) { downloadedTime = t; }

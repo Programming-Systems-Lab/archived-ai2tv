@@ -108,6 +108,7 @@ public class FrameIndexParser {
       int num;
       int start;
       int end;
+      int size;
       for (i=0; i<_levels; i++){
       	_frameData[i] = new FrameDesc[_frameNum[i]];
 		for (j=0; j<_frameNum[i]; j++){
@@ -119,7 +120,8 @@ public class FrameIndexParser {
 		    num = Integer.parseInt(tempBuffer[0]);
 		    start = Integer.parseInt(tempBuffer[1]);
 		    end = Integer.parseInt(tempBuffer[2]);
-	    	_frameData[i][j] = new FrameDesc(num, start, end, i);
+		    size = Integer.parseInt(tempBuffer[3]);
+	    	_frameData[i][j] = new FrameDesc(num, start, end, i, size);
 	    	if (DEBUG > 0)
 	      		out.print(_frameData[i][j] + "\n");
 	  	}
