@@ -189,7 +189,5 @@ class ClientProbe {
   boolean getProbeStatus(int ID){
     return _probeStatus[ID];
   }
-
-
 }
 
