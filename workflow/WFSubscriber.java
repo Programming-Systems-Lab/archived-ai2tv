@@ -20,7 +20,7 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
 
   private static final Logger logger = Logger.getLogger(WFSubscriber.class);
 
-  private static final long REFRESH_DURATION = 10000; // check clients every 5 secs
+  private static final long REFRESH_DURATION = 5000; // check clients every 5 secs
 
   static WFGauge myGauge;
   private long _id;
@@ -184,9 +184,10 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
 	WFGauge.clock.stopTime();
 
       } else if (action.equals(SienaConstants.GOTO)) {
-	long clientid = e.getAttribute(SienaConstants.CLIENT_ID).longValue();
+	String clientid = e.getAttribute(SienaConstants.UID).stringValue() + "@" + 
+	  e.getAttribute(SienaConstants.UID).stringValue();
 	// id of -1 is reserved for the WF
-	if (clientid != _id){
+	if (!clientid.equals("" + _id)){
 	  WFGauge.clock.gotoTime(absTimeSent, e.getAttribute(SienaConstants.NEWTIME).intValue());
 	}
       } else {

@@ -81,6 +81,7 @@ public class GaugeLDMPlugIn
     gauge.setFrameFileName(System.getProperty("psl.ai2tv.frameindex"));
     gauge.setLDMHandle(this);
     gauge.setup();
+    logger.info("WF process is ready");
   }
 
   private void publishReport() {
@@ -111,7 +112,7 @@ public class GaugeLDMPlugIn
       }
 
       FrameDesc fd = cd.getFrame();
-      logger.debug(cd.getClientID() + " : " + fd.toString());
+      // logger.debug(cd.getClientID() + " : " + fd.toString());
       ca = (ClientAsset)factory.createInstance("ClientProto");
       ca.setItemIdentificationPG(makeIdentificationPG("AI2TV_Client "+ cd.getClientID()
 						      + "@" + sampleTime));

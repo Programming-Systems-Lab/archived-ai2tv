@@ -83,13 +83,13 @@ class WFGauge extends GroupGauge {
       // is within the time of the last sample and this moment
       // logger.debug("checking client: " + id + " with frame: " + fd);
       
-      logger.debug(lastCheckTime + " < ? " + lastSampleTime + " ? < " + currentTime);
+      // logger.debug(lastCheckTime + " < ? " + lastSampleTime + " ? < " + currentTime);
       if (lastCheckTime < lastSampleTime && lastSampleTime <= currentTime){
-	logger.debug("updating bucket for client " + id);
+	// logger.debug("updating bucket for client " + id);
 	bucket.update(id, cd);
       }
       else {
-	logger.debug("NOT updating bucket for client " + id);
+	// logger.debug("NOT updating bucket for client " + id);
 	// logger.debug("t=" + t + ", elapsed=" + elapsed + ", bucket.getTime()=" + bucket.getTime());
       }
     }

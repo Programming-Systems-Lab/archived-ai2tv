@@ -176,7 +176,7 @@ public class AI2TVPlugin extends ComponentPlugin {
 
                 resourceTable.addResource(diagram, "baseClient", baseClient);
 
-                logger.debug("publishing diagram");
+                // logger.debug("publishing diagram");
                 blackboard.publishAdd(diagram);
 
             } catch (Exception e) {
@@ -190,17 +190,17 @@ public class AI2TVPlugin extends ComponentPlugin {
     class TaskExpanderListener extends TaskExpanderPlugin.Listener {
 
         public void taskPublished(String taskName) {
-            logger.debug(taskName + " published, adding timestamp");
+	  // logger.debug(taskName + " published, adding timestamp");
             PluginUtil.Timing.addTimestamp("PUB " + taskName);
         }
 
         public void leafTaskPublished(String taskName) {
-            logger.debug(taskName + " published, adding timestamp");
+	  // logger.debug(taskName + " published, adding timestamp");
             PluginUtil.Timing.addTimestamp("PUB " + taskName);
         }
 
         public void taskFinished(String taskName) {
-            logger.debug(taskName + " finished, adding timestamp");
+	  // logger.debug(taskName + " finished, adding timestamp");
             PluginUtil.Timing.addTimestamp("END " + taskName);
 
             if (taskName.equals("ROOT")) {
@@ -221,19 +221,19 @@ public class AI2TVPlugin extends ComponentPlugin {
                 Vector clients = (Vector) inParams.get("clients");
                 ClientAsset baseClient = (ClientAsset) inParams.get("baseClient");
 
-                logger.debug("FindBase got clients " + clients + ", base=" + baseClient);
+                // logger.debug("FindBase got clients " + clients + ", base=" + baseClient);
 
             } else if (method.equals("EvaluateClient")) {
 
                 ClientAsset baseClient = (ClientAsset) inParams.get("baseClient");
                 ClientAsset client = (ClientAsset) inParams.get("clients");
 
-                logger.debug("EvaluateClient got client=" + client + ", base=" + baseClient);
+                // logger.debug("EvaluateClient got client=" + client + ", base=" + baseClient);
 
             } else if (method.equals("AdaptClient")) {
 
                 ClientAsset client = (ClientAsset) inParams.get("clients");
-                logger.debug("AdaptClients got client: " + client);
+                // logger.debug("AdaptClients got client: " + client);
 
             } else {
 
