@@ -18,7 +18,7 @@ TEX=latex
 
 DVIPSFLAGS=-K
 
-%.dvi: %.tex; latex $*; bibtex $*; latex $*; latex $*;
+%.dvi: %.tex; latex $*; latex $*; bibtex $*; latex $*;
 %.ps: %.dvi; dvips $(DVIPSFLAGS) $* -o
 # %.pdf: %.tex %.dvi; pdflatex $*
 # %.pdf: %.ps; ps2pdf $< $@
