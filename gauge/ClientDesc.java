@@ -174,13 +174,11 @@ public class ClientDesc {
     if (nDistClient2WF > 1){
       // I don't know why, but this calculation just returns the 
       // double value of sumOfSquaredDistWF2Client.  The calulation is more efficient 
-      // than the one used below which is: 
-      // the following is: (sumOfSquared*(N-1) - sum^2) / N-1
+      // than the one used below.  The formula used is: 
+      // (sumOfSquared - sum^2/N)-1) / N-1
       // int N = nDistClient2WF - 1;
       // double variance = sumOfSquaredDistClient2WF - (1/N*N)*sumDistClient2WF*sumDistClient2WF;
-      avg = sumDistClient2WF / nDistClient2WF;
-      avgS = sumOfSquaredDistClient2WF / nDistClient2WF;
-      variance = avgS - (avg*avg);
+      variance = (sumOfSquaredDistClient2WF - (sumDistClient2WF*sumDistClient2WF)/nDistClient2WF) / (nDistClient2WF-1);
       
       return java.lang.Math.sqrt(variance);
     } else 
