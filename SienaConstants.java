@@ -19,6 +19,10 @@ public class SienaConstants {
   public static final String SIZE = "size";
   public static final String TIME_SHOWN = "timeShown";
   
+  public static final String AI2TV_WF_REG = "AI2TV_WF_REG";
+  // client ID
+  // 
+
   // these represent the actions of the clients, and are typically sent
   // between peers
   public static final String AI2TV_VIDEO_ACTION = "AI2TV_VIDEO_ACTION";
