@@ -309,7 +309,6 @@ public class LoginHandler extends JFrame {
 		  Client.err.println("Warning, date and time settings are ignored for active videos");
 		}
 		_client.loadVideo(_videoName);
-		shutdown();
 
 	      } else if (_dateField.getText().trim().length() > 0 &&
 			 _timeField.getText().trim().length() > 0){
@@ -317,7 +316,6 @@ public class LoginHandler extends JFrame {
 		_date = _dateField.getText();
 		_time = _timeField.getText();
 		_client.loadVideo(_videoName +","+ _date +";"+ _time);
-		shutdown();		
 	      } else {
 		// this is the case that they selected a new video but didn't set a date and time
 		Client.err.println("Error, you must set a date and time.");
