@@ -168,12 +168,8 @@ class CommController implements Notifiable{
    * @param event: Notification sent by the Siena server
    */
   private void handleNotification(Notification event){
-    // dp2041: debug
-    // Client.out.println("handleNotification(): I just got this event:" + event + ": at : " 
-    // + Calendar.getInstance().getTime());
-    System.out.println("handleNotification(): I just got this event:" + event + ": at : " 
+    Client.out.println("handleNotification(): I just got this event:" + event + ": at : " 
 		       + Calendar.getInstance().getTime());
-
     
     String name = event.toString().substring(7).split("=")[0];
     String attrib = event.getAttribute(name).stringValue();
