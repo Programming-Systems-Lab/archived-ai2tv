@@ -1,3 +1,9 @@
+----------------------
+dp2041 - 19 April 2003
+----------------------
+
+PROBES: 
+
 we could have 
 
 1) invansive probe: probe calls would be littered throughout the 
@@ -14,7 +20,10 @@ frame is actually shown), we will proceed with the invasive
 approach, carefully labelling each specific location and
 type of probing being used.
 
-- - - - - - - - - - - - - - - 
+
+----------------------
+dp2041 - 19 April 2003
+----------------------
 
 we must be able to clarify the scope of determinants and non-determinants
 we must also be able to discern on what level what kind of information can
@@ -38,6 +47,9 @@ local workgroup	:
 global		: 
 
 
-- - - - - - - - - - - - - - - - - - - - - - - - - 
 
+------------
 NTP Research
+------------
+
+NTP is an internet standard.  see the checked in paper: ntp_review.pdf
