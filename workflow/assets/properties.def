@@ -18,10 +18,11 @@ group.doc=set of clients in the same group and sampled; includes ClientAsset ins
 
 [ClientPG]
 doc=representation of an A2TV client as sampled
-slots=String id, String host, int level, int cacheLevel, double bandwidth, long sampleTime, int prefetchedFrames, int reserveFrames, double avgDistWF2Client, int penalties
+slots=String id, String host, int level, int frameRate, int cacheLevel, double bandwidth, long sampleTime, int prefetchedFrames, int reserveFrames, double avgDistWF2Client, int penalties
 id.doc=unique client ID
 host.doc=host name
 level.doc=client's last measured level
+frameRate.doc=client's last measured frame rate
 cacheLevel.doc=client cache's last measured level
 reserveFrames.doc=number of reserved frames if the client and cache levels are not the same
 bandwidth.doc=last bandwidth measure

@@ -151,6 +151,10 @@ class ClientEffector implements Notifiable {
 	Client.out.println("ClientEffector found command to jump to a certain frame: " + event.getAttribute(SienaConstants.JUMP_TO).stringValue());
 	_client.jumpTo(event.getAttribute(SienaConstants.JUMP_TO).stringValue());
       } 
+      if (event.getAttribute(SienaConstants.CHANGE_FRAME_RATE) != null){
+	_client.setFrameRate(event.getAttribute(SienaConstants.CHANGE_FRAME_RATE).intValue());
+      }
+
     } else {
       Client.err.println("Notification Error, received unknown name: " + name);
     }
@@ -164,6 +168,7 @@ class ClientEffector implements Notifiable {
   void publishUpdate(long ppd){
     Notification event = new Notification();
     event.putAttribute(SienaConstants.LEVEL, _client.getLevel());
+    event.putAttribute(SienaConstants.FRAME_RATE, _client.getFrameRate());
     event.putAttribute(SienaConstants.CACHE_LEVEL, _client.getCacheLevel());    
     event.putAttribute(SienaConstants.CLIENT_RESERVE_FRAMES, _client.getReserveFrames());
     event.putAttribute(SienaConstants.AI2TV_WF_UPDATE_REPLY, "");

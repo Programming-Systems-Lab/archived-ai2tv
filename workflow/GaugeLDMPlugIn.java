@@ -115,8 +115,8 @@ public class GaugeLDMPlugIn
       ca = (ClientAsset)factory.createInstance("ClientProto");
       ca.setItemIdentificationPG(makeIdentificationPG("AI2TV_Client "+ cd.getClientID()
 						      + "@" + sampleTime));
-      ca.setClientPG(makeClientPG(cd.getClientID(), "127.0.0.1", cd.getLevel(), cd.getCacheLevel(), 
-				  cd.getBandwidth(), sampleTime, cd.getPrefetchedFrames(), 
+      ca.setClientPG(makeClientPG(cd.getClientID(), "127.0.0.1", cd.getLevel(), cd.getFrameRate(),
+				  cd.getCacheLevel(), cd.getBandwidth(), sampleTime, cd.getPrefetchedFrames(), 
 				  cd.getReserveFrames(), cd.getAvgDistWF2Client(), cd.getPenalties()
 				  ));
       if (cd.getPenalties() > 0)
@@ -197,7 +197,7 @@ public class GaugeLDMPlugIn
     // set the Prototypes for ClientAssets
     clientProto = (ClientAsset)factory.createPrototype(ClientAsset.class, "ClientProto");
     clientProto.setItemIdentificationPG(makeIdentificationPG("AI2TV Client Descriptor Proto"));
-    clientProto.setClientPG(makeClientPG("dummyID", "127.0.0.1", 0, 0, 0.0, 0, 0, 0, 0, 0));
+    clientProto.setClientPG(makeClientPG("dummyID", "127.0.0.1", 0, 0, 0, 0.0, 0, 0, 0, 0, 0));
     clientProto.setFramePG(makeFramePG(-1, -1, -1, -1, -1, -1, -1));
     prototypeRegistry.cachePrototype("ClientProto", clientProto);
   }
@@ -216,13 +216,15 @@ public class GaugeLDMPlugIn
     return bPG;
   }
 	
-  private ClientPG makeClientPG (String id, String hostname, int level, int cacheLevel,
+  private ClientPG makeClientPG (String id, String hostname, int level, 
+				 int cacheLevel, int frameRate,
 				 double bw, long t, int prefetchedFrames, 
 				 int reserveFrames, double avgDist, int penalties) {
     NewClientPG cPG = (NewClientPG)factory.createPropertyGroup("ClientPG");
     cPG.setId(id);
     cPG.setHost(hostname);
     cPG.setLevel(level);
+    cPG.setFrameRate(frameRate);
     cPG.setCacheLevel(cacheLevel);
     cPG.setReserveFrames(reserveFrames);
     cPG.setBandwidth(bw);

@@ -136,6 +136,7 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
       myGauge.setLastSampleTime(e.getAttribute(SienaConstants.ABS_TIME_SENT).longValue());
       currentClient.setLevel(e.getAttribute(SienaConstants.LEVEL).intValue());
       currentClient.setCacheLevel(e.getAttribute(SienaConstants.CACHE_LEVEL).intValue());
+      currentClient.setFrameRate(e.getAttribute(SienaConstants.FRAME_RATE).intValue());
       currentClient.setReserveFrames(e.getAttribute(SienaConstants.CLIENT_RESERVE_FRAMES).intValue());
 			       
       if (e.getAttribute(SienaConstants.PREFETCHED_FRAMES) != null)
@@ -163,6 +164,7 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
 
       myGauge.setLastSampleTime(e.getAttribute(SienaConstants.ABS_TIME_SENT).longValue());
       currentClient.setLevel(e.getAttribute(SienaConstants.LEVEL).intValue());
+      currentClient.setFrameRate(e.getAttribute(SienaConstants.FRAME_RATE).intValue());
       currentClient.setCacheLevel(e.getAttribute(SienaConstants.CACHE_LEVEL).intValue());
       currentClient.setReserveFrames(e.getAttribute(SienaConstants.CLIENT_RESERVE_FRAMES).intValue());
       // logger.debug("WF -> client avg is: " + 

@@ -29,8 +29,11 @@ public class ClientDesc {
   /** last frame being displayed by the client */
   protected FrameDesc fd;
 
-  /** bandwidth as sampled last */
+  /** hierarchy level as sampled last */
   protected int level;
+
+  /** rate at which frames were sampled */
+  protected int frameRate;
 
   /** bandwidth as sampled last */
   protected int cacheLevel;
@@ -84,6 +87,7 @@ public class ClientDesc {
     clientID = name;
     startTime = 0;
     level = 0;
+    frameRate = 30;
     cacheLevel = 0;
     reserveFrames = 0;
     bandwidth = 0;
@@ -120,6 +124,8 @@ public class ClientDesc {
   public void setStartTime(long st) { startTime = st; } 
   public int getLevel() { return level; }
   public void setLevel(int l) { level = l; }
+  public int getFrameRate() { return frameRate; }
+  public void setFrameRate(int fr) { frameRate = fr; }
   public int getCacheLevel() { return cacheLevel; }
   public void setCacheLevel(int l) { cacheLevel = l; }
   public int getReserveFrames() { return reserveFrames; }

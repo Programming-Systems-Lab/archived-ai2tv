@@ -148,6 +148,7 @@ class ClientProbe {
       int diff = (int)(time - _probeTimes[ID]);
       _frameEvent.putAttribute(natureOfMessage, diff);
       _frameEvent.putAttribute(SienaConstants.PROBE_TIME, diff);
+      _frameEvent.putAttribute(SienaConstants.FRAME_RATE, _client.getFrameRate());
 
       if (natureOfMessage.equals(SienaConstants.TIME_OFFSET))
 	addFrameInfo(diff);
