@@ -88,15 +88,7 @@ class CommController implements Notifiable{
 
     // WF related actions
     filter = new Filter();
-    filter.addConstraint("WF_FRAME_CHANGELEVEL", "UP");
-    _mySiena.subscribe(filter, this);
-
-    filter = new Filter();
-    filter.addConstraint("WF_FRAME_CHANGELEVEL", "DOWN");
-    _mySiena.subscribe(filter, this);
-
-    filter = new Filter();
-    filter.addConstraint("WF_FRAME_GOTO", Op.GT, 0);
+    filter.addConstraint("AI2TV_FRAME_UPDATE", "");
     _mySiena.subscribe(filter, this);
   }
 
@@ -157,15 +149,23 @@ class CommController implements Notifiable{
       } else if (attrib.toString().startsWith("\"GOTO")){
 	_client.commGoto(event.getAttribute("NEWTIME").intValue());
       } else {
-	System.err.println("Notification Error, received unknown attribute: " + attrib);
+	System.err.println("AI2TV_VIDEO_ACTION: Notification Error, received unknown attribute: " + attrib);
       }
 
-    } else if (name.equals("WF_FRAME_CHANGELEVEL")){
-      _client.changeHierarchy(attrib.toString());
-    } else if (name.equals("WF_FRAME_GOTO")){
-      _client.setNextFrame(attrib.intValue());
+    } else if (name.equals("AI2TV_FRAME_UPDATE") && 
+	       event.getAttribute("CLIENT_ID").longValue() == _client.getID()){
+      System.out.println("found a WF commmand to do something, directed to ME!");
+      System.out.println("");
+      if (event.getAttribute("CHANGE_LEVEL") != null){
+	_client.changeLevel(event.getAttribute("CHANGE_LEVEL").toString());
+      } else if (event.getAttribute("GOTO_FRAME") != null){
+	_client.setNextFrame(event.getAttribute("GOTO_FRAME").intValue());
+      } else {
+	System.err.println("AI2TV_FRAME_UDPATE: Notification Error, received unknown attribute: " + attrib);
+      }
+
     } else {
-      System.err.println("Notification Error, received unknown attribute: " + attrib);
+      System.err.println("Notification Error, received unknown name: " + name);
     }
   }
 

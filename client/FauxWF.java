@@ -10,15 +10,21 @@ class FauxWF extends Thread implements Notifiable {
   private boolean _isActive;
   private ThinClient _mySiena;
   private Filter filter;
+  private int _earlyThreshold;
+  private int _lateThreshold;
 
   FauxWF(){
     _isActive = false;
     _mySiena = null;
+
+    _earlyThreshold = 2;  // threshold for max number of early frames
+    _lateThreshold = 2;  // threshold for min number of late frames
+
     setupSienaListener();
   }
 
   public void notify(Notification e) {
-    System.out.println("I just got this event:");
+    // System.out.println("I just got this event:");
     System.out.println(e.toString());
     handleNotification(e);
   }
@@ -28,42 +34,58 @@ class FauxWF extends Thread implements Notifiable {
   private void handleNotification(Notification event){
     String name = event.toString().substring(7).split("=")[0];
     AttributeValue attrib = event.getAttribute(name);
-    if (name.equals("WF_FRAME_UPDATE")){
-      System.out.println("equal to WF_FRAME_UPDATE attrib: " + attrib);
-      /*
-      if (attrib.toString().equals("\"PLAY\"")){
-	_client.commPlay(); 
-      }
-      */
+    long clientID;
+
+    // System.out.println("name: " + name + " attrib:" + attrib);
+    if (name.equals("AI2TV_FRAME")){
+      clientID = event.getAttribute("CLIENT_ID").longValue();
+
+      // first we see if the level needs to be changed.
+      int early = event.getAttribute("earlyframes").intValue();
+      int late = event.getAttribute("lateframes").intValue();
+      int missed = event.getAttribute("missedframes").intValue();
+      int level = event.getAttribute("level").intValue();
+      
+      if (early > _earlyThreshold && level > 0){
+	System.out.println("Sending some uppers");
+	changeLevel("UP", clientID);
+
+      } else if (late > _lateThreshold && level < 4) {
+	System.out.println("Sending some downers");
+	changeLevel("DOWN", clientID);
+      }      
     } else {
-      System.out.println("NOT equal to WF_FRAME_UPDATE attrib: " + attrib);
+      System.out.println("Error: NOT equal to AI2TV_FRAME name");
     }
-      hierarchyDown();
+
+
   }
 
-  private void hierarchyDown(){
+  private void gotoFrame(int newFrame, long clientID){
     Notification event = new Notification();
-    event.putAttribute("WF_FRAME_CHANGELEVEL", "DOWN");
-    System.out.println("FauxWF publishing event: " + event);
+    event.putAttribute("AI2TV_FRAME_UPDATE", "");
+    event.putAttribute("CLIENT_ID", clientID);
+    event.putAttribute("GOTO_FRAME", newFrame);
     publishNotification(event);
   }
- 
-  private void hierarchyUp(){
+
+  private void changeLevel(String dir, long clientID){
     Notification event = new Notification();
-    event.putAttribute("WF_FRAME_CHANGELEVEL", "UP");
-    System.out.println("FauxWF publishing event: " + event);
+    event.putAttribute("AI2TV_FRAME_UPDATE", "");
+    event.putAttribute("CLIENT_ID", clientID);
+    event.putAttribute("CHANGE_LEVEL", dir);
     publishNotification(event);
   }
 
   private void setupFilter() throws siena.SienaException {
     filter = new Filter();
-    filter.addConstraint("WF_FRAME_UPDATE", "");
+    filter.addConstraint("AI2TV_FRAME", "");
     _mySiena.subscribe(filter, this);
   }
 
   private void publishNotification(Notification event){
     try{
-      System.out.println("publishing event: " + Calendar.getInstance().getTime());
+      System.out.println("publishing event: " + Calendar.getInstance().getTime() + ": " + event);
       _mySiena.publish(event);
     } catch (siena.SienaException e){
       System.err.println("CommController publishing sienaException: " + e);
