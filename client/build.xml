@@ -42,7 +42,7 @@
     </target>
 
     <target name="jar" depends="client">
-        <jar destfile="ai2tvClient.jar" basedir="${BUILD}" includes="psl/ai2tv/SienaConstants.class, psl/ai2tv/gauge/FrameIndexParser.class psl/ai2tv/gauge/FrameDesc.class psl/ai2tv/client/*.class psl/ai2tv/client/ai2tv_ready.jpg" />
+        <jar destfile="c:\pslroot\ai2tvClient.jar" basedir="${BUILD}" includes="psl/ai2tv/SienaConstants.class, psl/ai2tv/gauge/FrameIndexParser.class psl/ai2tv/gauge/FrameDesc.class psl/ai2tv/client/*.class psl/ai2tv/client/ai2tv_ready.jpg" />
     </target>
 
     <target name="clean">
@@ -61,13 +61,20 @@
     <target name="jni" depends="prepare">
         <javac srcdir="${SRCDIR}" destdir="${BUILD}" classpathref="compile.classpath" includes="psl/ai2tv/client/*.java, psl/ai2tv/SienaConstants.java, psl/ai2tv/gauge/FrameDesc.java, psl/ai2tv/gauge/FrameIndexParser.java" />
 	<javah classpath="${SRCDIR};${BUILD}" class="psl.ai2tv.client.${JNIPREFIX}Java" destdir="."/>
-        <exec command="${CPP_COMPILER} -I${JAVADIR}/include -I${JAVADIR}/include/win32 -MD ${JNIPREFIX}CPP.cpp ${JAVADIR}/lib/jvm.lib -Fe${JNIPREFIX}CPP.dll" />
-	<exec command="${CPP_COMPILER} -I${JAVADIR}/include -I${JAVADIR}/include/win32 -MD ${JNIPREFIX}CPP.cpp ${JAVADIR}/lib/jvm.lib" />
+        <exec executable="${CPP_COMPILER}">
+	  <arg line="-I${JAVADIR}/include -I${JAVADIR}/include/win32 -MD ${JNIPREFIX}CPP.cpp ${JAVADIR}/lib/jvm.lib -Fe${JNIPREFIX}CPP.dll" />
+        </exec>
+	<exec executable="${CPP_COMPILER}">
+          <arg line=" -I${JAVADIR}/include -I${JAVADIR}/include/win32 -MD ${JNIPREFIX}CPP.cpp ${JAVADIR}/lib/jvm.lib" />
+        </exec>
+
     </target>
 
     <!-- this command wasn't found in the ant tasks list.-->
-    <target name="javap">
-       <exec command="javap -classpath ../../.. -s -p psl.ai2tv.client.${JNIPREFIX}Java" description="create the correct method call of a all java methods for use in CPP code."/>
+    <target name="javap" description="create the correct method call of a all java methods for use in CPP code.">
+       <exec executable="javap">
+           <arg line="-classpath build -s -p psl.ai2tv.client.${JNIPREFIX}Java"/>
+       </exec>
     </target>
 
     <target name="run-jni" description="this is to run the jni executable (if it's not already hooked onto another main)">
