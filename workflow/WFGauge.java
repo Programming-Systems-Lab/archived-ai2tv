@@ -78,24 +78,26 @@ class WFGauge extends GroupGauge {
       String id = (String) allClients.next();
       ClientDesc cd = (ClientDesc) groupClients.get(id);
       FrameDesc fd = cd.getFrame();
-      // long t = fd.getDownloadedTime();
-      long t = clock.currentTime(); // gets the time from our internal clock
+      // t here is the time that the frame was shown
+      // note: should also change name of the getDownloadedTime
+      // function to reflect what the time really is
+      long t = fd.getDownloadedTime();
 
       // update the bucket if the time of the last info about a client
       // is within the time of the last sample and this moment
 
       // if (t <= elapsed && t > bucket.getTime()) {
       if (t <= elapsed && t > _lastCheckTime){
-	_lastCheckTime = t;
 	logger.debug("updating bucket for client " + id);
 	bucket.update(id, cd);
       }
       else {
-	logger.debug("NOT updating bucket for client " + id);
-	logger.debug("t=" + t + ", elapsed=" + elapsed + ", bucket.getTime()=" + bucket.getTime());
+	// logger.debug("NOT updating bucket for client " + id);
+	// logger.debug("t=" + t + ", elapsed=" + elapsed + ", bucket.getTime()=" + bucket.getTime());
       }
     }
 
+    _lastCheckTime = t;
     bucket.setTime(elapsed);
   }
 
