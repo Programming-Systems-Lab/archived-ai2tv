@@ -51,6 +51,8 @@ class CommController implements Notifiable, Runnable{
 
   String _mySienaServer;
 
+  private class AI2TVJNIJava{}
+
   CommController(String id, String sienaServer){
     this(id, sienaServer, null, null, null);
   }
