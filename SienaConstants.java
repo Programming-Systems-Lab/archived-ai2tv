@@ -18,7 +18,7 @@ public class SienaConstants {
   public static final String LEFTBOUND = "leftbound";
   public static final String RIGHTBOUND = "rightbound";
   public static final String MOMENT = "moment";
-  public static final String LEVEL = "level";
+  public static final String LEVEL = "clientLevel";
   public static final String FRAME_RATE = "frameRate";
   public static final String CACHE_LEVEL = "cacheLevel";
   public static final String SIZE = "size";
