@@ -6,13 +6,11 @@
 %
 % ---------------------------------------------------------------------------
 % TODO:
-% - equate workflow controller +probes/gauges = feedback controller (only use this term).
-% - explain early on about the characteristic of fluctuations in bandwidth and
-%   high freq changes in video
 %
 % FINAL READ 
 % - check for consistent tense
 % - query replace: ai2tv -> $\mathrm{AI}^2$TV
+% - spell check
 %
 %
 % ---------------------------------------------------------------------------
@@ -127,7 +125,6 @@
        \affaddr{and Telecom Italia Lab}\\
        \affaddr{Turin, Italy}
        \email{valetto@cs.columbia.edu}
-       \email{giuseppe.valetto@tilab.com}
 \alignauthor Gail Kaiser \\
        \affaddr{Computer Science Department}\\
        \affaddr{Columbia University}\\
@@ -142,164 +139,124 @@ submission to \emph{ACM-MM 2004}, due 12:00 AM EDT: April 05, 2004.}}}}
 
 %% groups. Participants in these groups usually have a disparity
 %% in network resources which can hamper productive dialog.  We
+
 \begin{abstract}
 The increasing popularity of distance learning and online courses has
 highlighted the lack of support for collaborative tools available for
-student groups. We present a design and implementation of ai2tv, a
-system that allows geographically dispersed participants to
-collaboratively view a video in synchrony.  Video actions can be
-initiated by any of the participants and the results of those actions
-are seen by all the members.  In addition, this system uses an
-autonomic feedback controller that responds to client feedback and
-adjusts the quality of the video according to the resources of each
-client.  We show that our system can successfully synchronize video
-for distributed clients and optimize the video quality by adaptively
-adjusting the frame rate.
+student groups.  In addition, the introduction of lecture videos into
+the online cirriculum has draw attention to the disparity in the
+network resources used by the students.  We present a design and
+implementation of ai2tv, a system that allows participants that are
+disadvantaged in network resources and geographically dispersed to
+collaboratively view a video in synchrony.  We uphold the invariant
+that each participant will view semantically similar content at all
+times.  Video actions can be initiated by any of the participants and
+the results of those actions are seen by all the members.  These
+features allow group members to review lectures videos in tandem to
+faciliate the learning process.  We employ an autonomic controller
+that monitors client video status and adjusts the quality of the video
+according to the resources of each client.  We show that our system
+can successfully synchronize video for distributed clients and
+optimizes the video quality by adaptively adjusting the quality level
+for each participant.
 \end{abstract}
 
 % A category with the (minimum) three required fields
-\category{C.2.4}[Distributed Systems]{Client/server, Distributed applications}
-\category{D.2.8}[Software Engineering]{Metrics -- performance measures}
-\category{H.5.1}[Information Interfaces and Presentation]{Multimedia Information Systems}
-\category{H.5.3}[Group and Organization Interfaces]{Computer-supported cooperative work, Synchronous interaction}
+\category{C.2.4}{Distributed Systems}{Client/server, Distributed applications}
+\category{D.2.8}{Software Engineering}{Metrics -- performance measures}
+\category{H.5.1}{Information Interfaces and Presentation}{Multimedia Information Systems}
+\category{H.5.3}{Group and Organization Interfaces}{Computer-supported cooperative work, Synchronous interaction}
 \category{K.3.1}{Computer Uses In Education}{Collaborative learning, Distance learning}
 
 \terms{ALGORITHMS, MEASUREMENT, PERFORMANCE, EXPERIMENTATION, HUMAN
 FACTORS}
 
-\keywords{Synchronized Collaborative Video, Autonomic Feedback Controller}
+\keywords{Synchronized Collaborative Video, Autonomic Controller}
 
 % tech report number CUCS-009-04
-
-% PAPER OUTLINE
-% motivation:
-% - online courses becoming more popular
-% - limited support for distributed collaboration
-% - network resource disparity
-% -> thus, we give you ai2tv
-%
-% INTRO
-% - show trend in online courses and current state on collaborative support
-% - motivate the use of video as distributed collaboration tool
-% - discuss briefly history of ai2tv design and imp
-% - present rest of paper and summarize achievements
-%
-% BACKGROUND
-% - discuss other projects on multiple client synchronization
-% - ai2tv project goals
-% - describe overview of semantic compression tool used
-% - introduce role of process workflow
-% - explain time based synchronization
-%
-% DESIGN AND IMPLEMENTATION
-% - design motivations of ai2tv
-% - workflow controller
-%
-% EVALUATION methods
-% - how to score synchronized state
-% - define quality in terms of better frame rate
-% - explain scoring system: decouple baseline evaluation and
-% penalties missed frames.
-%
-% RESULTS
-% - showed ai2tv w/ and w/o workflow each compares:
-%                : one graph for baseline comparison
-%                : one graph for penalties
-% 1) synchronization was successful
-% 2) using workflow, QoS could be significantly increased
-%
-% RELATED WORK
-% - what are the other available online collaborative tools?
-% - what are other methods for multiple client synchronization
-%
-% CONCLUSION
-% - our system can be used as an aid to support collaborative
-% video viewing for students groups.
-
-% (does this need a name? SYCOVI (SYnchronized COllaborative Video?)
-
 \section{Introduction}
 A major shift in educational paradigms is the use of online courses,
 which have become increasingly more popular \cite{BELLER,DOE}.  Due to
-the ease in scheduling class work alongside a work schedule, one of the common
-type of students of online courses are the non-traditional working
-students that try to further their career through higher
+the ease in scheduling class work alongside a work schedule, one of
+the common type of students of online courses are the non-traditional
+working students that try to further their career through higher
 certifications \cite{BURGESS}.  This student population is usually
 geographically dispersed, since online courses allow students from any
-region to enroll.  
+region to enroll.  The educational tools commonly provided for these
+students are accessed through a personalized Web portal
+\cite{PHOENIX,CAPELLA}.
 
-Most of the times, online learning tools that are offered these days
-support well individual study practices, by employing a (personalized)
-Web portal metaphor.  Through such a means, distance learning students
-can tap at will into a wealth of educational material and documents;
-lately, with the increasing popularity and usability of digital
-multimedia content over the Internet, also lecture videos, seminars
-and other similar events have started to become available and used for
-individual review.
-% Peppo says: can we use here some citation of what CVN does, and how it is used?
+% need to 
+To cater to the growing population of online students, universities
+began taping on-campus course lectures and providing them to
+off-campus students \cite{CVN, STANDFORD}.  These courses then
+included both on and off campus students.  The latter population
+introduced the term of distanced learning to describe students
+enrolled in a local program yet attending the courses off-campus.
+With the addition of lecture videos to the available online materals,
+online students have access to a greater wealth of information.
 
-Group study practices, on the contrary, lack proper support in online
-learning today.  For example, group study sessions, which are commonly
-regarded by students as a useful and productive practice, are of
-course physically prevented by the dispersed nature of distance
-learning classes, and cannot be reconciled with the educational portal
-metaphor. Therefore, support of synchronous collaboration remains a
-major concern in courses where group work is encouraged \cite{WELLS},
-yet there are few educational tools that support synchronous
-collaboration across a group of online students \cite{BURGESS}.
+Traditionally, the courses intended for online students are geared
+towards individual learning paradigms.  The introduction of a whole
+new set of courses from on-campus lectures introduced courses that are
+sometimes designed for group work.  Also, because on-campus students
+are in the same class as off-campus studnets, the new courses mixed in
+a population of students who like to study in groups, a practice
+commonly urged by professors to develop learning skills.  This shift
+highlighted the lack of support for group collaboration.  Support of
+synchronous collaboration remains a major concern in courses where
+group work is encouraged \cite{WELLS}, yet there are few educational
+tools that support synchronous collaboration across a group of online
+students \cite{BURGESS}.
 
-Our work contributes precisely to the area of synchronous
-collaboration support, and, more specificially, to collaborative video
-viewing.  In this scenario, students that are dispersed across
-different geographical regions can view lecture videos simultaneously
-and in a synchronized manner: within a video session, participants can
-play, pause, stop and go to certain frames synchronously as a
-group. The goal is to support group review and study sessions that can
-take advantage of the increasing availability of "rich" digital
-content, such as multimedia.
+%% For example, group study sessions, which are regarded by students as a
+%% useful and productive practice \cite{WELLS}, are physically prevented
+%% from collaborating, a problem that cannot be sufficiently reconciled
+%% with the Web portal metaphor.  
+
+Our work contributes to the area of synchronous collaboration support,
+and, more specificially, to collaborative video viewing.  In this
+scenario, students that are dispersed across different geographical
+regions can view lecture videos simultaneously and in a synchronized
+manner: within a video session, participants can play, pause, stop and
+go to certain frames synchronously as a group.  Therefore a WYSIWIS
+(What You See Is What I See) invariant is upheld for all participants.
+The goal is to support group review of lecture video so that if a
+participant has a question about a certain topic, he/she can pause the
+video and ask questions to other participants and be assured that all
+the participants are referencing the same material.
 
 % - motivate the use of video as distributed collaboration tool
 Viewing video on the Internet requires relatively high bandiwdth
 resources.  Network traffic is usually erratic, which can lead to lost
-video content. Furthermore, the differences of network and computing
+video content.  Furthermore, the differences of network and computing
 resources available to dispersed users in the same collaboration group
-can be very signficant.  Collaborative video viewing poses therefore a
-twofold problem: one the one hand, it is mandatory to keep all users
+can be very signficant.  Collaborative video viewing poses a twofold
+problem: on the one hand, it is mandatory to keep all users
 synchronized with respect to the content they are supposed to see at
 any moment during play time; on the other hand, it is important to
 provide each individual user with a level of viewing experience that
-is appropriate with respect to the resources available to her, and to
+is appropriate with respect to the user's available resources, and to
 dynamically take in account variations in those resources.
 
 % - briefly discuss ai2tv design and imp
-In this paper we present a set of techniques to satisfy both of the
-above mentioned requirements for collaborative video viewing. Our
-solution employs a time based scheme for synchronization and an
-autonomic control entity: the autonomic controller provides a feedback
-loop that tunes the working parameters of the client software employed
-by users to view video material, in order to dynamically adjust the
-video quality levels of the various users in a group.  In the context
-of a project called ai2tv (Adaptive Internet Interactive Team Video),
-we have developed a distributed tool that implements those techniques.
-The tool takes advantage of a workflow-based software coordination
-engine \cite{PEPPO} to orchestrate the adjustments to be carried out
-on video clients participating in the same group, a common event bus
-for communication \cite{Siena}, and a semantic compression scheme
-conceived elsewhere at Columbia University \cite{TIECHENG} to produce
-a hierarchy of video versions of different quality.
-
-We show how, by using those mechanisms together, it is possible to
-synchronize content viewing across all clients while ensuring an
-improved video quality to each of the the clients.
+In this paper we present a system to satisfy both of the above
+mentioned requirements for collaborative video viewing.  Our solution
+employs a time based synchronization scheme and an autonomic control
+entity.  The autonomic controller tunes the working parameters of the
+client's video player in order to dynamically adjust the video quality
+levels of the various users in a group.  We show that it is possible
+to synchronize content viewing across all clients while ensuring an
+high video quality to each of the the clients.
 
 % - present rest of paper and summarize achievements
 In the rest of this paper, we present the motivating problem and
 introduce background research that supports this work.  Next, we
 explain in detail the architecture and the approach taken in our
-solution within the ai2tv project.  We then present the criteria we
-have used to evaluate the effectiveness of the approach, together with
-the corresponding results, and we finish with related work and a
-summary of our contributions.
+solution within the ai2tv project.  We then present the criteria used
+to evaluate the effectiveness of the approach, together with the
+corresponding results, and we finish with related work and a summary
+of our contributions.
 
 \section{Motivating problem} \label{background}
 % - discuss other projects on multiple client synchronization
@@ -307,81 +264,77 @@ The advent of the Internet and the World Wide Web as a major means of
 communication has presented the educational community with the
 potential for great gains in the realm of accessibility to education
 through eLearning.  A variety of eLearning applications that support
-well individual study practices exist: typically, they follow the
-metaphor of a Web portal where registered users can individually
-browse class material or post completed assignments.  Several other
-applications can be used to provide some level of support to online
-educational collaboration, although they may not be geared
-specifically towards educational purposes. Among them, some are geared
-towards asynchronous forms of collaboration, (for example Web-based
-bulletin boards and discussion groups); others, such as instant
-messaging, application and desktop sharing (WebEx, VNC), co-browsing
-\cite{CAPPS, LIEBERMAN, SIDLER}, and XXX, facilitate mostly the
-communicative aspects of synchronous collaboration, such as the
-long-distance sharing of ideas and knowledge among their users.
-However, there are still few tools that provide an on-line study
-environment and thus support synchronous collaborative study
-practices, such as the group review of educational material produced
-for on-line courses (cite JITE paper).  For example, Easy Teach and
-Learn proposes a virtual classroom architecture that allows multiuser
-synchronous participation, but only a simulated version of this system
-has been implemented \cite{WALTER}.
+individual study practices exist, and typically follow the metaphor of
+a Web portal where registered users can individually browse class
+material or post completed assignments.  Several other applications
+can be used to provide some level of support to online educational
+collaboration, although they may not be geared specifically towards
+educational purposes.  Among them, some are geared towards
+asynchronous forms of collaboration, (for example Web-based bulletin
+boards and discussion groups); others, such as instant messaging,
+application and desktop sharing (WebEx, VNC), and co-browsing
+\cite{CAPPS, LIEBERMAN, SIDLER} facilitate mostly the communicative
+aspects of synchronous collaboration, such as the long-distance
+sharing of ideas and knowledge among their users.  However, there are
+few tools that provide an on-line study environment to support
+synchronous collaborative study practices, such as the group review of
+educational material produced for on-line courses \cite{WELLS}.  For
+example, Easy Teach and Learn proposes a virtual classroom
+architecture that allows multiuser synchronous participation, but only
+a simulated version of this system has been implemented \cite{WALTER}.
 
 % - ai2tv project goals
-The work presented in this paper is a part of the ai2tv project, a
-multi-group effort aimed at developing a collaborative virtual
-environment for distributed team study.  ai2tv differs from many
-existing infrastructures that provide educational content in a
-networked context because of its explicit focus on the teamwork
-aspects of on-line education, and hence on synchronous collaboration.
-
-Witin ai2tv, an important goal is to provide support for the
-collaborative use of multimedia content relevant to the work carried
-out by a team of users involved in the same project, such as
-audio/video recordings of lectures, meetings, workshops and other
-informational and educational events.
+The work presented in this paper is a part of the ai2tv (Adaptive
+Internet Interactive Team Video) project, a multi-group effort aimed
+at developing a collaborative virtual environment for distributed team
+study.  ai2tv differs from many existing infrastructures that provide
+educational content in a networked context because of its explicit
+focus on the teamwork aspects of on-line education, and hence on
+synchronous collaboration.  Within ai2tv, an important goal is to
+provide support for the collaborative use of multimedia content
+relevant to the work carried out by a team of users involved in the
+same project, such as audio/video recordings of lectures, meetings,
+workshops and other informational and educational events.
 
 % VECTORS (sys 1) and CHIME are mentioned in related work.
 One of the requirements of the multimedia support within the ai2tv
 virtual environment is the synchronized viewing of streaming video by
-all members of a geographically distributed team. To enforce the
-metaphor of synchronous collaboration in a virtual environment, and
-for that collaboration to be effective, all team members must be
-viewing the same content at all times so that discussion of the
-material can be coherent.  Synchronized viewing, however, is
-particularly difficult in an Internet context: dispersed team members
-may enjoy very diverse connectivity, ranging for example from 56k
-modem, to DSL, to cable, to T1 lines.  Moreover, the communication and
-computing resources available to each user may widely and quickly vary
-in the course of the team work session.
+all members of a geographically distributed team.  To enforce the
+metaphor of synchronous collaboration in a virtual environment and for
+collaboration to be effective, all team members must be viewing the
+same content at all times so that discussion of the material can be
+coherent.  Synchronized viewing, however, is particularly difficult in
+an Internet context: dispersed team members may enjoy very diverse
+connectivity, ranging for example from 56k modem, to DSL, to cable, to
+T1 lines.  Moreover, the communication and computing resources
+available to each user may widely and quickly vary in the course of
+the team work session.
 
-In such conditions, some form of adaptive control of the mechanisms
-used to distribute and present the multimedia content to all team
-members is clearly necessary.  To be usable, that control must achieve
-synchronized viewing without constraining unreasonably the quality of
-the viewing experience of individual users; for example, a "worst case
-scenario" in which the experience of all members in a team is degraded
-to match that of the member with the least resources is not
-acceptable. On the contrary, any valid solution must reconcile the
-mandatory requirement of synchronized viewing with an efficient use of
-the resources of individual users.
+% this sounds like our solution is the only solution
+%% In such conditions, some form of adaptive control of the mechanisms
+%% used to distribute and present the multimedia content to all team
+%% members is clearly necessary.  
+To deal with these constraints, we adaptively control the distribution
+and presentation of the multimedia to all team members.  To be usable,
+that control must achieve synchronized viewing without unreasonably
+constraining the quality of the viewing experience of individual
+users; for example, a "worst case scenario" in which the experience of
+all members in a team is degraded to match that of the member with the
+least resources is not acceptable. On the contrary, any valid solution
+must reconcile the mandatory requirement of synchronized viewing with
+an efficient use of the resources of individual users.
 
-One possibility to balance the group synchronization requirement with
-the optimization of the individual viewing experience is by
-dynamically adjusting during playing time the quality level of the
-video viewed by each user, in response to available resources as well
-as to the synchronization status with respect to the group.  One way
-to be able to vary the quality level of a given video is to instruct
-the client software to display content choosing from a hierarchy of
-several versions of that video: since frame rate is commonly used as
-an indicator of video quality (citations) (higher being better), that
-hierarchy can be constructed by encoding the original material at
-different frame rates, thus implementing a form of cumulative layering
-\cite{MCCANNE}, also known as scalable coding \cite{LI}.
+One solution to the problem of balancing the group synchronization
+requirement with the optimization of individual viewing experiences is
+to use videos with cumulative layering \cite{MCCANNE}, also known as
+scalable coding \cite{LI}.  In this approach, the client software is
+instructed to display video content at a quality level appropriate for
+that client's resources, which is selected from a hierarchy of several
+different encodings or frame rates for that video.
 
 % - describe overview of semantic compression tool used
 Either fixed rate or variable rate schemes can be equally employed. In
-ai2tv, we take advantage of a semantic summarization tool - also
+ai2tv, we take advantage of a semantic summarization package - also
 developed at Columbia University by Liu and Kender \cite{TIECHENG} -
 which reduces a video to a set of semantically significant key frames.
 That tool operates on MPEG format videos and outputs sequences of JPG
@@ -390,48 +343,49 @@ within a sliding time window and selects key frames that have the most
 semantic information.  By increasing the size of the window, a key
 frame will represent a larger time slice, which means that a larger
 window size will produce less key frames as compared to a smaller
-window size setting.
+window size setting.  
 
-To prepare a video for collaborative viewing, we pre-compute several
-sets of key frames obtaining a hierarchy of semantic compression
-levels: at each level in the hierarchy, the key frames extracted
-compose the video that can be streamed to the clients.  We thus define
-an ai2tv video as the compilation of key frames produced from several
-different levels of semantic compression.  Through the use of the
-ai2tv video, we can provide semantically equivalent content in sync to
-several clients with diverse resources, by adjusting the compression
-level assigned to each client during playing time.
+The semantic compression package is used to produce the layered videos
+provided to clients.  Note that the semantic compression algorithm
+produces a random distribution of key frames, hence the video produced
+by the package plays back at a variable frame rate.  The variability
+in the frame rate implies that there are pockets of relatively high
+frequency semantic change that result in sections in the video that
+demand a higher frame rate.  The variable frame rate video adds
+complexity to the bandwidth demands of the client yet its semantic
+focus ensures that relevant content is unlikely to get lost, which is
+a significant property in the context of an educational application.
+Through the use of the ai2tv video, we can provide semantically
+equivalent content to several clients with diverse resources by
+adjusting the compression level assigned to each client during playing
+time.  Thus for our purposes, synchronization of video boils down to
+showing semantically equivalent frames for a given time (see figure
+???).
 
-% - introduce role of autonomic controller
-To effect those adjustments as needed, we use an autonomic controller
-that implements a distributed adaptation scheme that aims at
-maintaining video clients in the same group synchronized, while at the
-same time fine tuning the quality of the viewing experience for each
-client.  The autonomic controller remains conceptually separate from
-the controlled ai2tv video system.  It monitors the distributed
-ensemble composed of clients and servers, analyzes incoming streams of
-data about the clients' state and resources, and employs a
-workflow-based engine, named Workflakes \cite{PEPPO}, to coordinate
-the dynamic adaptation of the video viewing settings across a group of
-clients.  The Workflakes engine has been developed for and used in a
-variety of domains, \cite{AMS}, in which it orchestrates the work of
-software entities to achieve the fully automated dynamic adaptation of
-distributed applications.  In the context of ai2tv, adaptations
-carried out under the coordination of Workflakes include changes in
-the compression level assigned to each client along the hierarchy of
-the ai2tv video, and indications of what frame at a certain assigned
-level in the hierarchy must be displayed next.
+To adjust the clients in response to the changing environment, we use
+an autonomic controller to maintain the synchronization of the group
+of video clients while fine tuning the video quality for each client.
+The term \textit{autonomic} as used here simply refers to the system's
+ability to self-adjust to network conditions and can be seen as a form
+of feedback control.  The idea of using an autonomic controller to
+support group video synchronization and other multimedia apps was
+first introduced in \cite{EWSPT}.
 
-The autonomic controller can in principle use for that task video
-hierarchies produced in a variety of ways.  The semantic summarization
-scheme we chose to employ implements a variable-rate compression
-scheme.  Therefore, on the one hand, it adds to the complexity of the
-work of the autonomic controller, since within the video stream there
-are pockets of relatively high frequency semantic change that result
-in a high demand frame rate during that time.  On the other hand,
-however, its semantic focus ensures that relevant content is unlikely
-to get lost, which is a significant property in the context of an
-educational application.
+The autonomic controller remains conceptually separate from the
+controlled ai2tv video system and employs a software based workflow
+engine, named Workflakes \cite{PEPPO}.  ??? Note that the workflow
+used here is software based as opposed to human based workflow
+systems.  The use of software based workflow for the specification and
+enactment of the plan that coordinates actuators is taken from Wise at
+al. \cite{OSTERWEIL} among others.  The Workflakes engine has been
+developed for and used in a variety of domains \cite{AMS,ICSE}, in
+which it orchestrates the work of software entities to achieve the
+fully automated dynamic adaptation of distributed applications.  The
+design of the autonomic controller is a part of an externalized
+autonomic computing platform proposed by Kaiser \cite{refarch}.  In
+the context of ai2tv, Workflakes coordinates the adjustment of the
+compression level assigned to each client along the hierarchy of the
+ai2tv video.
 
 (???FIGURE: semantic compression )
 (???FIGURE: key frames hierarchy )
@@ -445,184 +399,124 @@ communications infrastructure.
 
 %(FIGURE: ai2tv synchronization arch)
 % video server
-The video server provides the multimedia educational content to the
-clients for viewing.  The provided content has the form of an ai2tv
-video, i.e., a hierarchy of video versions produced by running the
-tool multiple times with settings for different compression levels,
-which produces several sets of JPG frames that are indexed by a frame
-index file. The index file includes the representative time interval
-for each frame at each compression level, expressed as
-\texttt{[start:end]}.  \texttt{start} indicates the moment with
-respect to the beginning of playing time in which the frame should be
-displayed; \texttt{end} indicates the last moment in which the frame
-is still valid for display.  The task of the video server is simply to
-provide remote download access to the frames and the index file over
-http.
+The video server provides the educational video content to the clients
+for viewing.  The provided content has the form of an ai2tv video,
+i.e., a hierarchy of video versions produced by running the tool
+multiple times with settings for different compression levels, which
+produces several sets of JPG frames that are indexed by a frame index
+file.  For each frame in the index file, a time interval
+\texttt{[start:end]}, is provided that represents the valid times in
+which the frame can be played.  The task of the video server is simply
+to provide remote download access to the frames and the index file
+over http.
 
 % video client
 The task of video clients is to acquire video frames, display them at
-the correct time, and provide a set of basic video functions,
-specifically play, pause, goto, and stop.  Taking a functional design
-perspective, the client is composed of three major modules: a video
-display, a video buffer and manager for fetching and storing
-downloaded frames, and a time controller.
+the correct time, and provide a set of basic video functions.  Taking
+a functional design perspective, the client is composed of three major
+modules: a video display, a video buffer and manager for fetching and
+storing downloaded frames, and a time controller.
 
-The video display simply renders into a window JPEG frames kept in the
-video buffer.  It gets instructed by the time controller about when to
-render a frame, includes a control that enables to vary the current
-quality level for display, and picks up the next frame belonging to
-the current level from a list of downloaded frames kept by the video
-buffer manager.
+The video display renders the JPEG frames into a window for display
+and provides a user interface for play, pause, goto, and stop.  When
+any participant initiates one of these actions, all the other group
+members receive the same command, thus all the video actions are
+synchronized.  The video display knows which frame to display by using
+the current video time and display quality level to index into the
+frame index for the representative frame.  Before trying to render the
+frame, it asks the video buffer manager if the needed frame is
+available.  The video display also includes a control entity that
+enables external entities, like the autonomic controler, to adjust the
+current display quality level.
 
-The video buffer and manager is in charge of acquiring from the server
-the content to be shown in the next future.  It acts as a downloading
-deamon, which continuously downloads frames at a certain level in the
-ai2tv video hierarchy. The buffer manager includes a control that
-enables to vary the current quality level for download; it also keeps
-a hash of the available frames and a count of the current reserve
-frames (frames buffered) for each quality level.
+The video buffer and manager are the downloading daemon that
+continuously downloads frames at a certain level.  It keeps a hash of
+the available frames and a count of the current reserve frames (frames
+buffered) for each quality level.  The buffer manager also includes a
+control hook that enables external entities to adjust the current
+downloading quality level.
 
-The time controller is in charge of the timely display of content,
-which it achieves by implementing a time-based synchronization scheme
-that underlies the functionality of the whole client.  Such a scheme
-deals with keeping a video clock, downloading the next frames to be
-displayed for a given quality level, and displaying each frame at its
-representative time.  Since the clocks of all clients in the same
-group are kept in sync using NTP \cite{NTP}, each client can use its
-local clock with a guarantee that it refers to a common time base.
-The separation of the synchronization scheme greatly simplifies the
-rest of the system because it clarifies the functional
-responsibilities of the other components.  Each client simply checks
-the time and makes sure it displays the representative video frame for
-that time at a given level in the hierarchy.  That way, unless video
-frames cannot get downloaded in time, each client plays the frames at
-the correct time and since all the clients refer to the same time
-base, then all the clients play in tandem.
+The time controller's task is to ensure that a common video clock is
+maintained across clients.  It relies on NTP \cite{NTP} to synchronize
+the system's software clock therefore ensuring a common time base from
+which each client can reference for the video clock.  The task of each
+then is to play the frames at the correct time and since all the
+clients refer to the same time base, then all the clients are showing
+semantically similar frames.
 
 % autonomic controller
-The autonomic controller provides the mechanisms that enable to
-satisfy the synchronization and quality requirements of collaborative
-video viewing.  The controller is itself a distributed system, whose
-design derives from a conceptual reference architecture for
-externalized autonomic computing platforms proposed by Kaiser
-\cite{refarch}.
+The task of the autonomic controller is to ensure that the clients
+within a video session stay synchronized and that each client plays at
+its highest attainable quality level.  The controller is itself a
+distributed system, whose design derives from a conceptual reference
+architecture for externalized autonomic computing platforms proposed
+by Kaiser \cite{refarch}.
 %
 %(??? figure of ref arch here?). 
 %
-That architecture aims at providing a closed control loop that can be
-superimposed on a separate software system, and remains largely
-disjoint and orthogonal from its target system. It can take a reactive
-stance (detect-and respond), resulting in a feedback loop, and also a
-proactive stance (detect-and-anticipate), resulting in a feed-forward
-loop.
+According to that architecture, sensors attached to the end targets
+continuously collect data and send it to gauges.  The sensors provide
+the autonomic controller with data about the clients.  The data
+collected includes the video display quality level, the buffer quality
+level, the buffer reserve frames, the currently displayed frame and
+the current bandwidth.  
 
-According to that architecture, sensors attached to elements of the
-target system of the autonomic platform continuously collect data and
-send it to gauges.  The role of the gauges is to analyze the data flow
-from multiple sensors and deterine whether some adaptation is needed
-by the target system.  If so, they send a trigger to the controller's
-core, a coordination component that is in charge of enacting a set of
-corresponding changes onto (possibly) multiple components of the
-target software system.  To achieve that, the coordinator
-orchestrates, according to a defined plan, the work of multiple
-computations (referred to as effectors), which are executed at the
-target system.  In principle, the coordination plan may need to
-account for complex and dynamic sequencing and logic dependencies
-among the various units of work represented by the executions of
-effectors; it may also need to offer provisions for contingency
-planning and compensations. The conceptual architecture does not
-indicate or mandate a preferred approach to building the coordinator
-in a way that complies with those requirements.  However, a valid
-option for both the specification and enactment of the plan that
-coordinates effectors is offered by contemporary workflow technology,
-as advocated by Wise at al. \cite{OSTERWEIL} among others.  Our
-Workflakes coordinator follows that paradigm.
+Gauges are embedded together with the coordination engine for
+expediency of design and to minimize the communication latency to it.
+They receive the sensor reports from individual clients, collect them
+in buckets, similar to the approach in \cite{MIMAZE}, and pass the
+bucket data structure to the coordination engine.  The coordination
+engine directs the flow of the information through a pre-defined
+workflow plan described in the next section.
 
-The infrastructure used for the communications among ai2tv components,
-as well as between the ai2tv system and the autonomic controller is
-provided by an event bus based on the publish/subscribe paradigm.  The
-reason for choosing this communication model is that it inherently
-decouples the physical location of the communicating entities.  Events
-transmitted onto that event bus are of three kinds: video actions,
-sensor reports and adaptation directives.  Video actions pertain to
-the functionality of the ai2tv system, since they represent commands
-issued on a video client, such as pause, play or stop, which need to
-be propagated to all clients in the group to enforce the same
-behaviour.  All video actions are time stamped so that clients can
-respond to those commands in reference to the common time base.
+During the evaluation of the data, a set of helper functions that are
+tailored specifically for the application are used to produce the
+triggers for the coordinator.  If a trigger is raised, the
+coordination engine enacts an adaptation scheme which is executed on
+the end hosts by hooks provided to the actuators by the end systems.
 
-Sensor and directives events pertain instead to the adaptation
-infrastructure.  Sensor reports come from sensors embedded in each
-client, which emit streams of data intended for the autonomic
-controller, to allow it to monitor the state and resources of each
-client.  Adaptation directives are sent by the autonomic controller to
-clients, to effect the needed adjustments to the functioning
-parameters of clients whenever they are deemed necessary.
+% communications 
+The infrastructure used for the communications among the video
+clients, as well as between the ai2tv system and the autonomic
+controller is provided by an event bus based on the publish/subscribe
+paradigm.  The reason for choosing this communication model is that it
+inherently decouples the physical location of the communicating
+entities.  Events transmitted onto that event bus are of three kinds:
+video actions, sensor reports and adaptation directives.  Video
+actions pertain to the functionality of the ai2tv system, since they
+represent commands issued on a video client, such as pause, play or
+stop, which need to be propagated to all clients in the group to
+enforce the same behaviour.  All video actions are time stamped so
+that clients can respond to those commands in reference to the common
+time base.
 
-\subsection{Adaptation Model}
-The model according to which collaborative video viewing is enforced
-can be illustrated by following the data and control path along the
-control loop superimposed by the autonomic controller on the ai2tv
-system, and by describing the decisions taken and the adaptations
-mandated by that controller.
+\subsection{Adaptation Scheme}
 
-Sensors embedded in ai2tv clients issue events that include data about
-the video display quality level, the buffer quality level, the buffer
-reserve frames, the currently displayed frame and the available
-bandwidth.
-%% PEPPO - NOTE: here I would show an example of those events, i.e. its
-%% content in terms of attribute/value pairs with a bit of explanation.
-%% (dan suggests move this example to the implementation section)
-%
+The adaptation scheme falls into two levels: a higher level data flow,
+and a lower level adjustment heuristic.  The former directs the flow
+of data through a logical sequence to provide a formal decision
+process while the latter provides the critera as to when to make
+certain adjustments.
 
-Gauges, which are embedded together with the coordination engine for
-expediency of design and to minimize the communication latency to it,
-receive those sensor reports from individual clients, collect them in
-buckets, similar to the approach in \cite{MIMAZE}, and pass the bucket
-data structure to the Workflakes coordination engine.
+The higher level logic is shown in Figure XXX, according to the
+Little-JIL graphic workflow specification language \cite{L-JIL}.  The
+diagram shows the task decomposition hierarchy according to which the
+adaptation workflow unfolds.  Note that the evaluation of clients'
+state with respect to the group (\texttt{EvaluateClient}) and the
+issuing of adaptation directives (\texttt{AdaptClient}) is carried out
+as a set of the parallel steps.  Also note that the multiplicity of
+those parallel steps is dynamically determined via the number of
+entries in the \texttt{client} variable, which maps to a collection of
+ai2tv clients.
 
-That allows to evaluate periodically (for instance, each second) the
-ability of each client to fetch and display the correct content in
-time, respective of some compression level in the ai2tv video
-hierarchy, playing time and the current frame.  For that evaluation, a
-set of helper functions that take in account the ai2tv synchronization
-scheme are used. In case it is found that some clients are at risk of
-missing the next frame to be displayed at the current level, a
-decision on what adaptation directive needs to be triggered on each
-client is also computed.  Directives are then sent in the form of
-events onto the bus and are received only by the impacted clients.
-
-This part of the work in the controller is executed under the
-orchestration of Workflakes.  The logic used is shown in Figure XXX,
-according the Little-JIL graphic workflow specification language we
-have adopted in Workflakes \cite{L-JIL}: the diagram shows the task
-decomposition hierarchy according to which the adaptation workflow
-unfolds. It is noticeable for example how the evaluation of clients'
-state with respect to the group, as well as the issuing of adaptation
-directives is carried out as a set of parallel steps
-(\texttt{EvaluateClient} and \texttt{AdaptClient} respectively), and
-how the the multiplicity of those parallel steps is dynamically
-determined via the number of entries in the \texttt{client} variable,
-which maps to a collection of ai2tv clients.
 %
 %add Figure with AI2TV workflow diagram here
 %
 
-To close the loop, effectors, which are also embedded in clients,
-execute what is mandated by the incoming directives.  Directives
-include the unique client identifier, a directive op-code and any
-related parameters.  They may bring about changes such as changing the
-quality level used either for viewing (in the display module) or for
-fetching (in the buffer controller), or directing the client to "jump
-ahead" to some future frame at a certain quality level.  This last
-directive is sent only in dire bandwidth situations, because it
-implies that, in order to observe the mandatory group synchronization
-requirement, the client is not allowed to see a fraction of the
-content.
-
-Logically, directives can be grouped into two categories: those that
-adjust the client in response to relatively low bandwidth situations,
-and those that take advantage of relatively high bandwidth situations.
+The adaptation scheme at the lower level falls into two categories:
+directives that adjust the client in response to relatively low
+bandwidth situations, and those that take advantage of relatively high
+bandwidth situations.
 
 In the situation where a client has relatively low bandwidth, the
 client may not be able download next frame at the same quality level
@@ -635,56 +529,40 @@ the client to jump ahead to that frame.
 
 To take advantage of relatively high bandwidth situations, the buffer
 manager will start to accumulate a reserve buffer.  Once the buffer
-reaches a threshold value, the autonomic controller will direct the
-buffer manager to start fetching frames a higher quality level.  Once
-a sufficient reserve is accumulated also at that higher level, the
-client is then ordered to display frames at that quality level.  That
-improves the frame rate experienced by the viewer.  If the bandwidth
-drops before the buffer manager controller can accumulate enough
-frames in the higher-level reserve, then the buffer manager is dropped
-back down one level.
-
-With these incremental mechanisms, the autonomic controller allows the
-clients to adjust to variability factors during playing time, such as
-the relative deviations in bandwidth that occurs during a video
-session.  Another varaibility factor - as previously mentioned - is
-represented by the variable frame rate of the encoding scheme we
-employ, due to pockets of high frequency semantic change within the
-video.  Our adaptation strategy has been tuned to prevent clients from
-entering a cycle in which they could be repeatedly downgraded several
-levels due to the high frequency change intervals, as well as to
-minimize the risk that clients drop especially important frames during
-those intervals.
+reaches a threshold value (for example, 10 buffered frames), the
+autonomic controller will direct the buffer manager to start fetching
+frames a higher quality level.  Once a sufficient reserve is
+accumulated also at that higher level, the client is then ordered to
+display frames at that quality level.  If the bandwidth drops before
+the buffer manager controller can accumulate enough frames in the
+higher-level reserve, then the buffer manager is dropped back down one
+level.
 
 \section{Implementation} \label{implementation}
 
-We chose Siena as our publish-subscribe event system for its ability
-to scale.  Siena is a content-based networking communication
-infrastructure that facillitates the passing of messages by routing
-events by content \cite{SIENA}.  This communication paradigm removes
-the need to introduce explicit routing mechanisms within our system
-and its simple design provides high performance results.
+For simplicity, we used Java to implement the video client.  It
+naively uses the javax.swing package to render the JPEG images.  The
+autonomic controller, Workflakes, is also Java based and uses Cougaar
+\cite{Cougaar} as the workflow engine.  We used the Little-JIL graphic
+workflow specification language to produce the workflow used
+\cite{L-JIL}.  We chose a content-based publish-subscribe event
+system, Siena, as our communication bus \cite{SIENA}.
 
-The video action events include the video action type (play, pause,
-stop, goto), the unique video session identifier, and a timestamp.
-All clients within the same video session will receive that message
-and execute the appropriate action.  Note that the client that
-initiates the action only executes the action upon receipt of the
-event so that the initiating client does not become out of sync with
-the other clients by having early knowledge of the video action.
-
-%% need more stuff about the WF, such as the lil jil stuff, cougaar, etc.
-
-
-\section{Evaluation Methods} \label{eval}
+\section{Evaluation} \label{eval}
 
 (FIGURE: show synchrony of how frames line up)
 
-To evalute our system, we produced an ai2tv video that had 5 quality
-levels.  For a 17 minute video and five different window lengths, the
-total number of frames are 165, 71, 39, 21, and 13.  Our choice of the
-relatively low frame rate quality levels was influenced by the goal of
-the system being used by clients with low bandwidth resources.
+We asses our system by evaluating its ability to synchronize the
+clients and to provide a high quality of video.  The evaluation
+criteria presented below was computed from a set of client
+configurations, specifically 1, 2, 3, and 5 clients running a video
+for 5 minutes and probing system state every 5 seconds.
+
+%% To evalute our system, we produced an ai2tv video that had 5 quality
+%% levels.  For a 17 minute video and five different window lengths, the
+%% total number of frames are 165, 71, 39, 21, and 13.  Our choice of the
+%% relatively low frame rate quality levels was influenced by the goal of
+%% the system being used by clients with low bandwidth resources.
  
 % the pathetic average frame rates (per minute!!!):
 %% 3.399831413 - high
@@ -703,87 +581,11 @@ being displayed at a certain time corresponds to one of the valid
 frames at that time, on any arbitrary level.  (see figure).  We allow
 any arbitrary level because the semantic compression algorithm ensures
 that all frames at a certain time will contain the same semantic
-information (???can we get kender to check this, maybe a reference?)
-if the ``semantic windows'' overlap (???need to get the correct term
-for this from kender).  We score the system by summing the number of
-clients not showing an acceptable frame and normalizing over the total
-number of clients.  A score of 0 indicates a synchronized system.  We
-asses our system's using this evaluation method on a selected set of
-client configurations, specifically, 1, 2, 3, and 5 clients running a
-video for 5 minutes and probing system state every 5 seconds.
+information if the semantic windows overlap.  We score the system by
+summing the number of clients not showing an acceptable frame and
+normalizing over the total number of clients.  A score of 0 indicates
+a synchronized system.
 
-\textit{Evaluating Quality of Service} \\
-% since the semantic compression algorithm ensures that semantic information is preserved.
-A major component of ai2tv is the feedback controller component whose
-purpose is to increase the video quality for the clients.  For our
-situation, a higher video quality means a higher frame rate.  Since we
-are trying to measure how much better or worse the feedback controller
-adjusts the clients, we must define a baseline client from which to
-compare.  To define the baseline client we will use a value that we
-identify as the average bandwidth per level.  This value is computed
-by summing the total size of the frames for a certain level and
-dividing by the total video time.  This value provides the bandwidth
-needed on average for the cache controller to download the next frame
-on time.
-
-Now that we know how much bandwidth a client needs on average, we can
-throttle the bandwidth to that client to match that average.  This
-procedure presents a baseline client model that is based on averages,
-which may not be realistic but is a close approximation.  Using the
-average as the baseline doesn't account for high frequency changes in
-the video frames (make sure that we've discussed this before) and
-intermittent fluctuations in network bandwidth.
-
-A baseline client also needs a context in which it is the baseline, so
-we also use a bandwidth throttling mechanism \cite{SHAPERD} at the
-server to dictate the bandwidth available to a certain client.  A
-baseline client is thus defined as a client who is playing videos at
-the quality level matching that of its bandwidth, which is found by
-comparing the average bandwidth per level and the alloted bandwidth
-and that level which has a needed bandwidth with a minimal positive
-difference with the alloted bandwidth (the client just has enough
-bandwidth to maitain that level).
-
-To attain a quantitative measure of the quality of service provided by
-a client assisted by the feedback controller, we use a scoring system
-relative to the baseline client's quality level.  We give a weighted
-score for each level above or below the baseline quality level.  The
-weighted score is calculated as the ratio of the number of frames per
-minute (fpm) of the two levels.  So, for example, if a client is able
-to play at one level higher then the baseline, and the baseline plays
-at an average 5 fpm while the level higher plays at 10 fpm, the given
-score for playing at the higher level is 2.  The weighted score is
-calculated between the computed average frame rates of the chosen
-quality levels.  Theoretically, the baseline client should receive a
-score of 1 if that client does not miss any frames.
-
-The act of running the client close to or at a level higher than the
-average bandwidth needed puts the client at risk for missing more
-frames because the feedback controller is trying to push the client to
-the best level.  To measure whether the controller assisted client is
-exposed to a higher risk of missing frames we also count the number of
-missed frames during a video session.  The scoring of the missed frame
-is a simple count of the missed frames.  Note that the scoring of the
-missed frame is kept separate from the measure of the relative quality
-to discriminate between levels of concern, though they both indicate a
-characteristic of quality of service.
-
-To assess the quality of service the feedback controller confers we
-evaluate the log files using this scoring scheme for a selected set of
-client configurations, specifically, 1, 2, 3, and 5 clients running a
-video for 5 minutes and probing system state every 5 seconds.  We run
-the system once without the feedback controller, and then again with
-the controller engaged.  Again we sum and normalize the score for all
-clients and use a one-tailed t-test is used to measure the
-significance of any difference found.
-
-%% Sanity checks to measure the correctness of the synchronization was
-%% done through visual checks of the video frames to see if they were
-%% indeed showing the purported frame.
-
-\section{Results} \label{results}
-
-% synchronization results
 The results for the synchronization experiments show a total score of
 0 for all trials, thus no frames were missed.  This result
 demonstrates that our choices for the baseline client quality levels
@@ -795,30 +597,92 @@ bandwidth resource capacities.
 % clients were playing at a higher level then their alloted
 % bandwidth resources and dividing the missed frames by the number
 % of frames that are supposed to be shown the 5 minutes (=14)
-To show the effect of a negligent choice of playing levels, we also
-ran the clients with the same bandwidth resources as above but at an
-arbitrary quality level.  We chose the median quality level as the
-video quality playing level and found that all clients with lower
-bandwidth resources missed an average of 63\% of the needed frames.
-Clients with resources equal to or above the required bandwidth for
-the median quality level did not miss any frames.  In contrast, when
-ran with the feedback controller, the same clients that missed the
-large proportion of the frames only missed 35\% of the needed frames.
+
+%% To show the effect of a casual choice choice of playing levels, we
+%% also ran the clients with the same bandwidth resources as above but at
+%% an arbitrary quality level.  We chose the median quality level as the
+%% video quality playing level and found that all clients with lower
+%% bandwidth resources missed an average of 63\% of the needed frames.
+%% Clients with resources equal to or above the required bandwidth for
+%% the median quality level did not miss any frames.  In contrast, when
+%% ran with the autonomic controller, the same clients that missed the
+%% large proportion of the frames only missed 35\% of the needed frames.
+
+\textit{Evaluating Quality of Service} \\
+% since the semantic compression algorithm ensures that semantic information is preserved.
+A major component of ai2tv is the autonomic controller component whose
+purpose is to increase the video quality for the clients.  With
+respect to the evaluation of video quality of services Liu describes
+many local metrics such as frame rate, loss rate, delay jitter, image
+resolution, and human spatial-temporal contrast-sensitivity
+\cite{LIU}.  We do not address global metrics such as fairness, as
+described in \cite{LIU}.  For our situation, a higher video quality
+means a higher frame rate.
+
+To evaluate the autonomic controller's ability to adjusts the clients,
+we must define a baseline client from which to compare.  To define the
+baseline client we use a value that we identify as the average
+bandwidth per level.  This value is computed by summing the total size
+of the frames for a certain level and dividing by the total video
+time.  This value provides the bandwidth needed on average for the
+buffer controller to download the next frame on time.  We use a
+bandwidth throttling mechanism \cite{SHAPERD} at the server to dictate
+the bandwidth available to that client.
+
+To attain a quantitative measure of the quality of service provided by
+a client assisted by the autonomic controller, we use a scoring system
+relative to the baseline client's quality level.  We give a weighted
+score for each level above or below the baseline quality level.  The
+weighted score is calculated as the ratio of the number of frames per
+minute (fpm) of the two levels.  So, for example, if a client is able
+to play at one level higher then the baseline, and the baseline plays
+at an average 5 fpm while the level higher plays at 10 fpm, the given
+score for playing at the higher level is 2.  The weighted score is
+calculated between the computed average frame rates of the chosen
+quality levels.  Theoretically, the baseline client should receive a
+score of 1 if that client does not miss any frames.  Note that we
+formulated this scoring system because other scoring systems
+\cite{scoring systems} either measure other factors such as image
+resolution or human perceived quality, and are not restricted by the
+group synchronization requirement.  This restriction mandates that a
+scoring system be sensitive to the relative differences between
+quality hierarchies.
 
 % qos results
 The evaluation of the quality of service experiments show the baseline
 clients scored a group score of 1 while the clients assisted by the
-feedback controller scored a group score of 1.25.  The one-tailed
+autonomic controller scored a group score of 1.25.  The one-tailed
 t-score of this difference is 3.01 which is significant for an
 $\alpha$ value of .005 (N=17).  This result demonstrates that using
-the feedback controller, we are able to achieve a significant positive
-difference in the quality of services.  Note that these results do not
-measure the degree of the positive difference achieved by the feedback
-controller.  To demonstrate the degree of benefit of using the
-feedback controller, we measure the proportion of additional frames
-that each client maintained by the controller is able to enjoy.  We
-found that those clients received 20.4\% ($\pm$ 9.7) more frames then
-the clients operating at a baseline rate.
+the autonomic controller, we are able to achieve a significant
+positive difference in the quality of services.  Note that the t-score
+does not measure the degree of the positive difference achieved by the
+autonomic controller.  To demonstrate the degree of benefit of using
+the autonomic controller, we measure the proportion of additional
+frames that each client maintained by the controller is able to enjoy.
+We found that overall, those clients received 20.4\% ($\pm$ 9.7) more
+frames then the clients operating at a baseline rate.
+
+% risk assessment
+The act of running the client close to or at a level higher than the
+average bandwidth needed puts the client at risk for missing more
+frames because the autonomic controller is trying to push the client to
+the best level.  To measure whether the controller assisted client is
+exposed to a higher risk of missing frames we also count the number of
+missed frames during a video session.  The scoring of the missed frame
+is a simple count of the missed frames.  Note that the scoring of the
+missed frame is kept separate from the measure of the relative quality
+to discriminate between levels of concern, though they both indicate a
+characteristic of quality of service.
+
+%% To assess the quality of service the autonomic controller confers we
+%% evaluate the log files using this scoring scheme for a selected set of
+%% client configurations, specifically, 1, 2, 3, and 5 clients running a
+%% video for 5 minutes and probing system state every 5 seconds.  We run
+%% the system once without the autonomic controller, and then again with
+%% the controller engaged.  Again we sum and normalize the score for all
+%% clients and use a one-tailed t-test is used to measure the
+%% significance of any difference found.
 
 In the assessment of the risk of optimizing the frame rate we found
 that there was only one instance in which the controller assisted
@@ -832,6 +696,10 @@ frame rate while the network bandwidth was relatively low.
 % (wfFrames - baselineFrames) / baselineFrames = proportion of frames higher
 %                                                then the baseline client
 
+%% Sanity checks to measure the correctness of the synchronization was
+%% done through visual checks of the video frames to see if they were
+%% indeed showing the purported frame.
+
 \section{Discussion} \label{discussion}
 %% ??? don't know if we should bring this up.  need to discuss with
 %% hellerstein about this.  
@@ -841,24 +709,22 @@ frame rate while the network bandwidth was relatively low.
 
 The main goals of ai2tv are distributed client video synchrony while
 providing quality video.  We induced the latency delays by a per
-client throttling of bandwidth at the server.  We show in our results
-that, if the client chooses a quality level appropriate to its
-bandwidth resources, the use of the publish subscribe communication
-paradigm is sufficient in maintaining synchrony for multiple clients.
+client throttling of bandwidth at the server.  We show in our
+evaluation of synchrony that, if the client chooses a quality level
+appropriate to its bandwidth resources, it is able to sufficiently
+maintain synchrony for multiple clients.
 
-Though in some cases, using this system without the feedback
+Though in some cases, using this system without the autonomic
 controller may be sufficient, but in most cases the network bandwidth
 may vary and the variable frame rate of the video do not permit the
 client to make an informed decision about the most appropriate quality
-level.  This situation is modeled in the ``bad situation'' (need a
-better phrase) experiment where the client chose a video quality
-higher than the alloted bandwidth.  In addition, an application that
-does not adjust its quality level to current bandwidth resources will
-not be able to offer a level of quality appropriate to the client's
-resources.  To address these issues, the feedback controller provides
+level for the next frames.  In addition, an application that does not
+adjust its quality level to current bandwidth resources will not be
+able to offer a level of quality appropriate to the client's
+resources.  To address these issues, the autonomic controller provides
 an additional adaptive element to the clients.  We show that the
-feedback controller makes a significant positive difference in aiding
-the client in achieving a higher quality level.  
+autonomic controller makes a significant positive difference in aiding
+the client in achieving a higher quality level.
 
 Liu et al. provide a comprehensive summary of the mechanisms used in
 video multicast for quality and fairness adaptation as well as network
@@ -866,38 +732,28 @@ and coding requirements \cite{LIU}.  To frame our work that context
 provided, our current design models a single-rate server adaptation
 scheme to each of the clients because the video quality we provide is
 tailored specifically to that client's network resources.  The focus
-in our work was focused on the client side end user perceived quality
-and synchrony, so we did not utilize the most efficient server model.
-The authors believe that it would be trivial to substitute in a
-simulcast server adaptation model.  Our design also fits into the
-category of layered adaptation.  This adaptation model defines a base
-quality level that users must achieve.  Once users have acquired that
-level, the algorithm attempts to incrementally acquire more frames to
-present a higher quality video.  In the work presented here, the
-definition of quality translates to a higher frame rate.  In other
-work (discussed in \ref{related}), the definition of quality may be
-defined as the actual resolution of the received frames.  Liu's
-discussion of bandwidth fairness, coding techniques and network
+in our work is directed towards the client side end user perceived
+quality and synchrony, so we did not utilize the most efficient server
+model.  The authors believe that it would be trivial to substitute in
+a simulcast server adaptation model \cite{simulcast}.  Our design also
+fits into the category of layered adaptation.  This adaptation model
+defines a base quality level that users must achieve.  Once users have
+acquired that level, the algorithm attempts to incrementally acquire
+more frames to present a higher quality video.  In the work presented
+here, the definition of quality translates to a higher frame rate.
+Liu's discussion of bandwidth fairness, coding techniques and network
 transport perspectives lie out of the scope of this paper.
-
-Also in the realm of action control, Vogel et al. present a middleware
-for consistency control in collaborating groups for distributed
-interactive media.  \cite{VOGEL}.  He introduces the ideas of
-optmistic and pessimistic mechanisms in insuring this consistency.
-Optmistic mechanisms allow inconsistencies to happen and then deal
-with the afterwards.  Pessimistic mechanisms prevent inconsistencies
-by locking central state.  In terms of this framework, we provide
-pessimistic mechanisms
 
 \section{Related Work} \label{related}
 
 A preliminary design and implementation of these project goals was
-completed in VECTORS \cite{VECTORS}.  This system uses a different
-synchronization scheme and is tightly coupled with a collaborative
-virtual environment (CVE) called CHIME \cite{CHIME}.  Due to the
-decentralized synchronization scheme employed in this design and
-because of the heavy weight nature of the CVE, the system failed to
-provide an adequate level of synchronziation.
+completed in VECTORS \cite{VECTORS}.  This system uses a peer-to-peer
+synchronization scheme, a technique often employed in gaming systems,
+and is tightly coupled with a collaborative virtual environment (CVE)
+called CHIME \cite{CHIME}.  Due to the decentralized synchronization
+scheme employed in this design and because of the heavy weight nature
+of the CVE, the system failed to provide an adequate level of
+synchronization needed for collaborative video viewing.
 
 % ----------------------------
 % education related support:
@@ -934,24 +790,6 @@ provide multiple client synchronized action control, but the
 contributions made in these works could be used to optimize the
 content distribution server.
 
-% ---------------------
-% shared action control
-% ---------------------
-Also related to our work is a collection of work related to the
-concept of shared action control.  Song et al. \cite{SONG} provide a
-type of remote video camera action control.  Liao et al. provide a
-system for shared interactive video for teleconferencing \cite{LIAO}.
-In this system, users are able to interact with the remote meeting
-environment such as camera view or presentation direction.  These
-systems support a notion of media interaction proposed by Stenzler et
-al that purports that a video application is interactive if the user
-can affect the flow of the video and that influence in turn, affects
-the user's future choices \cite{STENZLER}.  We support this notion by
-allowing all users to have the ability to control the flow of the
-video.  Also in the realm of action control, Vogel et al. present a
-middleware for consistency control in collaborating groups for
-distributed interactive media.  \cite{VOGEL}.
-
 % ----------------------------
 %% do we need to have related work wrt to the semantic compression stuff, or
 %% is that out of the scope of the paper?
@@ -962,14 +800,12 @@ distributed interactive media.  \cite{VOGEL}.
 %% - Tarel: On the choice of similarity measures for image retrieval by example
 %% - Jing: An effective region-based image retrieval framework
 %% - Goh: DynDex: a dynamic and non-metric space indexer
-%% - slaney: Multimedia edges: finding hierarchy in all dimensions,
-%% automating the table of contents.
 
 \section{Conclusion}
 
 In this paper we present a novel educational learning tool to allow
 geographically dispersed participants to collaboratively view a video
-in synchrony.  The system also employs a feedback controller
+in synchrony.  The system also employs a autonomic controller
 architecture that adapts the video quality according to client network
 bandwidth resources.  The other novel concept that we put forth is the
 use of semantic compression to facillitate the synchronization of
@@ -981,10 +817,12 @@ current bandwidth resources.  Through the use of these tools, we hope
 to close the gap between students with varying network resources to
 allow collaboration to proceed in a fruitful manner.
 
+
+
 %ACKNOWLEDGMENTS are optional
-% \section{Acknowledgments}
-% Professor Kender and Tiecheng Liu at the High-Level Vision Lab.
-% Matias Pelenur also helped a whole damn lot!!!
+\section{Acknowledgments}
+Professor Kender and Tiecheng Liu at the High-Level Vision Lab.
+Matias Pelenur also helped a whole damn lot!!!
 
 % The following two commands are all you need in the
 % initial runs of your .tex file to
