@@ -1,0 +1,8 @@
+missed frames proportion
+ai2tv_goodness 2clients LowBW 4 startLevel2 noWF.log: 9/14 = .64
+ai2tv_goodness 3clients LowBW 4 startLevel2 noWF.log: 7/14 = .5
+ai2tv_goodness 4clients LowBW 4 startLevel2 noWF.log: 9/14 = .64
+ai2tv_goodness 5clients LowBW 4 startLevel2 noWF.log: 8/14 = .57
+ai2tv_goodness 5clients VLowBW 4 startLevel2 noWF.log: 11/14 = .78
+avg = 3.13/5 = .626
+
