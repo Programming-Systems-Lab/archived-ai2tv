@@ -117,6 +117,7 @@ class ClientProbe {
       _frameEvent.putAttribute("rightbound", fd.getEnd());
       _frameEvent.putAttribute("moment", fd.getNum());
       _frameEvent.putAttribute("level", fd.getLevel());
+        _frameEvent.putAttribute("size", fd.getSize());
     }
   }
 
