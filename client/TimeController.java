@@ -23,18 +23,18 @@ import java.io.*;
  * @author	Dan Phung (dp2041@cs.columbia.edu)
  */
 
-class TimeController{
+public class TimeController{
   // internal clock, directly related to system clock
   private long _startTime;
   private long _pausedTime;
   private long _pausedStartTime;
-  private boolean _pausePressed;
+  private boolean _pauseActive;
   private boolean _isActive;
 
   /**
    * create a time controller
    */
-  TimeController(){
+  public TimeController(){
     reset();
   }
 
@@ -42,11 +42,10 @@ class TimeController{
    * set the start time of the internal clock
    */
   public void startTime() {
-    Client.out.println("starting time");
     if (!_isActive){
       _isActive = true;
       _startTime = System.currentTimeMillis();
-    } else if (_pausePressed){
+    } else if (_pauseActive){
       pause();
     }
   }
@@ -56,15 +55,14 @@ class TimeController{
    */
   public long currentTime() {
     if (_isActive) {
-      if (_pausePressed) {
+      if (_pauseActive) {
 	return (_pausedStartTime - _startTime - _pausedTime);
       } else {
 	return (System.currentTimeMillis() - _startTime - _pausedTime);
       }
 
     } else {
-      // Client.out.println("current Time is not Active");
-      return 0; // dp2041: this actually needs to be something else,
+      return 0; // if we're not active, time is 0
     }
     // in case the user has already started and is paused.
   }
@@ -73,11 +71,13 @@ class TimeController{
    * toggle pause
    */
   public void pause() {
-    if (!_pausePressed) {
-      _pausePressed = true;
+    if (!_pauseActive) {
+      System.out.println("pausing time");
+      _pauseActive = true;
       pauseTime();
     } else {
-      _pausePressed = false;
+      System.out.println("unpausing time");
+      _pauseActive = false;
       unpauseTime();
     }
   }
@@ -85,14 +85,14 @@ class TimeController{
   /**
    * pause the time
    */
-  public void pauseTime() {
+  private void pauseTime() {
     _pausedStartTime = System.currentTimeMillis();
   }
 
   /**
    * unpause the time
    */
-  public void unpauseTime() {
+  private void unpauseTime() {
     _pausedTime += (System.currentTimeMillis() - _pausedStartTime);
   }
   
@@ -106,6 +106,13 @@ class TimeController{
   }
 
   /**
+   * reset the time, basically the STOP function
+   */
+  public void stopTime() {
+    reset();
+  }
+
+  /**
    * @return whether the clock is active (true) or stopped (false)
    */
   public boolean isActive() {
@@ -113,13 +120,13 @@ class TimeController{
   }
 
   /**
-   * reset the time
+   * reset the time, basically the STOP function
    */
   public void reset() {
     _startTime = 0;
     _pausedTime = 0;
     _pausedStartTime = 0;
-    _pausePressed = false;
+    _pauseActive = false;
     _isActive = false;
   }
 }
