@@ -33,7 +33,8 @@ import psl.ai2tv.gauge.FrameDesc;
 /**
  * Implemented interface that can be used by Little-JIL tasks via the
  * TaskExecutorInternalPlugin.  The "method" paramter in the execute
- * method holds the method that this class will execute.
+ * method holds the method that this class will execute.  I have
+ * declared all variables used in any of the functions
  *
  * each function has access to:
  *
@@ -41,6 +42,7 @@ import psl.ai2tv.gauge.FrameDesc;
  * ClientPG clientPG = clientAsset.getClientPG()
  * clientPG.getSampleTime(), .getBandwith()
  * clientAsset.getFramePG()
+ * bandwi
  *
  * framePG.getEnd(), getLevel(), getNum(), getStart()
  *
@@ -58,6 +60,13 @@ public class WFHelperFunctions implements ExecutableTask {
 
   private static final Logger logger = Logger.getLogger(WFHelperFunctions.class);
 
+  public final int HIGHEST_LEVEL = 0;
+  public final int LOWEST_LEVEL = 4; 
+  public final int PREFETCH_THRESHOLD = 4;
+  public final int PREFETCH_CHANGE_THRESHOLD = 2;
+  public final int RESERVE_THRESHOLD = 2;
+  public final int OFFSET_THRESHOLD = 2000;
+
   private WFGauge myGauge = WFSubscriber.myGauge;
   private ClientAsset baseCA, clientAsset;
   private NewClientPG basePG;
@@ -68,14 +77,16 @@ public class WFHelperFunctions implements ExecutableTask {
   private Siena siena;
   private FrameIndexParser fip;
   private FrameDesc[][] allFrames;
+  private double[] avgBandwidthNeeded;
   private int numLevels;
-
-  public final int HIGHEST_LEVEL = 0;
-  public final int LOWEST_LEVEL = 4; 
-  public final int PREFETCH_THRESHOLD = 4;
-  public final int PREFETCH_CHANGE_THRESHOLD = 2;
-  public final int RESERVE_THRESHOLD = 2;
-  public final int OFFSET_THRESHOLD = 2000;
+  
+  private double lowestBandwidth; // used in FindBase
+  private double bandwidth;       // used in FindBase
+  private int level;       // used in FindBase  
+  private double ratio;
+  private int frameRate;
+  private int newFrameRate;
+  private boolean changeFrameRate;
 
   /**
    * 
@@ -84,6 +95,7 @@ public class WFHelperFunctions implements ExecutableTask {
     fip = myGauge.getFrameIndexParser();
     allFrames = fip.frameData();
     numLevels = fip.levels();
+    avgBandwidthNeeded = fip.getAvgBandwidthNeeded();
     baseCA = null;
     clientAsset = null;
     basePG = null;
@@ -92,6 +104,8 @@ public class WFHelperFunctions implements ExecutableTask {
     medianPG = null;
     clientFramePG = null;
     event = null;
+    changeFrameRate = false;
+    newFrameRate = -1;
     try {
       siena = SimpleGaugeSubscriber.getSiena();
     } catch (siena.SienaException e) {
@@ -115,9 +129,9 @@ public class WFHelperFunctions implements ExecutableTask {
   public void execute(String method, Hashtable inParams, Hashtable outParams)
     throws Exception {
     if (method.equals("FindBase"))
-      ; // findBase(inParams, outParams);
+      findBase(inParams, outParams);
     else if (method.equals("EvaluateClient"))
-      ; // evaluateClientWrtBase(inParams, outParams);
+      evaluateClientWrtBase(inParams, outParams);
     else if (method.equals("AdaptClient"))
       adaptClient(inParams, outParams);
     else
@@ -142,39 +156,44 @@ public class WFHelperFunctions implements ExecutableTask {
   private void findBase(Hashtable inParams, Hashtable outParams)
     throws Exception {
 
-    // Currently, I don't use the base client in the adaptClient
-    // function, so I've commented the following out to bump up the
-    // efficiency measures
-    /*
     baseCA = (ClientAsset) inParams.get("baseClient");
     basePG = (NewClientPG) baseCA.getClientPG();
     clients = (Vector) inParams.get("clients");
 
     logger.debug("findBase: baseClient=" + baseCA + ", client=" + clients);
+    logger.debug("- - - - - - - - \n\nBase (midway) client before: " + basePG);
 
-    // here is where the clients get sorted by bandwidths
-    SortedMap m = new TreeMap();
+    lowestBandwidth = 99999;
+    int baseIndex = -1;
     for (int i = 0; i < clients.size(); i++) {
       clientAsset = (ClientAsset) clients.get(i);
       clientPG = clientAsset.getClientPG();
-      m.put(new Double(clientPG.getBandwidth()), clientPG);
+      penalties = clientPG.getPenalties();
+      bandwidth = clientPG.getBandwidth();
+
+      if (penalties > 0 && bandwidth < lowestBandwidth ){
+	lowestBandwidth = bandwidth;
+	baseIndex = i;
+      }
     }
 
-    // here I simply get the index of the middle (median) client
-    Collection vals = m.values();
-    Iterator i = vals.iterator();
-    for (int j = 0; j < vals.size() / 2; j++) {
-      i.next();
+    // basePG.getID().indexOf("dummyID") != -1
+    if (baseIndex != -1){
+      clientAsset = (ClientAsset) clients.get(baseIndex);
+      clientPG = clientAsset.getClientPG();
+      bandwidth = clientPG.getBandwidth();
+      level = clientPG.getLevel();      
+      frameRate = clientPG.getLevel();
+      ratio = bandwidth / avgBandwidthNeeded[level];
+      if (ratio < 0)
+	basePG.setFrameRate((int)(ratio * frameRate));
+      // need to clone the clientpg here
+      // basePG.setBandwidth(bandwidth);
+      // basePG.setHost(clientPG.getHost());
+      // basePG.setId(clientPG.getId());
+      // basePG.setSampleTime(clientPG.getSampleTime());
     }
-
-    medianPG = (ClientPG) i.next();
-    basePG.setBandwidth(medianPG.getBandwidth());
-    basePG.setHost(medianPG.getHost());
-    basePG.setId(medianPG.getId());
-    basePG.setSampleTime(medianPG.getSampleTime());
-
-    logger.debug("Base (midway) client is: " + basePG);
-    */
+    logger.debug("Base (midway) client after: " + basePG + "\n\n- - - - - - - - - - -");
   }
 
 
@@ -185,7 +204,24 @@ public class WFHelperFunctions implements ExecutableTask {
    * @param outParams: hash of output paramters
    */
   private void evaluateClientWrtBase(Hashtable inParams, Hashtable outParams) {
-    // not currently used
+    changeFrameRate = false;
+    baseCA = (ClientAsset) inParams.get("baseClient");
+    basePG = (NewClientPG) baseCA.getClientPG();
+    clientAsset = (ClientAsset) inParams.get("clients");
+    clientPG = clientAsset.getClientPG();
+    if (clientPG.getFrameRate() != basePG.getFrameRate()){
+      // should I do this, and have clientPG = clientPGImpl or should I just pass the info within this class?
+      // clientPG.setFrameRate((int)basePG.getFrameRate());
+      
+      // now we have to set all the clients to this new frame rate
+      // ...but, how do we know if we should do this in the other 
+      // function?
+      changeFrameRate = true;
+      newFrameRate = basePG.getFrameRate();
+      // but we could be doing this above, and the per client comparision isn't needed.  we just 
+      // need to know that the base client has a certain change, and we should adjust everybody.
+      // there are no per client changes wrt to the base.
+    }
   }
 
   /**
@@ -259,42 +295,57 @@ public class WFHelperFunctions implements ExecutableTask {
     // logger.debug("prefetched: " + prefetchedFrames);
     // logger.debug("reserveFrames: " + reserveFrames);
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //
+    // - - - - - - - -  Adjustments made to clients all clients! - - - - - - - - //
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //
+    if (changeFrameRate){
+      event = new Notification();
+      event.putAttribute(SienaConstants.CHANGE_FRAME_RATE, newFrameRate);
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //
+    // - - - - - - - - Adjustments made to clients who are BAD! - - - - - - - - //
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //
     if (penalties > 0 || timeOffset > OFFSET_THRESHOLD || reserveFrames == RESERVE_THRESHOLD){
       if (clientLevel > (LOWEST_LEVEL - 1)){
 	// logger.debug("!!! client is too slow, must skip frames !!!");
-	event = new Notification();
-	event.putAttribute(SienaConstants.AI2TV_CLIENT_ADJUST, "");
-	event.putAttribute(SienaConstants.CLIENT_ID, clientPG.getId());
+	if (event == null)
+	  event = new Notification();
 	fd = computeNextDownload(clientLevel, clientFramePG.getNum(), 
 					   clientPG.getBandwidth(), 
 					   clientPG.getAvgDistWF2Client());
 	event.putAttribute(SienaConstants.JUMP_TO, fd.getNum());
       } else {
 	// logger.debug("!!! client is too slow, setting client down a level !!!");
-	event = new Notification();
+	if (event == null)
+	  event = new Notification();
 	// addHeader(event, clientPG);
-	event.putAttribute(SienaConstants.AI2TV_CLIENT_ADJUST, "");
-	event.putAttribute(SienaConstants.CLIENT_ID, clientPG.getId());
 	event.putAttribute(SienaConstants.CHANGE_CLIENT_LEVEL_DOWN, "");
       }
 
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //
+    // - - - - - - - - Adjustments made to clients who are GOOD! - - - - - - - - //
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //
+
     } else if (clientLevel == cacheLevel && prefetchedFrames >= PREFETCH_THRESHOLD){
       // logger.debug("!!! client is WAY FAST!  setting client CACHE UP a level !!!");
-      event = new Notification();
+      if (event == null)
+	event = new Notification();
       // addHeader(event, clientPG);
-      event.putAttribute(SienaConstants.AI2TV_CLIENT_ADJUST, "");
-      event.putAttribute(SienaConstants.CLIENT_ID, clientPG.getId());
       event.putAttribute(SienaConstants.CHANGE_CACHE_LEVEL_UP, "" );
     } else if (clientLevel != cacheLevel && prefetchedFrames >= PREFETCH_CHANGE_THRESHOLD) {
       // logger.debug("!!! client's cache is ready.  Setting client UP a level !!!");
-      event = new Notification();
+      if (event == null)
+	event = new Notification();
       // addHeader(event, clientPG);
-      event.putAttribute(SienaConstants.AI2TV_CLIENT_ADJUST, "");
-      event.putAttribute(SienaConstants.CLIENT_ID, clientPG.getId());
       event.putAttribute(SienaConstants.CHANGE_CLIENT_LEVEL_UP, "" );
     }
+      
 
     if (event != null) {
+      event.putAttribute(SienaConstants.AI2TV_CLIENT_ADJUST, "");
+      event.putAttribute(SienaConstants.CLIENT_ID, clientPG.getId());
       // logger.info("sending event: " + event);
       try {
 	siena.publish(event);
