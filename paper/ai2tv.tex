@@ -10,8 +10,9 @@
 % - explain early on about the characteristic of fluctuations in bandwidth and
 %   high freq changes in video
 %
-% - final read = check for consistent tense
-% - translate ai2tv -> $\mathrm{AI}^2$TV
+% FINAL READ 
+% - check for consistent tense
+% - query replace: ai2tv -> $\mathrm{AI}^2$TV
 %
 %
 % ---------------------------------------------------------------------------
@@ -144,15 +145,16 @@ submission to \emph{ACM-MM 2004}, due 12:00 AM EDT: April 05, 2004.}}}}
 \begin{abstract}
 The increasing popularity of distance learning and online courses has
 highlighted the lack of support for collaborative tools available for
-student groups. We present a design and implementation of
-ai2tv, a system that allows geographically dispersed
-participants to collaboratively view a video in synchrony.  In
-addition, this system uses an autonomic feedback controller that
-responds to client feedback and adjusts the quality of the video
-according to the resources of each client.  We show that our system
-can successfully synchronize video for distributed clients and
-optimize the video quality by adaptively adjusting the frame rate.
-
+student groups. We present a design and implementation of ai2tv, a
+system that allows geographically dispersed participants to
+collaboratively view a video in synchrony.  Video actions can be
+initiated by any of the participants and the results of those actions
+are seen by all the members.  In addition, this system uses an
+autonomic feedback controller that responds to client feedback and
+adjusts the quality of the video according to the resources of each
+client.  We show that our system can successfully synchronize video
+for distributed clients and optimize the video quality by adaptively
+adjusting the frame rate.
 \end{abstract}
 
 % A category with the (minimum) three required fields
@@ -218,24 +220,27 @@ which have become increasingly more popular \cite{BELLER,DOE}.  Due to
 the ease in scheduling alongside a work schedule, one of the common
 type of students of online courses are the non-traditional working
 student that is trying to further her or his career through higher
-certifications \cite{BURGESS:TRENDS}.  This student population usually
+certifications \cite{BURGESS}.  This student population usually
 varies geographically, since online courses allow students from any
 region to enroll.  The dispersed nature of the class prevents students
 from physically holding group study sessions, which is commonly
 regarded by students as a useful and productive practice.  Support for
 collaboration is a major concern in courses where group work is
-encouraged \cite{WELLS:COLLAB}, yet there are few tools that support
-distributed collaboration \cite{BURGESS:TRENDS}.
+encouraged \cite{WELLS}, yet there are few tools that support
+distributed collaboration \cite{BURGESS}.
 
 The area of collaboration that our contribution applies is
 collaborative video viewing.  In this scenario, students that are
 dispersed across different geographical regions can view lecture
 videos simultaneously and in a synchronized manner: Within a video
 session, participants can play, pause, stop and go to certain frames
-synchronously as a group.  The intent is to facilitate the review of
-lecture material during distributed collaborative study sessions, in
-order, for instance, to solve some difficulty in a joint project
-assignment, or to clarify some misconceived lecture material.
+synchronously as a group.  Any member of the video session can
+initiate the actions, as opposed to previous action models where only
+one user has the controller and designates the flow of the video (???
+cite master/slave controller systems).  The intent is to facilitate
+the review of lecture material during distributed collaborative study
+sessions, in order, for instance, to solve some difficulty in a joint
+project assignment, or to clarify some misconceived lecture material.
 
 % - motivate the use of video as distributed collaboration tool
 Viewing video on the Internet requires relatively high bandiwdth
@@ -384,14 +389,14 @@ adapts the client accordingly.
 % - introduce role of autonomic controller
 The autonomic controller monitors the distributed ai2tv system
 composed of clients and video servers, analyzes incoming streams of
-sensor data, and employs a workflow engine, named
-\em{Workflakes}\cite{PEPPO}, to execute as needed workflow processes
-that effect in a coordinated fashion the \em{dynamic adaptation} of
-the video viewing settings across a group of clients.  That dynamic
-adaptation aims at maintaining the clients in the same group
-synchronized, in accordance with policies that implement an underlying
-distributed synchronization scheme, while at the same time fine tuning
-the quality of the viewing experience for individual clients.
+sensor data, and employs a workflow engine, named Workflakes
+\cite{PEPPO}, to execute as needed workflow processes that effect in a
+coordinated fashion the dynamic adaptation of the video viewing
+settings across a group of clients.  That dynamic adaptation aims at
+maintaining the clients in the same group synchronized, in accordance
+with policies that implement an underlying distributed synchronization
+scheme, while at the same time fine tuning the quality of the viewing
+experience for individual clients.
 
 \section{Design} \label{design}
 
@@ -514,45 +519,73 @@ fetching level.
 
 \section{Implementation} \label{implementation}
 
-The ai2tv video display is implemented in Java and simply
-renders the JPG frame in a window.  The video frame display controller
-gets a list of available frames from the cache controller.  The
-display client has a separate control for quality level that allows
-the client to play at a certain quality level while the cache
-controller downloads at a different level.  This feature allows the
-workflow controller, described later in this section, to adjust the
-client's display and cache separately and intelligently in response to
-current bandwidth resources.
+The ai2tv video display is implemented in Java and simply renders the
+JPG frame in a window.  The video frame display controller gets a list
+of available frames from the cache controller.  The display client has
+a separate control for quality level that allows the client to play at
+a certain quality level while the cache controller downloads at a
+different level.  This feature allows the feedback controller,
+described later in this section, to adjust the client's display and
+cache separately and intelligently in response to current bandwidth
+resources.
 
 The cache controller is simply a downloading daemon that will continue
 downloading at a certain quality level.  Directives to change the
 quality level and other adjustments to the cache controller are
-decided by the workflow controller.  The cache controller keeps a hash
+decided by the feedback controller.  The cache controller keeps a hash
 of the available frames and a count of the current reserve frames
 (frames buffered) for a given quality level.
 
 The time keeping scheme uses the hardware clock as the base for its
-internal video clock and  to ensure that the system clocks across
-the ai2tv system are synchronized.  The separation of the
-synchronization scheme greatly simplifies the rest of the system
-because it clarifies the functional responsibilities of the other
-components.  Each client plays the video frames at the correct time
-and since all the clients have the same time, then all the clients
-play in tandem.  Since the client is simply checking the time and
-displaying the resepective video frame for that time, unless it is
-misinformed about the correct frame to display, it will display the
-correct video.  All video actions and workflow directives are
-timestamped so the client can execute the actions in accordance with
-that time.
+internal video clock and to ensure that the system clocks across the
+ai2tv system are synchronized.  The separation of the synchronization
+scheme greatly simplifies the rest of the system because it clarifies
+the functional responsibilities of the other components.  Each client
+plays the video frames at the correct time and since all the clients
+have the same time, then all the clients play in tandem.  Since the
+client is simply checking the time and displaying the resepective
+video frame for that time, unless it is misinformed about the correct
+frame to display, it will display the correct video.  All video
+actions and controller directives are timestamped so the client can
+execute the actions in accordance with that time.
 
-The workflow controller makes decisions on behalf of the clients to
+We chose Siena as our publish-subscribe event system for its ability
+to scale.  Siena is a content-based networking communication
+infrastructure that facillitates the passing of messages by routing
+events by content \cite{SIENA}.  This communication paradigm removes
+the need to introduce explicit routing mechanisms within our system
+and its simplistic design provides high performance results.  We
+defined two basic types of messages, one type for video actions and
+another type for feedback controller related activities.  
+
+The video action events include the video action type (play, pause,
+stop, goto), the unique video session identifier, and a timestamp.
+All clients within the same video session will receive that message
+and execute the appropriate action.  Note that the client that
+initiates the action only executes the action upon receipt of the
+event so that the initiating client does not become out of sync with
+the other clients by having early knowledge of the video action.
+
+There are two feedback controller related messages: client state
+events sent out by the embedded probes and controller directives that
+adjust the clients.  We elaborate the contents of these messages as we
+describe the feedback controller below.
+
+The feedback controller makes decisions on behalf of the clients to
 adjust their video quality levels according to collected statistics .
-For each client, the workflow probes for the video display quality
-level, cache controller quality level, cache controller reserve
-frames, current frame and bandwidth.  The workflow directives can be
-grouped into two categories: rules that adjust the client in response
-to relatively low bandwidth situations and orders that take advantage
-of relatively high bandwidth situations.  The gauge monitors the state
+For each client, the feedback controller probes for the video display
+quality level, cache controller quality level, cache controller
+reserve frames, current frame and bandwidth.  The feedback controller
+directives can be grouped into two categories: rules that adjust the
+client in response to relatively low bandwidth situations and orders
+that take advantage of relatively high bandwidth situations.  The
+contents of these directives include the unique client identifier, and
+a directive.  The directives can adjust the client's display quality
+level or the client's cache quality level, or the directive can tell
+the client to jump ahead to a future frame.  This last directive is
+sent only in dire bandwidth situations where the controller must
+calculate the next future frame that the client can possibly download
+given its current bandwidth resources.  The gauge monitors the state
 of the clients using the probe statistics described above and compares
 them to configurable threshold values and mandates decisions
 accordingly.
@@ -561,12 +594,12 @@ In the situation where a client has relatively low bandwidth, the
 client may not download a frame in time.  This situation will merit
 that both the client and the cache quality levels are reduced one
 level.  In the case where the client is already at the lowest level,
-the workflow controller will calculate the next possible frame that it
+the feedback controller will calculate the next possible frame that it
 can successfully complete in time.
 
 To take advantage of relatively high bandwidth situations, the cache
 controller will accumulate a reserve buffer.  Once the buffer reaches
-a threshold value, the workflow controller will direct the cache
+a threshold value, the feedback controller will direct the cache
 controller to start downloading frames a higher quality level.  Once
 the cache controller has downloaded a sufficient reserve at that
 level, the client is then ordered to display the higher quality level.
@@ -581,7 +614,7 @@ frames within the ai2tv video that reflects a portion of the original
 video that has a large amount of semantic change.
 
 %% need more stuff about the WF, such as the lil jil stuff, cougaar, etc.
-The workflow controller allows the clients to take advantage or adjust
+The feedback controller allows the clients to take advantage or adjust
 to relative deviations in bandwidth that occurs during a video
 session.  Also, due to pockets of high frequency semantic change in
 the video, the client must be carefully monitored during those times
@@ -591,48 +624,51 @@ to ensure that it doesn't drop those important frames.
 
 (FIGURE: show synchrony of how frames line up)
 
+To evalute our system, we produced an ai2tv video that had 5 quality
+levels.  For a 17 minute video and five different window lengths, the
+total number of frames are 165, 71, 39, 21, and 13.  Our choice of the
+relatively low frame rate quality levels was influenced by the goal of
+the system being used by clients with low bandwidth resources.
+ 
+% the pathetic average frame rates (per minute!!!):
+%% 3.399831413 - high
+%% 1.46295776
+%% 0.806289939
+%% 0.434237734
+%% 0.268763313 - low
+
 \textit{Evaluating Synchrony} \\ The purpose of the system is to
 provide synchronous viewing to all clients.  To measure the
-effectiveness of the synchrony, we probe the clients at and peroidic
-time intervals and log the frame currently being displayed.  This
-procedure effectively takes a snapshot of the system, which we can
-evaluate for correctness.  This evaluation proceeds by checking
-whether the frame being displayed at a certain time corresponds to one
-of the valid frames at that time, on any arbitrary level.  (see
-figure).  We allow any arbitrary level because the semantic
-compression algorithm ensures that all frames at a certain time will
-contain the same semantic information (???can we get kender to check
-this, maybe a reference?) if the ``semantic windows'' overlap (???need
-to get the correct term for this from kender).  We score the system by
-summing the number of clients not showing an acceptable frame and
-normalizing over the total number of clients.  A score of 0 indicates
-a synchronized system.  We asses our system's using this evaluation
-method on a selected set of client configurations, specifically, 1, 2,
-3, 5 and 10 clients running a video for 5 minutes.  A two-tailed
-t-test is used to measure the significance of any difference found.
-
-Because the probing scheme depends on a thread sleep method, the
-relative deviation of the probing time must also evaluated.  We will
-measure this uncertainty by calculating the standard deviation from
-the mean and median of each probe instance and provide a ???STAT score
-for all trials.  Also note that there may be an underlying system
-clock deviation across all clients due to the guarantees of NTP, which
-have been shown to be on the order of tens of milliseconds (??? cite
-NTP study).  We purport that the sum of these deviations to have a
-minimal impact on our evaluations.
+effectiveness of the synchrony, we probe the clients at peroidic time
+intervals and log the frame currently being displayed.  This procedure
+effectively takes a snapshot of the system, which we can evaluate for
+correctness.  This evaluation proceeds by checking whether the frame
+being displayed at a certain time corresponds to one of the valid
+frames at that time, on any arbitrary level.  (see figure).  We allow
+any arbitrary level because the semantic compression algorithm ensures
+that all frames at a certain time will contain the same semantic
+information (???can we get kender to check this, maybe a reference?)
+if the ``semantic windows'' overlap (???need to get the correct term
+for this from kender).  We score the system by summing the number of
+clients not showing an acceptable frame and normalizing over the total
+number of clients.  A score of 0 indicates a synchronized system.  We
+asses our system's using this evaluation method on a selected set of
+client configurations, specifically, 1, 2, 3, and 5 clients running a
+video for 5 minutes and probing system state every 5 seconds.
 
 \textit{Evaluating Quality of Service} \\
 % since the semantic compression algorithm ensures that semantic information is preserved.
-A major component of ai2tv is the workflow component whose
+A major component of ai2tv is the feedback controller component whose
 purpose is to increase the video quality for the clients.  For our
 situation, a higher video quality means a higher frame rate.  Since we
-are trying to measure how much better or worse the workflow adjusts
-the clients, we must define a baseline client from which to compare.
-To define the baseline client we will use a value that we identify as
-the average bandwidth per level.  This value is computed by summing
-the total size of the frames for a certain level and dividing by the
-total video time.  This value provides the bandwidth needed on average
-for the cache controller to download the next frame on time.
+are trying to measure how much better or worse the feedback controller
+adjusts the clients, we must define a baseline client from which to
+compare.  To define the baseline client we will use a value that we
+identify as the average bandwidth per level.  This value is computed
+by summing the total size of the frames for a certain level and
+dividing by the total video time.  This value provides the bandwidth
+needed on average for the cache controller to download the next frame
+on time.
 
 Now that we know how much bandwidth a client needs on average, we can
 throttle the bandwidth to that client to match that average.  This
@@ -643,7 +679,7 @@ the video frames (make sure that we've discussed this before) and
 intermittent fluctuations in network bandwidth.
 
 A baseline client also needs a context in which it is the baseline, so
-we also use a bandwidth throttling mechanism \cite{shaperd} at the
+we also use a bandwidth throttling mechanism \cite{SHAPERD} at the
 server to dictate the bandwidth available to a certain client.  A
 baseline client is thus defined as a client who is playing videos at
 the quality level matching that of its bandwidth, which is found by
@@ -653,33 +689,37 @@ difference with the alloted bandwidth (the client just has enough
 bandwidth to maitain that level).
 
 To attain a quantitative measure of the quality of service provided by
-a workflow assisted client, we use a scoring system relative to the
-baseline client's quality level.  We give a score of 1 for each
-quality level above the baseline quality level and -1 for each quality
-level below.  Theoretically, the baseline client should receive a
-score of 0.
-
-%% The possible reasons for missing frames are an abrupt change in
-%% bandwidth or a high frequency change in frames
+a client assisted by the feedback controller, we use a scoring system
+relative to the baseline client's quality level.  We give a weighted
+score for each level above or below the baseline quality level.  The
+weighted score is calculated as the ratio of the number of frames per
+minute (fpm) of the two levels.  So, for example, if a client is able
+to play at one level higher then the baseline, and the baseline plays
+at an average 5 fpm while the level higher plays at 10 fpm, the given
+score for playing at the higher level is 2.  The weighted score is
+calculated between the computed average frame rates of the chosen
+quality levels.  Theoretically, the baseline client should receive a
+score of 1 if that client does not miss any frames.
 
 The act of running the client close to or at a level higher than the
 average bandwidth needed puts the client at risk for missing more
-frames because the workflow is trying to push the client to the best
-level.  To measure whether the workflow assisted client is exposed to
-a higher risk of missing frames we also count the number of missed
-frames during a video session.  The scoring of the missed frame is a
-simple count of the missed frames.  Note that the scoring of the
+frames because the feedback controller is trying to push the client to
+the best level.  To measure whether the controller assisted client is
+exposed to a higher risk of missing frames we also count the number of
+missed frames during a video session.  The scoring of the missed frame
+is a simple count of the missed frames.  Note that the scoring of the
 missed frame is kept separate from the measure of the relative quality
 to discriminate between levels of concern, though they both indicate a
 characteristic of quality of service.
 
-To assess the quality of service the workflow confers we evaluate the
-log files using this scoring scheme for a selected set of client
-configurations, specifically, 1, 2, 3, 5 and 10 clients running a
-video for 5 minutes.  We run the system once without workflow, and
-then again with the workflow engaged.  Again we sum and normalize the
-score for all clients and use a two-tailed t-test is used to measure
-the significance of any difference found.
+To assess the quality of service the feedback controller confers we
+evaluate the log files using this scoring scheme for a selected set of
+client configurations, specifically, 1, 2, 3, and 5 clients running a
+video for 5 minutes and probing system state every 5 seconds.  We run
+the system once without the feedback controller, and then again with
+the controller engaged.  Again we sum and normalize the score for all
+clients and use a one-tailed t-test is used to measure the
+significance of any difference found.
 
 %% Sanity checks to measure the correctness of the synchronization was
 %% done through visual checks of the video frames to see if they were
@@ -687,169 +727,215 @@ the significance of any difference found.
 
 \section{Results} \label{results}
 
+% synchronization results
+The results for the synchronization experiments show a total score of
+0 for all trials, thus no frames were missed.  This result
+demonstrates that our choices for the baseline client quality levels
+and the throttled bandwidths do not push the clients beyond their
+bandwidth resource capacities.
 
+% don't know if this should stay in.
+% i got these numbers by manually inspecting the files where the
+% clients were playing at a higher level then their alloted
+% bandwidth resources and dividing the missed frames by the number
+% of frames that are supposed to be shown the 5 minutes (=14)
+To show the effect of a negligent choice of playing levels, we also
+ran the clients with the same bandwidth resources as above but at an
+arbitrary quality level.  We chose the median quality level as the
+video quality playing level and found that all clients with lower
+bandwidth resources missed an average of 63\% of the needed frames.
+Clients with resources equal to or above the required bandwidth for
+the median quality level did not miss any frames.  In contrast, when
+ran with the feedback controller, the same clients that missed the
+large proportion of the frames only missed 35\% of the needed frames.
+
+% qos results
+The evaluation of the quality of service experiments show the baseline
+clients scored a group score of 1 while the clients assisted by the
+feedback controller scored a group score of 1.25.  The one-tailed
+t-score of this difference is 3.01 which is significant for an
+$\alpha$ value of .005 (N=17).  This result demonstrates that using
+the feedback controller, we are able to achieve a significant positive
+difference in the quality of services.  Note that these results do not
+measure the degree of the positive difference achieved by the feedback
+controller.  To demonstrate the degree of benefit of using the
+feedback controller, we measure the proportion of additional frames
+that each client maintained by the controller is able to enjoy.  We
+found that those clients received 20.4\% ($\pm$ 9.7) more frames then
+the clients operating at a baseline rate.
+
+In the assessment of the risk of optimizing the frame rate we found
+that there was only one instance in which the controller assisted
+client missed two consecutive frames.  Upon closer inspection, the
+time region during this event showed that the video demanded a higher
+frame rate while the network bandwidth was relatively low.
+
+% calculation used for the 20% number I got up there.
+% baselineFrames = number of frames base client gets
+% wfFrames = number of frames the wf client gets
+% (wfFrames - baselineFrames) / baselineFrames = proportion of frames higher
+%                                                then the baseline client
 
 \section{Discussion} \label{discussion}
+%% ??? don't know if we should bring this up.  need to discuss with
+%% hellerstein about this.  
+%%
+%% Liu et al. also discusses convergence..., need to look up:
+%% RLM and RLC (examples using this metric)
 
-It is noticeable that the adjustments required to carry out the
-dynamic adaptation of ai2tv must be completed by the Workflakes
-coordinator within narrow time boundaries (in the order of one second
-or less), as mandated by the soft real-time nature of the application
-and the tight synchronization effects that the dynamic adaptation aims
-to achieve.
+The main goals of ai2tv are distributed client video synchrony while
+providing quality video.  We induced the latency delays by a per
+client throttling of bandwidth at the server.  We show in our results
+that, if the client chooses a quality level appropriate to its
+bandwidth resources, the use of the publish subscribe communication
+paradigm is sufficient in maintaining synchrony for multiple clients.
 
+Though in some cases, using this system without the feedback
+controller may be sufficient, but in most cases the network bandwidth
+may vary and the variable frame rate of the video do not permit the
+client to make an informed decision about the most appropriate quality
+level.  This situation is modeled in the ``bad situation'' (need a
+better phrase) experiment where the client chose a video quality
+higher than the alloted bandwidth.  In addition, an application that
+does not adjust its quality level to current bandwidth resources will
+not be able to offer a level of quality appropriate to the client's
+resources.  To address these issues, the feedback controller provides
+an additional adaptive element to the clients.  We show that the
+feedback controller makes a significant positive difference in aiding
+the client in achieving a higher quality level.  
 
 Liu et al. provide a comprehensive summary of the mechanisms used in
-video multicast for quality and fairness adaptation as well as netowrk
-and coding requirements.  To frame our work in that context we
+video multicast for quality and fairness adaptation as well as network
+and coding requirements \cite{LIU}.  To frame our work that context
+provided, our current design models a single-rate server adaptation
+scheme to each of the clients because the video quality we provide is
+tailored specifically to that client's network resources.  The focus
+in our work was focused on the client side end user perceived quality
+and synchrony, so we did not utilize the most efficient server model.
+The authors believe that it would be trivial to substitute in a
+simulcast server adaptation model.  Our design also fits into the
+category of layered adaptation.  This adaptation model defines a base
+quality level that users must achieve.  Once users have acquired that
+level, the algorithm attempts to incrementally acquire more frames to
+present a higher quality video.  In the work presented here, the
+definition of quality translates to a higher frame rate.  In other
+work (discussed in \ref{related}), the definition of quality may be
+defined as the actual resolution of the received frames.  Liu's
+discussion of bandwidth fairness, coding techniques and network
+transport perspectives lie out of the scope of this paper.
 
-%% This article surveys existing solutions to adaptive video multicast,
-%% providing a taxonomy of solutions according to several distinct
-%% features. The authors also review the principal techniques from both
-%% video coding and network transport perspectives. Finally, they discuss
-%% the evaluation methodologies and metrics for adaptive video multicast
-%% systems.
+Also in the realm of action control, Vogel et al. present a middleware
+for consistency control in collaborating groups for distributed
+interactive media.  \cite{VOGEL}.  He introduces the ideas of
+optmistic and pessimistic mechanisms in insuring this consistency.
+Optmistic mechanisms allow inconsistencies to happen and then deal
+with the afterwards.  Pessimistic mechanisms prevent inconsistencies
+by locking central state.  In terms of this framework, we provide
+pessimistic mechanisms
 
 \section{Related Work} \label{related}
 
 A preliminary design and implementation of these project goals was
-completed in VECTORS \cite{SUHIT}.  This system uses a different
+completed in VECTORS \cite{VECTORS}.  This system uses a different
 synchronization scheme and is tightly coupled with a collaborative
 virtual environment (CVE) called CHIME \cite{CHIME}.  Due to the
 decentralized synchronization scheme employed in this design and
 because of the heavy weight nature of the CVE, the system failed to
 provide an adequate level of synchronziation.
 
-Other related work falls in the topics of
-
 % ----------------------------
 % education related support:
 % ----------------------------
-[9] distance learning: two way vid/aud/data communication shared among
-participants.
-http://www.etv.state.ms.us/inter-net/home.html
-
-- Guerri: A real-time e-learning system via satellite based on JMF and Windows Media
-
-- liu: The WSML system: web-based synchronization multimedia lecture system, for
-the production of a multimedia lecture (synchronization is like, when you
-get to a certain page, that triggers audio to play, etc.)
-
-% -------------------------------
-% All the synchronization schemes
-% -------------------------------
-
-- lienhart: Universal synchronization scheme for distributed audio-video capture on heterogeneous computing platforms 
-- similar to our scheme that synchronizes state on timestamps, 
+Other recent support for online educational support are by Guerri et
+al who present a real-time e-learning system based on global satellite
+for data transfer from teacher to students, and JMF and Windows Media
+\cite{GUERRI} to support the distribution and display of the video
+content.  Their goal is simliar to ours because their work also
+attempts to make education accessible to distanced communities.  Liu
+presents the the WSML system \cite{LIU2}.  This system is a web-based
+synchronization multimedia lecture system for the production of a
+multimedia lecture.  The synchronization referred to in this context
+is that of intermedia communication to provide a replicable playback
+environment.
 
 % -------------------------------
 % multicast to several clients same video content
 % -------------------------------
-- choi: A synchronization method for real time surround display using clustered systems
+Similar to our ability to show the same content on multiple displays,
+Choi et al. show a synchronization method for real time surround
+display using clustered systems \cite{CHOI} but this system is
+drastically different from ours because they assume a large
+communication bandwidth and homogenous end systems.
 
 % ----------------------------
 % video quality of services
 % ----------------------------
-
-quantifying video quality
-- wang: Studying streaming video quality: from an application point of view
-- uses wmaplayer/real player, and for streaming media
-while there have has been previous work on quantifying video quality from
-an application point of view, that work is out of the scope of this
-paper.  
-- thakur: A dynamic controller for optimal layering of video (not to multiple clients)
-
-calls for the need of adjusting quality-resource trade-offs as
-necessary to achieve timeliness requirements.
-- krasic: Priority-progress streaming for quality-adaptive multimedia, 
-uses ADU's to do this funky/complex layering technique with quality, 
-but basically it uses a quality upgrade technique using a buffer
-with a proactive stance just like us.  (prefetch window, etc.)
-
-whole underlying arch (OS -> aplication) for QoS related issues
-- cui: Supporting QoS for ubiquitous multimedia service deliveryk
-inda relevant, but not enough information to know what they're talking
-about.  They do say that i) self-adaptive service delivery framework
-is needed.  we don't provide a framework, but an implementation.
-
-video streaming adjustment for qos
-GOOD! - tan: Content-sensitive video streaming over low bitrate and
-lossy wireless network, very similar. 
-- lots of discussion on the semantic compression, which seems to
-be very close to tiecheng's paper.
-- they use RTP (SCR w/ UDP: Streaming protocol)
-- no results/analysis
+Another area of related work is the use of multi-level video summaries
+and their traversal in the adaptation of the video stream to provide
+video quality of services
+\cite{CUI,KRASIC,LEI,NEUMANN,SHIPMAN,TAN,THAKUR}.  These systems don't
+provide multiple client synchronized action control, but the
+contributions made in these works could be used to optimize the
+content distribution server.
 
 % ---------------------
 % shared action control
 % ---------------------
-song: The co-opticon
-- collaborative control of camera for education, not much results, 
-all users have to wait their turn.
-
-- liao: Shared interactive video for teleconferencing
-- very cool, able to interact in a meeting.  interactive elements
-like camera view, presentation directing.  control real world devices
-in the video.  we take a step back and follow the def: 
-
-a video app is interactive if the user affects the flow of the video
-and that influence in turn, affects the user's future choices.  [12]
-http://www.acm.org/sigchi/bulletin/1996.2/eckert.html
-
-middle for ensuring consistency in collaborating groups of distributed
-people. 
-GOOD! - Vogel: Consistency control for distributed interactive
-media intro has good refs, spatially distributed clients, interact
-synchronously with shared media.  optmistic vs. pessimistic mechanisms.
-optmistic mechanisms: allow inconsistencies to happen and then 
-deal with the afterwards.
-pessimistic mechanisms: prevent inconsistencies by locking/central state.
-- requires that the interactive media employ RTP
-
+Also related to our work is a collection of work related to the
+concept of shared action control.  Song et al. \cite{SONG} provide a
+type of remote video camera action control.  Liao et al. provide a
+system for shared interactive video for teleconferencing \cite{LIAO}.
+In this system, users are able to interact with the remote meeting
+environment such as camera view or presentation direction.  These
+systems support a notion of media interaction proposed by Stenzler et
+al that purports that a video application is interactive if the user
+can affect the flow of the video and that influence in turn, affects
+the user's future choices \cite{STENZLER}.  We support this notion by
+allowing all users to have the ability to control the flow of the
+video.  Also in the realm of action control, Vogel et al. present a
+middleware for consistency control in collaborating groups for
+distributed interactive media.  \cite{VOGEL}.
 
 % ----------------------------
-% Similar to our video hierarchy
-% ----------------------------
-- shipman: Generation of interactive multi-level video summaries: hyperhitchcock
-- good figures.  Work done here is similar to the video hierarchy
-that is precomputed.  This application also presents the hierarchy
-as an architecture for traversing the different video levels.
-- lei: Rate adaptation transcoding for precoded video streams
-- neumann: Multicast streaming of hierarchical MPEG-4 presentations
-
-% ----------------------------
-Other work being done on CSCW schemes?  Other multiclient synchronous
-systems (MOOs and MUDs), what else?
-
-do we need to have related work wrt to the semantic compression stuff, or
-is that out of the scope of the paper?
-
-other semantic compression algs: can we simply say that our choice is arbitrary?
-
-- phung: High level segmentation of instructional videos based on content density 
-- Wang: Learning-based linguistic indexing of pictures with 2--d MHMMs
-- Tarel: On the choice of similarity measures for image retrieval by example
-- Jing: An effective region-based image retrieval framework
-- Goh: DynDex: a dynamic and non-metric space indexer
-- slaney: Multimedia edges: finding hierarchy in all dimensions,
-automating the table of contents.
-
+%% do we need to have related work wrt to the semantic compression stuff, or
+%% is that out of the scope of the paper?
+%
+%% other semantic compression algs: can we simply say that our choice is arbitrary?
+%% - phung: High level segmentation of instructional videos based on content density 
+%% - Wang: Learning-based linguistic indexing of pictures with 2--d MHMMs
+%% - Tarel: On the choice of similarity measures for image retrieval by example
+%% - Jing: An effective region-based image retrieval framework
+%% - Goh: DynDex: a dynamic and non-metric space indexer
+%% - slaney: Multimedia edges: finding hierarchy in all dimensions,
+%% automating the table of contents.
 
 \section{Future Work} \label{con}
+Move to a multi-cast push model with the server.  Integrate streaming
+audio.  Add smarter video content discovery mechanism.  Integrate into
+CVE.  conduct user experiments....
 
-Try a push model with the server.  Integrate streaming audio.
 
-add smarter video content discovery ability
+\section{Conclusion}
 
-\section{Conclusions}
+In this paper we present a novel educational learning tool to allow
+geographically dispersed participants to collaboratively view a video
+in synchrony.  The system also employs a feedback controller
+architecture that adapts the video quality according to client network
+bandwidth resources.  The other novel concept that we put forth is the
+use of semantic compression to facillitate the synchronization of
+video content to clients with heterogenous resources.  We rely on the
+semantic compression algorithm to guarantee the semantic composition
+of the video frames is similar for all clients.  We then distribute
+appropriate versions of the video to clients according to their
+current bandwidth resources.  Through the use of these tools, we hope
+to close the gap between students with varying network resources to
+allow collaboration to proceed in a fruitful manner.
 
 %ACKNOWLEDGMENTS are optional
-\section{Acknowledgments}
+% \section{Acknowledgments}
+% Professor Kender and Tiecheng Liu at the High-Level Vision Lab.
+% Matias Pelenur also helped a whole damn lot!!!
 
-Professor Kender and Tiecheng Liu at the High-Level Vision Lab.
-Matias Pelenur also helped.
-
-%
 % The following two commands are all you need in the
 % initial runs of your .tex file to
 % produce the bibliography for the citations in your paper.
@@ -859,7 +945,10 @@ Matias Pelenur also helped.
 %  and remember to run:
 % latex bibtex latex latex
 % to resolve all references
-\subsection{References}
+
+% ??? we'll need to do this right before submission
+% \subsection{References}
+% 
 %% Generated by bibtex from your ~.bib file.  Run latex,
 %% then bibtex, then latex twice (to resolve references)
 %% to create the ~.bbl file.  Insert that ~.bbl file into
@@ -877,3 +966,8 @@ Matias Pelenur also helped.
 \balancecolumns % GM July 2000
 % That's all folks!
 \end{document}
+% ---------------------------------------------------------------
+% / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / /
+% / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / /
+% / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / /
+% ---------------------------------------------------------------
