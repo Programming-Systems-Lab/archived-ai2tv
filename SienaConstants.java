@@ -11,6 +11,7 @@ public class SienaConstants {
   public static final String CLIENT_ID = "CLIENT_ID";
   public static final String BANDWIDTH = "bandwidth";
   public static final String PROBE_TIME = "probeTime";
+  public static final String ABS_TIME_SENT = "absoluteTimeSentStamp";
   public static final String CLIENT_CURRENT_TIME = "clientCurrentTime";
   public static final String LEFTBOUND = "leftbound";
   public static final String RIGHTBOUND = "rightbound";
