@@ -26,5 +26,6 @@ DVIPSFLAGS=-K
 # ${name}.dvi: ${name}.sty
 
 clean:
-	-rm -f ${name}.{dvi,ps,log,aux,bbl,blg}
+	-rm -f ${name}.dvi ${name}.ps ${name}.log ${name}.aux ${name}.bbl ${name}.blg
+# 	-rm -f ${name}.{dvi,ps,log,aux,bbl,blg}
 
