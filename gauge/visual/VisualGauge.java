@@ -95,7 +95,7 @@ public class VisualGauge extends GroupGauge {
 			// update the bucket is the time of the last info about a client
 			// is within the time of the last sample and this moment
     		if ( t <= elapsed && t > bucket.getTime())
-    			bucket.update(id, bar.getFrame());			
+    			bucket.update(id, bar);			
 		}
 		
 		bucket.setTime(elapsed);

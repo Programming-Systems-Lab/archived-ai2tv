@@ -27,10 +27,10 @@ public class CacheController
 	public CacheController(String name, double rate) {
 		super(name, rate);
 		System.out.println ("in constructor of SimulClient.CacheController");
+		downloadInterval = (long)(1000/rate);
 /*		frameFileName = name;
 		currLevel = 0;
 		currFrame = null;
-		downloadInterval = (long)(1000/rate);
 		framesInfo = new FrameIndexParser(frameFileName);
 		progress = new int[framesInfo.levels()];
 		for (int i = 0; i < progress.length; i++)

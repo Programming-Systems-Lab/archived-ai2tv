@@ -42,7 +42,7 @@ class VisualGaugeSubscriber
 			theGauge.getGaugeGUI().barPanel.setVisible(false);
 			theGauge.getGaugeGUI().barPanel.setVisible(true);
 			
-			theGauge.getBucket().add(id);
+			theGauge.getBucket().update(id, currentBar);
 	    }
     	
     	if (e.getAttribute("Start") != null) {
