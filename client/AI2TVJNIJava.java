@@ -37,7 +37,7 @@ class AI2TVJNIJava{
   /**
    * Indicate to the Client that play was pressed
    */
-  private void playPressed(){
+  void playPressed(){
     System.out.println("Java side <play>");
     _client.playPressed();
   }
@@ -45,7 +45,7 @@ class AI2TVJNIJava{
   /**
    * Indicate to the Client that pause was pressed
    */
-  private void pausePressed(){
+  void pausePressed(){
     System.out.println("Java side <pause>");
     _client.pausePressed();
   }
@@ -54,7 +54,7 @@ class AI2TVJNIJava{
   /**
    * Indicate to the Client that stop was pressed
    */
-  private void stopPressed(){
+  void stopPressed(){
     System.out.println("Java side <stop>");
     _client.stopPressed();
   }
@@ -64,23 +64,76 @@ class AI2TVJNIJava{
    * 
    * @param time: time to jump to
    */
-  private void gotoPressed(int time){
+  void gotoPressed(int time){
     System.out.println("Java side <goto>: " + time);
     _client.gotoPressed(time);
   }
+
+  /**
+   * @return the client's current video time in seconds
+   */
+  long currentTime(){
+    return _client.currentTime();
+  }
+
+  /**
+   * @return the length of the video (in seconds)
+   */
+  int videoLength(){
+    return _client.videoLength();
+  }
+
+  /**
+   * set the client's cache directory
+   * 
+   * @param dir: directory to store frame cache
+   */
+  void setCacheDir(String dir){
+    _client.setCacheDir(dir);
+  }
+
+  /**
+   * Set the user login information in the AI2TV module.
+   * 
+   * NOTE!!! Need the rest of the login info to add to the param list
+   * 
+   * @param info: login information
+   */
+  void setLoginInfo(String info){
+    _client.setLoginInfo(info);
+  }
+
+  /**
+   * tell the AI2TV module what video to load and when to load it by 
+   * 
+   * @param name: name of the video
+   * @param date: date/time to load the video by
+   */
+  void loadVideo(String name, String date){
+    _client.loadVideo(name, date);
+  }
+
+  /**
+   * @return list of available videos from the server
+   */
+  String[] getAvailableVideos(){
+    return _client.getAvailableVideos();
+  }
+
+  /**
+   * shutdown the client
+   */
+  void shutdown(){
+    _client.shutdown();
+  }
+
+
   // --- END: JNI related functions called by the C++ side -- //
 
 
   // ----- JNI related functions implemented on the C++ side ----- //
   // the following are function stubs implemented on the C++ side, 
   // accessed through the library loaded in the static block
-  /**
-   * Set the cache dir for CrystalSpace
-   * 
-   * @param dir: name of the cache dir
-   */
-  native void setCacheDir(String dir);
-
   /**
    * Tell CPP side to load a certain frame into memory
    * 
@@ -94,11 +147,6 @@ class AI2TVJNIJava{
    * @param frame: name of the image file to display
    */
   native void displayFrame(String frame);
-
-  /**
-   * shutdown the process
-   */
-  native void shutdown();
 
   /**
    * the static block used to load the appropriate CPP library

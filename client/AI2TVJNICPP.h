@@ -18,6 +18,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "jni_md.h"
 #include "jni.h"
 #include "psl_ai2tv_client_AI2TVJNIJava.h"
@@ -42,12 +43,20 @@ class AI2TVJNICPP
   void stopPressed();
   void pausePressed();
   void gotoPressed(int time);
+
   long currentTime();
   int videoLength();
 
+  void setCacheDir(char* dir);
+  void setLoginInfo(char* info);
+  void loadVideo(char* name, char* date);
+  void getAvailableVideos(char videoList[3][10]);
+  // char[][] getAvailableVideos();
+
+  void shutdown();
+
   // These functions are the CPP functions available to the Java side.  
   // I display these here for information purposes only.
-  // Java_psl_ai2tv_client_AI2TVJNIJava_shutdown(JNIEnv *env, jobject obj)
   // Java_psl_ai2tv_client_AI2TVJNIJava_loadFrame(JNIEnv *env, jobject obj)
   // Java_psl_ai2tv_client_AI2TVJNIJava_displayFrame(JNIEnv *env, jobject obj)
 
@@ -61,7 +70,8 @@ class AI2TVJNICPP
   jclass _class;  // this should really be a pointer 
   JNIEnv* create_vm(JavaVM* jvm);
   void instantiateClasses();
+  const static int NUM_VIDEOS = 3;
+  const static int VIDEO_NAME_LENGTH = 15;
 };
 
 #endif // !defined(_AI2TVJNICPP_H_)
-

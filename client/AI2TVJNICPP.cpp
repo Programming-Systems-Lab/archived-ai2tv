@@ -192,7 +192,7 @@ void AI2TVJNICPP::gotoPressed(int time){
     printf("CCC> found methodID\n");
 
   printf("AI2TVJNICPP::pausePressed calling the method <DDD ... ");
-  _env->CallVoidMethod(_obj, mid);
+  _env->CallVoidMethod(_obj, mid, time);
   printf("DDD>\n");
 }
 
@@ -201,20 +201,9 @@ void AI2TVJNICPP::gotoPressed(int time){
  * seconds.
  */
 long AI2TVJNICPP::currentTime(){
-  /* instantiate object, call goto */
   jmethodID mid;
-
-  printf("AI2TVJNICPP::currentTime trying to find methodID <CCC ... ");
   mid = _env->GetMethodID(_class, "currentTime","()J");
-  if (mid == 0) 
-    printf("CCC> no method found with id: currentTime ()J\n");
-  else 
-    printf("CCC> found methodID\n");
-
-  printf("AI2TVJNICPP::currentTime calling the method <DDD ... ");
   jlong time = _env->CallLongMethod(_obj, mid);
-  printf("DDD>\n");
-
   return time;
 }
 
@@ -222,49 +211,96 @@ long AI2TVJNICPP::currentTime(){
  * Returns the length of the video in seconds
  */
 int AI2TVJNICPP::videoLength(){
-  /* instantiate object, call goto */
   jmethodID mid;
-
-  printf("AI2TVJNICPP::videoLength trying to find methodID <CCC ... ");
   mid = _env->GetMethodID(_class, "videoLength","()I");
-  if (mid == 0)
-    printf("CCC> no method found with the signature: videoLength ()I\n");
-  else 
-    printf("CCC> found methodID\n");
-
-  printf("AI2TVJNICPP::videoLength calling the method <DDD ... ");
   jint videoLength = _env->CallIntMethod(_obj, mid);
-  printf("DDD>\n");
 
   return videoLength;
 }
 
+/**
+ * sets the directory location for the frame cache to be stored
+ * 
+ * @param dir: directory location
+ */
+void AI2TVJNICPP::setCacheDir(char* dir){
+  jmethodID mid;
+  mid = _env->GetMethodID(_class, "setCacheDir","(Ljava/lang/String;)V");
+  _env->CallVoidMethod(_obj, mid, _env->NewStringUTF(dir));
+}
+
+/**
+ * Set the user login information in the AI2TV module.
+ * 
+ * NOTE!!! Need the rest of the login info to add to the param list
+ * 
+ * @param info: login information
+ */
+void AI2TVJNICPP::setLoginInfo(char* info){
+  jmethodID mid;
+  mid = _env->GetMethodID(_class, "setLoginInfo","(Ljava/lang/String;)V");
+  _env->CallVoidMethod(_obj, mid, _env->NewStringUTF(info));  
+}
+
+/**
+ * tell the AI2TV module what video to load and when to load it by 
+ * 
+ * @param name: name of the video
+ * @param date: date/time to load the video by
+ */
+
+void AI2TVJNICPP::loadVideo(char* name, char* date){
+  jmethodID mid;
+  mid = _env->GetMethodID(_class, "setLoginInfo","(Ljava/lang/String;)V");
+  _env->CallVoidMethod(_obj, mid, _env->NewStringUTF(name), _env->NewStringUTF(date));
+}
+
+/**
+ * gets the available videos from the server
+ * @param videoList: pre-initialized double-array of video names
+ */
+// char** videoList
+void AI2TVJNICPP::getAvailableVideos(char videoList[3][10]){
+
+  strcpy (videoList[0], "CS4118-10");
+  strcpy (videoList[1], "CS4118-11");
+  strcpy (videoList[2], "CS4118-12");
+
+  /*
+  jboolean* isCopy = new jboolean(false);
+
+  jmethodID mid;
+  mid = _env->GetMethodID(_class, "getAvailableVideos","()[Ljava/lang/String;");
+  jstring* videos = (jstring*) _env->CallObjectMethod(_obj, mid);
+  // jstring videos[] = (jstring[]) _env->CallObjectMethod(_obj, mid);
+
+  const char *str;
+  for (int i=0; i<NUM_VIDEOS; i++){
+    // if (videos[i] == NULL || videoList[i] == NULL)
+    if (videos[i] == NULL || videoList[i] == NULL)
+      break;
+    // str = env->GetStringUTFChars(videos[i],isCopy);
+    str = _env->GetStringUTFChars(videos[i],isCopy);
+    strcpy(videoList[i], str);
+    // env->ReleaseStringUTFChars(videos[i], str);
+    _env->ReleaseStringUTFChars(videos[i], str);
+  }
+  */
+}
+
+/**
+ * Returns the length of the video in seconds
+ */
+void AI2TVJNICPP::shutdown(){
+  jmethodID mid;
+  mid = _env->GetMethodID(_class, "shutdown","()V");
+  _env->CallVoidMethod(_obj, mid);
+}
+
+
 // ----- END: JNI related functions implemented on the Java side ----- //
 
 // ----- JNI related functions called by the Java side ----- //
-
-/**
- * Tell the CHIME AI2TV processes to shutdown 
- */
-JNIEXPORT void JNICALL
-Java_psl_ai2tv_client_AI2TVJNIJava_shutdown(JNIEnv *env, jobject obj) {
-  printf("C++ side: shutdown");
-  isActive = 0;
-}
-
-/**
- * Set the cache dir for CyrstalSpace
- */
-JNIEXPORT void JNICALL
-Java_psl_ai2tv_client_AI2TVJNIJava_setCacheDir(JNIEnv *env, jobject obj, jstring dir) {
-  jboolean* isCopy = new jboolean(false);
-  const char *str = env->GetStringUTFChars(dir,isCopy);
-
-  printf("c++ : Displayed frame %s\n", str);
-  env->ReleaseStringUTFChars(dir, str);
-
-  return;
-}
 
 /**
  * Tell the CHIME "Video" viewer to load this frame into memory
@@ -274,9 +310,13 @@ Java_psl_ai2tv_client_AI2TVJNIJava_loadFrame(JNIEnv *env, jobject obj, jstring f
   jboolean* isCopy = new jboolean(false);
   const char *str = env->GetStringUTFChars(frame,isCopy);
 
-  printf("c++ : Displayed frame %s\n", str);
-  env->ReleaseStringUTFChars(frame, str);
+  printf("c++ : loading frame %s\n", str);
 
+  /* 
+   * Mark needs to add in functionality here.
+   */
+
+  env->ReleaseStringUTFChars(frame, str);
   return;
 }
 
@@ -289,8 +329,12 @@ Java_psl_ai2tv_client_AI2TVJNIJava_displayFrame(JNIEnv *env, jobject obj, jstrin
   const char *str = env->GetStringUTFChars(frame,isCopy);
 
   printf("c++ : Displayed frame %s\n", str);
-  env->ReleaseStringUTFChars(frame, str);
 
+  /* 
+   * Mark needs to add in functionality here.
+   */
+
+  env->ReleaseStringUTFChars(frame, str);
   return;
 }
 
@@ -304,8 +348,15 @@ int main(int argc, char **argv) {
   // JNIEnv* env = create_vm();
   AI2TVJNICPP* foo = new AI2TVJNICPP();
   printf("success, now trying to invoke a class\n");
-  foo->playPressed();
-  printf("\n");
+  // foo->playPressed();
+  char videos[3][10];
+  // videos = new char[3][10];
+  foo->getAvailableVideos(videos);
+  for (int i=0; i<16; i++){
+    printf("%s\n", videos[i]);
+  }
+
+  
 
   printf("Entering wait thread\n");  
   while(isActive != 0){
