@@ -21,7 +21,7 @@ run:
 #	java -classpath . ${NAME}Java
 
 mid:
-	javap -classpath . -s -p ${NAME}Java
+	javap -classpath ../../../ -s -p psl.ai2tv.client.${NAME}Java
 
 client:
 	javac Client.java CommController.java CacheController.java TimeController.java Viewer.java ClientProbe.java ClientEffector.java

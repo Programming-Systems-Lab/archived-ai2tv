@@ -15,30 +15,32 @@
 
 #include "AI2TVJNICPP.h"
 
-int isActive = 1;
-
 /**
  * The CPP side JNI interface for the AI2TV client.
+ *
+ * NOTE: need to have the environment vars seem to be ignored, and
+ * they must be set internally in here.  Also, Dan needs to figure out
+ * how to set and pass these vars from the command line or
+ * something... (instead of hard-wiring these in here)
  *
  * @version	$$
  * @author	Dan Phung (dp2041@cs.columbia.edu)
  */
 AI2TVJNICPP::AI2TVJNICPP(){
+  _isActive = 1;
   DEBUG=1;
   // make sure the base psl dir is in your classpath
   JAVACLASS = "psl/ai2tv/client/AI2TVJNIJava"; 
-  classpath = "-Djava.class.path=c:/pslroot/psl/ai2tv/client;c:/pslroot;.";
+ 
+  classpath = "-Djava.class.path=c:/pslroot/psl/ai2tv/client/build;c:/pslroot/jars/siena-1.4.3.jar;.";
 
-  // note: don't know why, but setting this libpath here doesn't have any 
-  // effect later, meaning that on the Java side, should you print out the 
-  // libpath, the settings set below are not present.
-  libpath = "-Djava.class.path=c:/pslroot/psl/ai2tv/client;c:/pslroot;.";
-
+  libpath = "-Djava.library.path=c:/pslroot/psl/ai2tv/client/";
   // this is the default base video URL 
   baseURL = "-Dai2tv.baseURL=http://franken.psl.cs.columbia.edu/ai2tv/";
 
   // this is the default siena server
-  sienaServer = "-Dai2tv.server=ka:franken.psl.cs.columbia.edu:4444";
+  // sienaServer = "-Dai2tv.server=ka:franken.psl.cs.columbia.edu:4444";
+  sienaServer = "-Dai2tv.server=ka:localhost:4444";
 
   _jvm = NULL;
   _env = NULL;
@@ -60,15 +62,31 @@ AI2TVJNICPP::AI2TVJNICPP(){
 }
 
 /**
- * Desctructor: cleanup class variables, destroy the JVM.  We should
- * delete the objects that we used here.
+ * Destructor: cleanup class variables, destroy the JVM.  We should
+ * delete the objects that we used here. 
+ * 
+ * Note: because of Sun JDK issues, the DestroyJavaVM() method will
+ * always return/cause an error, so don't worry if that happens
+ * 
+ * ref (page relevant as of: 2003 August 4)
+ * http://java.sun.com/j2se/1.3/docs/guide/jni/jni-12.html#DestroyJavaVM
  */
 AI2TVJNICPP::~AI2TVJNICPP(){
   if (DEBUG > 0)
     printf("Shutting down the Java VM");  
+  delete _class;
+  delete _obj;
+  delete _env;
   int error = _jvm->DestroyJavaVM();
   if (error != 0)
     printf("Error in shutting down the Java VM");      
+}
+
+/**
+ * indicates whether the client is usable
+ */
+int AI2TVJNICPP::isActive(){
+  return _isActive;
 }
 
 /**
@@ -85,18 +103,20 @@ JNIEnv* AI2TVJNICPP::create_vm(JavaVM* jvm) {
   args.version = JNI_VERSION_1_4;
   options[0].optionString = "-Djava.compiler=NONE"; /* disable JIT */
   options[1].optionString = classpath;              /* user classes */
-  options[2].optionString = libpath;  /* set native library path */
+  options[2].optionString = libpath;              /* user classes */
   options[3].optionString = baseURL;  /* the base video URL */
   options[4].optionString = sienaServer; /* the siena comm server */
   args.options = options;
   args.nOptions = numOptions;
   args.ignoreUnrecognized = JNI_TRUE;
 
-  if( (JNI_CreateJavaVM(&jvm, (void **)&env, &args)) < 0 )
+  jint result = JNI_CreateJavaVM(&jvm, (void **)&env, &args);
+  if( result < 0 )
     {
-      printf("Could not create JVM\n");
+      printf("Could not create JVM, error code %d\n", result);
       // exit(1);
-      return NULL;
+      _isActive = 0;
+	  return NULL;
     }
   return env;
 }
@@ -105,15 +125,18 @@ JNIEnv* AI2TVJNICPP::create_vm(JavaVM* jvm) {
  * Initiatiate the java class to be used (AI2TVJNIJava)
  */
 void AI2TVJNICPP::instantiateClasses(){
-  if (_class == NULL) {
-    if (DEBUG > 0)
+  if (_class == NULL) { 
+	  if (DEBUG > 0)
       printf("Finding the class\n");
     _class = _env->FindClass(JAVACLASS);
   }
 
   printf("the env <%d>\n", _env);
   printf("the class <%s> <%d>\n", JAVACLASS, _class);
-  if (_class == NULL) return;
+  if (_class == NULL) {
+	_isActive = 0;
+	return;
+  }
 
   if (_obj == NULL) {
   if (DEBUG > 0)
@@ -137,13 +160,13 @@ void AI2TVJNICPP::playPressed(){
   mid = _env->GetMethodID(_class, "playPressed","()V");
   if (mid == 0) 
     printf("CCC> no method found with id: playPressed ()V\n");
-  else
+  else {
     printf("CCC> found methodID\n");
 
-  printf("AI2TVJNICPP::playPressed calling the method <DDD ... ");
-  _env->CallVoidMethod(_obj, mid);
-  printf("DDD>\n");
-
+    printf("AI2TVJNICPP::playPressed calling the method <DDD ... ");
+    _env->CallVoidMethod(_obj, mid);
+    printf("DDD>\n");
+  }
 }
 
 /**
@@ -157,12 +180,12 @@ void AI2TVJNICPP::stopPressed(){
   mid = _env->GetMethodID(_class, "stopPressed","()V");
   if (mid == 0) 
     printf("CCC> no method found with id: stopPressed ()V\n");
-  else 
+  else {
     printf("CCC> found methodID\n");
-
-  printf("AI2TVJNICPP::stopPressed calling the method <DDD ... ");
-  _env->CallVoidMethod(_obj, mid);
-  printf("DDD>\n");
+    printf("AI2TVJNICPP::stopPressed calling the method <DDD ... ");
+    _env->CallVoidMethod(_obj, mid);
+    printf("DDD>\n");
+  }
 }
 
 /**
@@ -176,12 +199,12 @@ void AI2TVJNICPP::pausePressed(){
   mid = _env->GetMethodID(_class, "pausePressed","()V");
   if (mid == 0) 
     printf("CCC> no method found with id: pausePressed ()V\n");
-  else 
+  else {
     printf("CCC> found methodID\n");
-
-  printf("AI2TVJNICPP::pausePressed calling the method <DDD ... ");
-  _env->CallVoidMethod(_obj, mid);
-  printf("DDD>\n");
+    printf("AI2TVJNICPP::pausePressed calling the method <DDD ... ");
+    _env->CallVoidMethod(_obj, mid);
+    printf("DDD>\n");
+  }
 }
 
 /**
@@ -197,12 +220,12 @@ void AI2TVJNICPP::gotoPressed(int time){
   mid = _env->GetMethodID(_class, "gotoPressed","(I)V");
   if (mid == 0)
     printf("CCC> no method found with the id: gotoPressed (I)V\n");
-  else
+  else {
     printf("CCC> found methodID\n");
-
-  printf("AI2TVJNICPP::pausePressed calling the method <DDD ... ");
-  _env->CallVoidMethod(_obj, mid, time);
-  printf("DDD>\n");
+    printf("AI2TVJNICPP::pausePressed calling the method <DDD ... ");
+    _env->CallVoidMethod(_obj, mid, time);
+    printf("DDD>\n");
+  }
 }
 
 /**
@@ -213,7 +236,7 @@ long AI2TVJNICPP::currentTime(){
   jmethodID mid;
   mid = _env->GetMethodID(_class, "currentTime","()J");
   jlong time = _env->CallLongMethod(_obj, mid);
-  return time;
+  return (long) time;
 }
 
 /**
@@ -291,7 +314,7 @@ void AI2TVJNICPP::setLoginInfo(const char* login,
   mid = _env->GetMethodID(_class, "setLoginInfo","(Ljava/lang/String;,Ljava/lang/String;,Ljava/lang/String;,Ljava/lang/String;,Ljava/lang/String;)V");
   _env->CallVoidMethod(_obj, mid, _env->NewStringUTF(login),
 		       _env->NewStringUTF(password),
-		       _env->NewStringUTF(server)
+		       _env->NewStringUTF(server),
 		       _env->NewStringUTF(uid),
 		       _env->NewStringUTF(gid));
 }
@@ -324,7 +347,7 @@ void AI2TVJNICPP::initialize(){
  * @param videoList: pre-initialized double-array of video names
  * @return number of available videos
  */
-int AI2TVJNICPP::getAvailableVideos(char availableVideos[10][10]){
+int AI2TVJNICPP::getAvailableVideos(char availableVideos[10][50]){
   jmethodID mid;
   mid = _env->GetMethodID(_class, "getAvailableVideos","()[Ljava/lang/String;");
   jobjectArray videoObjectArray = (jobjectArray) _env->CallObjectMethod(_obj, mid);
@@ -335,7 +358,7 @@ int AI2TVJNICPP::getAvailableVideos(char availableVideos[10][10]){
   while(video != NULL){
     const char* str = _env->GetStringUTFChars(video,isCopy);
     strcpy(availableVideos[i], str);
-    availableVideos[i][10] = '\0'; // put a cap in dat ass, cuz strpy doesn't!
+    availableVideos[i][49] = '\0'; // put a cap in dat ass, cuz strpy doesn't!
     _env->DeleteLocalRef(video);
     _env->ReleaseStringUTFChars(video, str);
     video = (jstring)_env->GetObjectArrayElement(videoObjectArray, ++i);
@@ -406,12 +429,12 @@ Java_psl_ai2tv_client_AI2TVJNIJava_displayFrame(JNIEnv *env, jobject obj, jstrin
  * PATH = c:\j2sdk1.4.2_01\jre\bin\client (needs the jvm.dll)
  *
  */
-int main(int argc, char **argv) {
-  // JNIEnv* env = create_vm();
+/*int main(int argc, char **argv) {
   AI2TVJNICPP* foo = new AI2TVJNICPP();
-  printf("success, now trying to invoke a class\n");
-  // foo->playPressed();
-  char videos[10][10];
+  printf("success, now trying to invoke a class method\n");
+  foo->playPressed();
+  
+  char videos[10][50];
   int length = foo->getAvailableVideos(videos);
   printf("length of video: %d\n", length);
   // i'm not printing it correctly here, so don't count on this.
@@ -421,12 +444,14 @@ int main(int argc, char **argv) {
     else 
       break;
   }
+  
 
   printf("Entering wait thread\n");  
-  while(isActive != 0){
+  while(foo->isActive() != 0){
     printf("sleeping...\n");
     system("sleep 5");
     printf("awake!\n");
+    // _isActive = 0;
   }
   printf("Out of wait thread\n");  
 
@@ -435,5 +460,4 @@ int main(int argc, char **argv) {
 
   return 0;
 }
-
-
+*/

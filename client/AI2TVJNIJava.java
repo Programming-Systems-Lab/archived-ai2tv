@@ -29,7 +29,9 @@ class AI2TVJNIJava{
    */
   AI2TVJNIJava(){
     System.out.println("Java side <AI2TVJNIJava constructor>");    
+    System.out.println("creating the client");    
     _client = new Client();
+    System.out.println("done creating the client");    
   }
 
 
@@ -39,7 +41,7 @@ class AI2TVJNIJava{
    */
   void playPressed(){
     System.out.println("Java side <play>");
-    _client.playPressed();
+    // _client.playPressed();
   }
 
   /**
