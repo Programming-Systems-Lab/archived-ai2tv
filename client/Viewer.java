@@ -121,8 +121,16 @@ class Viewer extends JFrame {
     imageIcon = new ImageIcon((java.net.URL) cl.getSystemResources("psl/ai2tv/client/ai2tv_ready.jpg").nextElement());
     } catch (java.io.IOException e) { e.printStackTrace(); }
 
-    loadImage(imageIcon.getImage(), _filename);
-    displayImage(imageIcon.getImage());
+    if (imageIcon != null){
+      loadImage(imageIcon.getImage(), _filename);
+      displayImage(imageIcon.getImage());
+    } else {
+      java.io.File startingImage = new java.io.File(_filename);
+      if (startingImage.exists()){
+	loadImage(_filename);
+	displayImage(_filename);
+      }
+    }
 
     show();
   }
@@ -290,7 +298,7 @@ class Viewer extends JFrame {
   boolean displayImage(String filename) {
     // Client.out.println("displayImage called: " + _client.currentTime());
     ImageIndexPair pair = (ImageIndexPair) _images.get(filename);
-    // Client.debug.println("Viewer trying to display: " + filename + " pair: " + pair);
+    Client.debug.println("Viewer trying to display: " + filename + " pair: " + pair);
     if (pair != null){
       _image = pair.image;
       _viewIndex = pair.id;
@@ -303,9 +311,9 @@ class Viewer extends JFrame {
     }
   }
 
-  void loadImage(String filename) {
+  boolean loadImage(String filename) {
     Image image = toolkit.createImage(filename);
-    loadImage(image, filename);
+    return loadImage(image, filename);
   }
 
   /**
@@ -314,17 +322,19 @@ class Viewer extends JFrame {
    * 
    * @param filename: image file to display.  
    */  
-  void loadImage(Image image, String filename) {
+  boolean loadImage(Image image, String filename) {
     try {
       _mediaTracker.addImage(image, _imageIndex);
       _mediaTracker.waitForID(_imageIndex);
       _images.put(filename, new ImageIndexPair(image, _imageIndex));
       //Client.debug.println("Viewer loaded image: " + filename + " with id: " + _imageIndex);
       _imageIndex = (_imageIndex + 1) % 65535; // wraps around on the 65556'th image
-
+      return true;
     } catch (InterruptedException e){
-      Client.err.println("Viewer error in loading image: " + e);
+      Client.err.println("Viewer error in loading image " +filename +": "+ e);
+      e.printStackTrace(Client.err);
     }
+    return false;
   }
 
   // - - - - - - DONE: ENTRY FUNCTIONS USED BY CLIENT - - - - - - - //

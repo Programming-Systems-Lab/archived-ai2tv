@@ -38,7 +38,6 @@ import psl.ai2tv.SienaConstants;
 class ClientProbe {
   /** interval between probe events in ms.' */
   ThinClient _siena;
-  private Notification _frameEvent;
   private Client _client;
   String _sienaServer;
 
@@ -83,27 +82,25 @@ class ClientProbe {
       _siena = null;
       ise.printStackTrace();
     }
-    // trying to optimize by calling constructors for events only once
-    _frameEvent = new Notification();
   }
 
   /**
    * publish an update of the state of the client
    */
-  private void sendUpdate(){
-    _frameEvent.putAttribute(SienaConstants.AI2TV_FRAME, "");
-    _frameEvent.putAttribute(SienaConstants.LEVEL, _client.getLevel());
-    _frameEvent.putAttribute(SienaConstants.CACHE_LEVEL, _client.getCacheLevel());
-    _frameEvent.putAttribute(SienaConstants.BANDWIDTH, _client.getBandwidth());
-    _frameEvent.putAttribute(SienaConstants.FRAME_RATE, _client.getFrameRate());
-    _frameEvent.putAttribute(SienaConstants.CLIENT_RESERVE_FRAMES, _client.getReserveFrames());
-    _frameEvent.putAttribute(SienaConstants.PREFETCHED_FRAMES, _client.getNumPrefetchedFrames(_client.getCacheLevel()));
+  private void sendUpdate(Notification event){
+    event.putAttribute(SienaConstants.AI2TV_FRAME, "");
+    event.putAttribute(SienaConstants.LEVEL, _client.getLevel());
+    event.putAttribute(SienaConstants.CACHE_LEVEL, _client.getCacheLevel());
+    event.putAttribute(SienaConstants.BANDWIDTH, _client.getBandwidth());
+    event.putAttribute(SienaConstants.FRAME_RATE, _client.getFrameRate());
+    event.putAttribute(SienaConstants.CLIENT_RESERVE_FRAMES, _client.getReserveFrames());
+    event.putAttribute(SienaConstants.PREFETCHED_FRAMES, _client.getNumPrefetchedFrames(_client.getCacheLevel()));
 
-    _frameEvent.putAttribute(SienaConstants.CLIENT_ID, _client.getID());
-    _frameEvent.putAttribute(SienaConstants.ABS_TIME_SENT, System.currentTimeMillis());
+    event.putAttribute(SienaConstants.CLIENT_ID, _client.getID());
+    event.putAttribute(SienaConstants.ABS_TIME_SENT, System.currentTimeMillis());
 
     try {
-      _siena.publish(_frameEvent);
+      _siena.publish(event);
     } catch (SienaException se) {
       se.printStackTrace();
     }
@@ -146,14 +143,19 @@ class ClientProbe {
     // long diff = _time - _probeTimes[ID];
     if (ID >= 0 && ID < _probeTimes.length){
       unsetProbe(ID);
+      Notification event = new Notification();
+      // 999
+      if (natureOfMessage.equals(SienaConstants.AI2TV_FRAME_MISSED)){
+	Client.debug.println("CLIENT PROBE SENDING MISSED FRAME: " + _client.currentTime());
+      }
       Client.probeOutput.println("sending an update: time diff: " + (time - _probeTimes[ID]));
       int diff = (int)(time - _probeTimes[ID]);
-      _frameEvent.putAttribute(natureOfMessage, diff);
-      _frameEvent.putAttribute(SienaConstants.PROBE_TIME, diff);
+      event.putAttribute(natureOfMessage, diff);
+      event.putAttribute(SienaConstants.PROBE_TIME, diff);
 
       if (natureOfMessage.equals(SienaConstants.TIME_OFFSET))
-	addFrameInfo(diff);
-      sendUpdate();
+	addFrameInfo(event, diff);
+      sendUpdate(event);
 
       // Client.probeOutput.println("image: " + _client.getCurrentFrame().getNum() +
       // " shown at: " + _probeTimes[ID] +
@@ -164,20 +166,20 @@ class ClientProbe {
   /**
    * add the FrameDesc information
    */
-  private void addFrameInfo(int timeOffset){
+  private void addFrameInfo(Notification event, int timeOffset){
     FrameDesc fd = _client.getCurrentFrame();
 
     if (fd != null) {
       fd.setTimeOffset(timeOffset);
-      _frameEvent.putAttribute(SienaConstants.LEFTBOUND, fd.getStart());
-      _frameEvent.putAttribute(SienaConstants.RIGHTBOUND, fd.getEnd());
-      _frameEvent.putAttribute(SienaConstants.MOMENT, fd.getNum());
+      event.putAttribute(SienaConstants.LEFTBOUND, fd.getStart());
+      event.putAttribute(SienaConstants.RIGHTBOUND, fd.getEnd());
+      event.putAttribute(SienaConstants.MOMENT, fd.getNum());
       // this was conflicting with the client's level
-      // _frameEvent.putAttribute(SienaConstants.LEVEL, fd.getLevel());
-      _frameEvent.putAttribute(SienaConstants.SIZE, fd.getSize());
-      _frameEvent.putAttribute(SienaConstants.TIME_SHOWN, fd.getTimeShown());
-      _frameEvent.putAttribute(SienaConstants.TIME_OFFSET, timeOffset);
-      _frameEvent.putAttribute(SienaConstants.TIME_DOWNLOADED, fd.getTimeDownloaded());
+      // event.putAttribute(SienaConstants.LEVEL, fd.getLevel());
+      event.putAttribute(SienaConstants.SIZE, fd.getSize());
+      event.putAttribute(SienaConstants.TIME_SHOWN, fd.getTimeShown());
+      event.putAttribute(SienaConstants.TIME_OFFSET, timeOffset);
+      event.putAttribute(SienaConstants.TIME_DOWNLOADED, fd.getTimeDownloaded());
     }
   }
 

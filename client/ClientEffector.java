@@ -29,7 +29,6 @@ import psl.ai2tv.gauge.FrameDesc;
 class ClientEffector implements Notifiable {
   /** interval between probe events in ms.' */
   ThinClient _siena;
-  private Notification _frameEvent;
   private Client _client;
   private ClientProbe _clientProbe;
   String _sienaServer;
@@ -78,7 +77,6 @@ class ClientEffector implements Notifiable {
       _siena = null;
       ise.printStackTrace();	
     }
-    _frameEvent = new Notification();
   }
 
   /**
@@ -121,35 +119,30 @@ class ClientEffector implements Notifiable {
       ppd = now - absTimeSent;
     }
 
-    Client.out.println("ClientEffector handleNotification(): I just got this event:" + event);
+    Client.out.println("ClientEffector handleNotification(): I just got this event:" + event + " : " + now);
     String name = event.toString().substring(7).split("=")[0];
     AttributeValue attrib = event.getAttribute(name);
-    Client.out.println("ClientEffector handle notification: name: " + name);
-    Client.out.println("ClientEffector handle notification: attrib: " + attrib);
-
     if (name.equals(SienaConstants.AI2TV_WF_UPDATE_REQUEST)){
       publishUpdate(ppd);
 
     } else if (name.equals(SienaConstants.AI2TV_CLIENT_ADJUST) && 
 	event.getAttribute(SienaConstants.CLIENT_ID).longValue() == _client.getID()){
-      Client.out.println("found a WF commmand to do something, directed to ME!");
-      Client.out.println("");
       if (event.getAttribute(SienaConstants.CHANGE_CLIENT_LEVEL) != null){
-	System.out.println("ClientEffector found command to change client level: " + event.getAttribute(SienaConstants.CHANGE_CLIENT_LEVEL).toString());
+	System.out.println("ClientEffector found command to change client level: " + event.getAttribute(SienaConstants.CHANGE_CLIENT_LEVEL).toString() + " : " + now);
 	_client.changeLevel(event.getAttribute(SienaConstants.CHANGE_CLIENT_LEVEL).intValue());
       }
       if (event.getAttribute(SienaConstants.CHANGE_CACHE_LEVEL) != null){
-	System.out.println("ClientEffector found command to change cache level: " + event.getAttribute(SienaConstants.CHANGE_CACHE_LEVEL).toString());
+	System.out.println("ClientEffector found command to change cache level: " + event.getAttribute(SienaConstants.CHANGE_CACHE_LEVEL).toString() + " : " + now);
 	_client.changeCacheLevel(event.getAttribute(SienaConstants.CHANGE_CACHE_LEVEL).intValue());
       }
-      if (event.getAttribute(SienaConstants.JUMP_TO) != null){
-	System.out.println("ClientEffector found command to jump to a certain frame: " + event.getAttribute(SienaConstants.JUMP_TO).stringValue());
-	_client.jumpTo(event.getAttribute(SienaConstants.JUMP_TO).stringValue());
-      } 
       if (event.getAttribute(SienaConstants.CHANGE_FRAME_RATE) != null){
-	System.out.println("ClientEffector found command to change frame rate: " + event.getAttribute(SienaConstants.CHANGE_FRAME_RATE).stringValue());
+	System.out.println("ClientEffector found command to change frame rate: " + event.getAttribute(SienaConstants.CHANGE_FRAME_RATE).stringValue() + " : " + now);
 	_client.setFrameRate(event.getAttribute(SienaConstants.CHANGE_FRAME_RATE).intValue());
       }
+      if (event.getAttribute(SienaConstants.JUMP_TO) != null){
+	System.out.println("ClientEffector found command to jump to a certain frame: " + event.getAttribute(SienaConstants.JUMP_TO).stringValue() + " : " + now);
+	_client.jumpTo(event.getAttribute(SienaConstants.JUMP_TO).stringValue());
+      } 
 
     } else {
       Client.err.println("Notification Error, received unknown name: " + name);

@@ -83,13 +83,13 @@ class CommController implements Notifiable{
 
     } catch (siena.comm.PacketSenderException e) {
       // what is this?
-      Client.out.println ("Caught exception in setting up the Siena server: "  + e);
+      System.err.println ("Caught exception in setting up the Siena server: "  + e);
     } catch (SienaException e) {
       // ; // WTF?
       // } catch (siena.comm.InvalidSenderException e) {
-      Client.out.println ("Cannot connect to Siena bus: "  + e);
+      System.err.println ("Cannot connect to Siena bus: "  + e);
       // _siena = null;
-      // e.printStackTrace();
+      e.printStackTrace(System.err);
     }
   }
   
