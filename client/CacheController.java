@@ -21,6 +21,9 @@ import java.net.*;
 import siena.*;
 import siena.comm.*;
 
+import psl.ai2tv.gauge.FrameDesc;
+import psl.ai2tv.gauge.FrameIndexParser;
+
 /**
  * Controls the downloading and maintence of the frames.
  *
@@ -28,9 +31,9 @@ import siena.comm.*;
  * the accuracy of the current bandwidth calculation.
  *
  * Note: isDownloaded checks physically if the file is there.
- *
- *
+ * 
  * TODO:
+ * - need to think about permissions ie. protected vs. private
  * - must take care of the case where, if we skip a couple frames
  * and reach the end (thread is finished, run method has completed)
  * and the Viewer rewinds to a missing frame.  then the frame requested
@@ -38,95 +41,144 @@ import siena.comm.*;
  */
 public class CacheController extends Thread {
 
-  protected Client _client;
+  protected FrameIndexParser framesInfo;
+  protected int progress[];
+  protected String frameFileName;
+  protected int currLevel;
+  protected FrameDesc currFrame;
+  protected int numLevels;
   protected String _cacheDir;
+  protected String _baseURL;
   protected Set _cache;
-  protected boolean _isActive;
-  protected boolean _interrupt;
-  protected Thread _downloadThread;
-  protected String _currFile; // the current file downloading
 
-  // bandwidth measurement related members
+  protected Client _client;
+  
   protected int _bandwidthWindowMax;
   protected int _bandwidthWindow;
   protected long _totalBytes;
   protected long _totalTime;
-  
 
+  protected boolean _isActive;
+  protected boolean _interrupt;
 
-
-  public CacheController(Client c, String cacheDir) {
+  public CacheController(Client c, String cacheDir, String baseURL, String frameFile) {
     _client = c;
+    _cache = new HashSet();
     if (cacheDir.endsWith("/"))
       _cacheDir = cacheDir;
     else 
       _cacheDir = cacheDir + "/";
-    _cache = new HashSet();
-    _currFile = "NONE";
+    frameFileName = frameFile;
+    currLevel = _client.getLevel();
+    currFrame = null;
+    _interrupt = false;
 
     _bandwidthWindow = 0;
     _bandwidthWindowMax = 5;  // number of downloads to average against
     _totalBytes = 0;
     _totalTime = 0;
+    _baseURL = baseURL;
 
-    
     File f = new File(_cacheDir);
     if (!f.exists()){
       f.mkdir();
     } else if (!f.isDirectory()) {
-      System.err.println("Error: " + cacheDir + " had existed, but is not a directory");
+      Client.err.println("Error: " + _cacheDir + " had existed, but is not a directory");
       return;
-    } 
-  }
+    }
 
+    framesInfo = _client.getFramesInfo();
+    numLevels = framesInfo.levels();
+    progress = new int[framesInfo.levels()];
+    for (int i = 0; i < progress.length; i++)
+      progress[i] = 0;
+  }
+	
   void interruptDownload() {
     _interrupt = true;
-    if (_downloadThread != null)
-      _downloadThread.interrupt();
+    this.interrupt();
   }
 
-  boolean download(String fileURL) {
-    // if we're not already downloading a file.
-    if (!_isActive){
-      _currFile = fileURL;
-      _downloadThread = new Thread(this);
-      _downloadThread.start();
-      return true;
-    } else {
-      return false;    
+  public int getLevel() { return currLevel; }
+  public void setLevel(int i) { currLevel = i; }
+
+  /*
+  public FrameDesc getNextFrame() {
+    return nextFrame();
+  }
+  */	
+
+  public void setNextFrame(String frame){
+    long nextframe = Long.parseLong(frame);
+    progress[currLevel] = nextFrameInLevel(currLevel, nextframe);
+  }
+
+  public void changeLevelDown(long now) {
+    if (currLevel  < numLevels -1 ) { 
+      currLevel++;
+      Client.out.print ("Down to level " + currLevel + " : ");
+      progress[currLevel] = nextFrameInLevel(currLevel, now);
     }
   }
 
-  public void run(){
-    // System.out.println("entering thread to download: " + _currFile);
-    _isActive = true;
-    downloadFile(_currFile);
-    _downloadThread = null;
-    _isActive = false;
-    // System.out.println("done with thread, downloaded: " + _currFile);
-    _currFile = "NONE";
+  public void changeLevelUp(long now) {
+    if (currLevel > 0)	{
+      currLevel --;
+      Client.out.print ("Up to level " + currLevel + " : ");
+      progress[currLevel] = nextFrameInLevel(currLevel, now);
+    }
   }
+	
+  public FrameDesc getNextFrame() {
+    FrameDesc[] curr = framesInfo.frameData()[currLevel];
+    int index = progress[currLevel];
+    if (index < curr.length) {
+      if (! curr[index].isDownloaded()){
+	// try {
+	// Thread.currentThread().sleep(downloadInterval);
+	/*
+	Client.out.println("level <" + currLevel + 
+			   "> index <" + index + 
+			   "> bandwidth <" + getBandwidth() + ">");
+	Client.out.println("CacheController downloading file: " + _baseURL + curr[index].getNum() + ".jpg");
+	*/
 
-  /**
-   * get the current file being downloaded
-   */
-  public String getCurrentFile(){
-    return _currFile;
+	if (downloadFile(_baseURL + curr[index].getNum() + ".jpg")){
+	  curr[index].setDownloaded(true);
+	  _client.loadImage(_cacheDir + curr[index].getNum() + ".jpg");
+	}
+      }
+      progress[currLevel] = index + 1;
+      currFrame = curr[index];		
+      return currFrame;
+    }
+    else 
+      return null;
   }
-
-  public boolean isActive(){
-    return _isActive;
+	
+  private int nextFrameInLevel (int level, long now) {
+    
+    FrameDesc[] curr = framesInfo.frameData()[level];
+    //int i = progress[level];
+    int i = 0;
+    while (curr[i].getEnd() <= now) {
+      // Client.out.print (curr[i].getStart() + " - ");
+      i++;
+			
+    }
+    //Client.out.print("\n");
+    return i;
   }
 
   /**
    * download a file from the given URL into the cache dir specified
-   * in cacheDir.  Smart download feature: resumes a file from the right 
-   * place if it had been interrupt earlier.
-   * 
+   * in cacheDir.  With smart download feature!  resumes a file from
+   * the right place if it had been interrupt earlier.
+   *
    * @param fileURL: URL of the file to get.
    */
   private boolean downloadFile(String fileURL) {
-    // System.out.println("CacheController.downloadFile fileURL: " + fileURL);
+    // Client.out.println("CacheController.downloadFile fileURL: " + fileURL);
     String[] tokens = fileURL.split("/");
     String saveFile = _cacheDir + tokens[tokens.length - 1];
     // if "cache" is "initialized" in the ctro, then we can do this: curr[index].setDownloaded(true);
@@ -136,12 +188,12 @@ public class CacheController extends Thread {
     try {
       url = new URL(fileURL);
     } catch (MalformedURLException e){
-      System.err.println("error in downloader: " + e);
+      Client.err.println("error in downloader: " + e);
       return false;
     }
 
     if (url == null) {
-      System.out.println("bad URL");
+      Client.out.println("bad URL");
       return false;
     }
       
@@ -150,25 +202,25 @@ public class CacheController extends Thread {
       // open the connection
       URLConnection myConnection;
       myConnection=url.openConnection();
-      // System.out.println("downloading : " + fileURL);
+      // Client.out.println("downloading : " + fileURL);
 		
       // check that the file holds stuff
       if (myConnection.getContentLength()==0) {
-	System.out.println("Error Zero content.");
+	Client.out.println("Error Zero content.");
 	return false;
       }
 
       long i = myConnection.getContentLength();
-      // System.out.println("downloading file length: " + myConnection.getContentLength());
+      // Client.out.println("downloading file length: " + myConnection.getContentLength());
       if (i==-1) {
-	System.out.println("Empty or invalid content.");
+	Client.out.println("Empty or invalid content.");
 	return false;
       }
 
       File newFile = new File (saveFile);
       boolean append = false;
       long resumeIndex = 0;
-      // System.out.println("current file size: " + newFile.length());
+      // Client.out.println("current file size: " + newFile.length());
       if (newFile.exists()){
 	append = true;
 	resumeIndex = i - newFile.length();
@@ -199,7 +251,7 @@ public class CacheController extends Thread {
       downloadFile.close();
       
       // BANDWIDTH related stuff
-      // System.out.println("total bytes: " + newFile.length() + " total time: " + currentTime);
+      // Client.out.println("total bytes: " + newFile.length() + " total time: " + currentTime);
       if (_bandwidthWindow++ < _bandwidthWindow){
 	_totalBytes += newFile.length();
 	_totalTime += currentTime;
@@ -210,7 +262,7 @@ public class CacheController extends Thread {
       }      
 
     } catch (IOException e){
-      System.out.println("IOException in CacheController.downloadFile(): " + e);
+      Client.out.println("IOException in CacheController.downloadFile(): " + e);
       return false;
     }
 
@@ -223,6 +275,25 @@ public class CacheController extends Thread {
       return 0;
     else 
       return (_totalBytes / _totalTime);
+  }
+
+  public void run(){
+    _isActive = true;
+    while(_isActive){
+      getNextFrame();
+    }
+    _isActive = false;
+  }
+
+  public boolean isActive(){
+    return _isActive;
+  }
+
+  /**
+   * shutdown the CacheController thread.
+   */
+  void shutdown(){
+    _isActive = false;
   }
 
   /**
@@ -238,6 +309,25 @@ public class CacheController extends Thread {
    * main is used as a point of access for testing
    */
   public static void main(String[] args){
-  }
+    // dp2041: testing possibility of threading this class
+    // conclusion = yes!
 
+    /*
+    CacheController cc = new CacheController(null, "frame_index.txt", 1,
+					     "http://www1.cs.columbia.edu/~suhit/ai2tv/1/");
+
+    FrameDesc[] fd = new FrameDesc[166];
+    FrameDesc newFrame;
+    int i=0;
+    // for (; i<6; i++){
+      do{
+	newFrame = cc.getNextFrame();
+	Client.out.println("got frame: " + newFrame);
+	// fd[i++] = newFrame;
+	// cc.hierarchyDown(Calendar.getInstance().getTimeInMillis());
+      } while(newFrame != null);
+      // }
+      // cc.hierarchyDown(Calendar.getInstance().getTimeInMillis());
+      */
+  }
 }

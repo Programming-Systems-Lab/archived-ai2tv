@@ -19,14 +19,29 @@ import java.util.*;
 import psl.ai2tv.gauge.*;
 
 /**
- * Main component controlling the others 
+ * Main component controlling the others.  commPlay is the main function where the main
+ * work happens.  The client only responds after receiving a play command from the Siena
+ * server, which calls commPlay to start the viewing.
  *
  * right now the "Client" is also impersonating the time controller...
  *
+ * [CommController] <--siena--> WF
+ *       /\
+ *       |
+ *       |
+ *       \/
+ *   [ Client ] <------> [CacheController]
+ *        /\   
+ *         \  
+ *          \ 
+ *          \/
+ *        [Viewer]
  * 
- * QUESTIONS: 
  *
  * 
+ * QUESTIONS: 
+ * 
+ *
  * 
  *
  *
@@ -40,12 +55,17 @@ class Client {
   // purposes
   private class AI2TVJNIJava{}
 
+  public static PrintStream out; 
+  public static PrintStream err;
+  public static PrintStream debug; 
+
   private AI2TVJNIJava _JNIIntf;
   private CacheController _cache;
   private CommController _comm;
   private Viewer _viewer;
   private ClientProbe _probe;
   private Thread _probeThread;
+  private int _level;
 
   private long _startTime;
   private long _pausedTime;
@@ -55,7 +75,6 @@ class Client {
   private boolean _isActive;
   private FrameIndexParser _framesInfo;
   private FrameDesc[][] _framesData;
-  private int _level;
 
   private long _id; // client id number for server identification
 
@@ -71,35 +90,53 @@ class Client {
   private int _earlyFrames;
   private double _lateThreshold;
   private double _earlyThreshold;
+  private long _timeLastImageShown;  
 
   // we should have these in a config file
-  String cacheDir = "cache/";
-  String baseURL = "http://www1.cs.columbia.edu/~suhit/ai2tv/1/";
-  String sienaServer = "ka:localhost:4444";
-  String frameFile = "frame_index.txt";
-  public static final int FRAME_RATE = 30; // 30 frames / second
-  public static final int REFRESH_RATE = 1000; // check for frame changes this often (ms)
-  
+  private String _cacheDir = "cache/";
+  private String _baseURL = "http://www1.cs.columbia.edu/~suhit/ai2tv/1/";
+  private String _sienaServer = "ka:localhost:4444";
+  private String _frameFile = "frame_index.txt";
+  public static final long FRAME_RATE = 30; // 30 frames / second
+  public static final long CHECK_RATE = 250; // check if frame is downloaded this often (ms)
+
+
+  /** 
+   * this the amount of buffer time I give to allow processing 
+   * delays (lookahead ~ time to process what image to show + 
+   * time to load and paint image) in seconds
+   */
+  private long _lookahead = 1000;
+
   /** */
   Client(){
+    // out = System.out;
+    // err = System.err;  
+    debug = System.out;  
+
+    try {
+      out = new PrintStream(new  FileOutputStream(new File("ai2tv_out.log")), true);
+      err = new PrintStream(new  FileOutputStream(new File("ai2tv_err.log")), true);
+    } catch (FileNotFoundException e){
+      e.printStackTrace();
+    }
+    
+
     // what is the prob that two clients start at the exact same time? ...pretty low
     _id = Calendar.getInstance().getTimeInMillis(); 
     _startTime = 0;
     _pausedTime = _pausedStartTime = 0;
     _pausePressed = false;
-    _level = 0;
-    // _level = 2; // start off at the mid level
+    _level = 2;
 
-    _cache = new CacheController(this, cacheDir);
-    // DEBUG: uncomment when the file on the server is correct (has 4 columns)
-    // _cache.download(baseURL + frameFile);
-
-    // wait for the frame index file to get here
-    //  while(!_cache.isDownloaded(frameFile)){}
-
-    _framesInfo = new FrameIndexParser("c:/pslroot/psl/ai2tv/client/" + cacheDir + frameFile);
+    _framesInfo = new FrameIndexParser(_frameFile);
     _framesData = _framesInfo.frameData();
 
+    _viewer = new Viewer(this);
+    _comm = new CommController(this, null, _sienaServer);
+
+    _cache = new CacheController(this, _cacheDir, _baseURL, _frameFile);
+    _cache.start(); // start the thread to download frames
     _currFrame = null;
     _nextFrame = null;
     _neededFrame = null;
@@ -110,11 +147,11 @@ class Client {
     _earlyThreshold = 0.25; // if you can download the file in 1/4 of the time needed, then it's early
     _lateThreshold = 0.75; // if you can download the file in 1/4 of the time needed, then it's early
 
-    _viewer = new Viewer(this);
-
-    _comm = new CommController(this, null, sienaServer);
-
     startProbe();
+  }
+
+  FrameIndexParser getFramesInfo(){
+    return _framesInfo;
   }
 
   private void startProbe(){
@@ -125,16 +162,32 @@ class Client {
 
   private FrameDesc getFrame(int level, long now){
     long currentTime = now / 1000;
-    // System.out.println("getting the next frame for : " + level + ", " + currentTime);
+    // out.println("getting the next frame for : " + level + ", " + currentTime);
     for (int i=0; i<_framesData[level].length; i++){
-      // System.out.println("< " + (_framesData[level][i].getStart()/30) + " ? " + currentTime + 
+      // out.println("< " + (_framesData[level][i].getStart()/30) + " ? " + currentTime + 
       // " ? " + _framesData[level][i].getEnd()/30 + ">");
       if (_framesData[level][i].getStart()/30 <= currentTime &&
-	  currentTime < _framesData[level][i].getEnd()/30)
+	  currentTime < _framesData[level][i].getEnd()/30){
 	return _framesData[level][i];
+      }
     }
     return null;
   }
+
+  private FrameDesc getNextFrame(int level, long now){
+    long currentTime = now / 1000;
+    // out.println("getting the next frame for : " + level + ", " + currentTime);
+    for (int i=0; i<_framesData[level].length; i++){
+      // out.println("< " + (_framesData[level][i].getStart()/30) + " ? " + currentTime + 
+      // " ? " + _framesData[level][i].getEnd()/30 + ">");
+      if (_framesData[level][i].getStart()/30 <= currentTime &&
+	  currentTime < _framesData[level][i].getEnd()/30)
+	if ((i+1) < _framesData[level].length)
+	  return _framesData[level][i+1];
+    }
+    return null;
+  }
+
 
   int videoEndTime(){
     return (_framesData[0][_framesData[0].length - 1].getEnd()/ 30 + 1);
@@ -173,97 +226,111 @@ class Client {
     return _missedFrames;
   }
 
-  // --------- Comm initiated actions ---------- //
-  /**
-   * pseudoWF that informs the client what to play next.  This 
-   * method uses the simple scheme of playing the current frame at the time.
-   *
-   */
-  public void commPlay(){
-    System.out.println("commPlay received");
-    if (_probe != null){
-      _probe.setActive(true);
-      _probe.setProbingFrequency (5000);
-    }
-    
-    // have we started, if not, this is it!
-    if (_startTime == 0){
-      System.out.println("starting time");
-      startTime();
-    }
+  void loadImage(String image){
+    _viewer.loadImage(image);
+  }
 
+  void imageShown(){
+    _timeLastImageShown = currentTime();
+    
+    if (_currFrame != null){
+      long lateness = _timeLastImageShown - _currFrame.getStart()*1000/30;
+      debug.println("image: " + _currFrame.getNum() + " shown at: " + _timeLastImageShown + 
+		    " late: " + lateness + " (ms)");
+
+      // if (lateness > 1000) _lookahead += 1;
+      // if (lateness < -1000) _lookahead -= 1;
+    }
+    // 999
+    // need to send an update to 
+    // _currFrame.getStart() - _timeLastImageShown;
+
+  }
+
+  void startViewerThread(){
     _isActive = true;
     new Thread(){
       public void run(){
 
 	while(_isActive){
-	  // System.out.println("paused pressed: " + _pausePressed);
-	  if (!_pausePressed){
-	    _nextFrame = getFrame(_level, currentTime());
-
+	  // if (!_pausePressed){
+	    // check what the frame we need to be showing is
+	    _nextFrame = getFrame(_cache.getLevel(), currentTime() + _lookahead);
+	    
 	    if (_nextFrame == null){
-	      System.out.println("Are we at the end of the Video?");
+	      out.println("Are we at the end of the Video?");
 	      _isActive = false;
 	      break;
 	    } 
 
 	    // if time has changed, and we need to show a new frame
 	    if (_neededFrame != _nextFrame){
-	      if (_currFrame != _neededFrame){
-		// System.out.println("missed a frame!: " + _neededFrame);
+	      if (_currFrame != null && _currFrame != _neededFrame){
+		// out.println("missed a frame!: " + _neededFrame);
 		_missedFrames++;
 		_cache.interruptDownload();
+		// in addition to interrupting the download, it should
+		// it should also tell it the next frame to download and 
+		// inform the WF
 	      }
 	      _neededFrame = _nextFrame;
 	    }
 
 	    if (_currFrame == null || _currFrame.getNum() != _neededFrame.getNum()){
 	      
-	      // if (lastFrameDownloaded != null && 
-
-	      if (!_cache.isActive())
-		_cache.download(baseURL + _neededFrame.getNum() + ".jpg");
-	      
+	      // out.println("Time is: " + currentTime() + " trying to show frame: " + _neededFrame.getNum());
 	      if (_cache.isDownloaded(_neededFrame.getNum() + ".jpg")){
-		long now = currentTime();
 		// then show it.
-		_viewer.displayImage(cacheDir + _neededFrame.getNum() + ".jpg");
+		_viewer.setNewFrame(true);		
+		_viewer.displayImage(_cacheDir + _neededFrame.getNum() + ".jpg");
 
 		// shift the frame window back
 		_currFrame = _neededFrame;
-
-		// check if we had actually gotten this frame early!!!
-		double percentTimeUsed = (double)(now*30/1000 - _currFrame.getStart()) / 
-		                         (double)(_currFrame.getNum() - _currFrame.getStart());
-		// System.out.println("current time: " + (now*30/1000) + " frame start: " + _currFrame.getStart()
-		// + " frame time: " + _currFrame.getNum()
-		// + " percentage = " + percentTimeUsed);
-		if (percentTimeUsed < _earlyThreshold){
-		  System.out.println("Got the frame early!");
-		  _earlyFrames++;
-		} 
-		else if (percentTimeUsed > _lateThreshold){
-		  System.out.println("Got the frame late!");
-		  _lateFrames++;
-		}
-	      } 
+		
+		// from here, the Viewer tries to load in the image, and calls this object's 
+		// imageShown method after the image is actually painted on the screen.
+	      } else {
+		Client.debug.println(_neededFrame.getNum() + ".jpg was not downloaded");
+	      }
 	    }
-	  }
-	  
+	    // }
 	  try {
-	    sleep(REFRESH_RATE);
+	    sleep(CHECK_RATE);
 	  } catch (InterruptedException e){
-	    System.err.println("Client Viewing thread error: " + e);
-	    _isActive = false;
+	    err.println("Client play thread error: " + e);
+	    shutdown();
 	  }
 
 	}
       }
     }.start();
+}
+
+  // --------- Comm initiated actions ---------- //
+  /**
+   * pseudoWF that informs the client what to play next.  This 
+   * method uses the simple scheme of playing the current frame at the time.
+   *
+   * if the image wasn't downloaded on time, then we want to loop incesstantly, is it here, 
+   * how bout now, now?
+   *
+   * otherwise, we can wait until right up to the second before to check.
+   */
+  public void commPlay(){
+    out.println("commPlay received");
+    _probe.setActive(true);
+    _probe.setProbingFrequency (5000);
+    
+    // have we started, if not, this is it!
+    if (_startTime == 0){
+      out.println("starting time");
+      startTime();
+    }
+    startViewerThread();
   }
 
   public void commStop(){
-    System.out.println("commStop received");
+    out.println("commStop received");
     _isActive = false;    
     _startTime = 0; // start time over.
     _pausedTime = 0; // start time over.
@@ -271,7 +338,7 @@ class Client {
   }
 
   public void commPause(){
-    System.out.println("commPause received");
+    out.println("commPause received");
     if (!_pausePressed){
       _pausePressed = true;
       pauseTime();
@@ -283,7 +350,7 @@ class Client {
   }
 
   public void commGoto(int newTime){
-    System.out.println("commGoto received");
+    out.println("commGoto received");
     // check if the file is downloaded
     // yes: display it
     // no: display filler (waiting for file to download)
@@ -293,25 +360,35 @@ class Client {
   }
 
   public void setNextFrame(int newFrame){
-    System.out.println("Client setting next frame: " + newFrame);    
+    out.println("Client setting next frame: " + newFrame);    
+    _cache.setNextFrame("" + newFrame);
+  }
+
+  public int getLevel(){
+    return _level;
   }
 
   public void changeLevel(String change){
-    System.out.println("Client setting new level: " + change);
-    if (change.indexOf("UP") != -1){
-      if (_level > 0)
-	_level--;
 
+    out.println("Client setting new level: " + change);
+    if (change.indexOf("UP") != -1){
+      if (_level > 0){
+ 	_level--;
+	_cache.changeLevelUp(currentTime());
+      }
+      
     } else {
-      if (_level < _framesData.length)
-	_level++;    
-    }
+      if (_level < _framesData.length){
+ 	_level++;
+ 	_cache.changeLevelDown(currentTime());
+      }
+     }
+
     // reset the _lateFrames, so we can keep count anew
     _missedFrames = 0;
     _lateFrames = 0;
     _earlyFrames= 0;
   }
-
   // ------- END: Comm initiated actions ------- //
 
 
@@ -357,7 +434,7 @@ class Client {
 	return (Calendar.getInstance().getTimeInMillis() - _startTime - _pausedTime);
       }
     } else {
-      // System.out.println("current Time is not Active");
+      // out.println("current Time is not Active");
       return 0; // dp2041: this actually needs to be something else, 
     }
     // in case the user has already started and is paused.
