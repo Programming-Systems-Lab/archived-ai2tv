@@ -63,7 +63,7 @@ class Client {
   private CacheController _cache;
   private CommController _comm;
   private Viewer _viewer;
-  private ClientProbe _probe;
+  // private ClientProbe _probe;
   private Thread _probeThread;
   private int _level;
 
@@ -83,14 +83,7 @@ class Client {
   private FrameDesc _nextFrame;  
   private FrameDesc _neededFrame;
 
-  // quality of service related members
-  // we should maybe also add a window to refresh these values every once in a while.
-  private int _missedFrames;
-  private int _lateFrames;
-  private int _earlyFrames;
-  private double _lateThreshold;
-  private double _earlyThreshold;
-  private long _timeLastImageShown;  
+  private long _timeCurrFrameShown;  // time that the current image was first shown
 
   // we should have these in a config file
   private String _cacheDir = "cache/";
@@ -99,7 +92,6 @@ class Client {
   private String _frameFile = "frame_index.txt";
   public static final long FRAME_RATE = 30; // 30 frames / second
   public static final long CHECK_RATE = 250; // check if frame is downloaded this often (ms)
-
 
   /** 
    * this the amount of buffer time I give to allow processing 
@@ -128,24 +120,19 @@ class Client {
     _pausedTime = _pausedStartTime = 0;
     _pausePressed = false;
     _level = 2;
+    _timeCurrFrameShown = 0;
 
     _framesInfo = new FrameIndexParser(_frameFile);
     _framesData = _framesInfo.frameData();
 
     _viewer = new Viewer(this);
-    _comm = new CommController(this, null, _sienaServer);
+    _comm = new CommController(this, _id, _sienaServer);
 
     _cache = new CacheController(this, _cacheDir, _baseURL, _frameFile);
     _cache.start(); // start the thread to download frames
     _currFrame = null;
     _nextFrame = null;
     _neededFrame = null;
-
-    _missedFrames = 0;
-    _lateFrames = 0;
-    _earlyFrames= 0;
-    _earlyThreshold = 0.25; // if you can download the file in 1/4 of the time needed, then it's early
-    _lateThreshold = 0.75; // if you can download the file in 1/4 of the time needed, then it's early
 
     startProbe();
   }
@@ -155,9 +142,9 @@ class Client {
   }
 
   private void startProbe(){
-    _probe = new ClientProbe(this);
-    _probeThread = new Thread(_probe);
-    _probeThread.start();
+    // _probe = new ClientProbe(this);
+    // _probeThread = new Thread(_probe);
+    // _probeThread.start();
   }
 
   private FrameDesc getFrame(int level, long now){
@@ -198,7 +185,7 @@ class Client {
   }
   
   void shutdown(){
-    _probe.shutdown();
+    // _probe.shutdown();
     _isActive = false;
   }
 
@@ -210,20 +197,12 @@ class Client {
     return _cache.getBandwidth();
   }
 
+  long getTimeCurrFrameShown(){
+    return _timeCurrFrameShown;
+  }
+
   FrameDesc getCurrFrame(){
     return _currFrame;
-  }
-
-  int getLateFrames(){
-    return _lateFrames;
-  }
-
-  int getEarlyFrames(){
-    return _earlyFrames;
-  }
-
-  int getMissedFrames(){
-    return _missedFrames;
   }
 
   void loadImage(String image){
@@ -231,80 +210,79 @@ class Client {
   }
 
   void imageShown(){
-    _timeLastImageShown = currentTime();
+    _timeCurrFrameShown = currentTime();
     
     if (_currFrame != null){
-      long lateness = _timeLastImageShown - _currFrame.getStart()*1000/30;
-      debug.println("image: " + _currFrame.getNum() + " shown at: " + _timeLastImageShown + 
+      long lateness = _timeCurrFrameShown - _currFrame.getStart()*1000/30;
+      debug.println("image: " + _currFrame.getNum() + " shown at: " + _timeCurrFrameShown + 
 		    " late: " + lateness + " (ms)");
 
-      // if (lateness > 1000) _lookahead += 1;
-      // if (lateness < -1000) _lookahead -= 1;
+      _comm.sendUpdate();  // send an update to the other clients
     }
     // 999
     // need to send an update to 
-    // _currFrame.getStart() - _timeLastImageShown;
+    // _currFrame.getStart() - _timeCurrFrameShown;
 
   }
 
-  void startViewerThread(){
+  private void startViewerThread(){
     _isActive = true;
     new Thread(){
       public void run(){
 
 	while(_isActive){
-	  // if (!_pausePressed){
-	    // check what the frame we need to be showing is
-	    _nextFrame = getFrame(_cache.getLevel(), currentTime() + _lookahead);
-	    
-	    if (_nextFrame == null){
-	      out.println("Are we at the end of the Video?");
-	      _isActive = false;
-	      break;
-	    } 
+	  checkNextFrame();
 
-	    // if time has changed, and we need to show a new frame
-	    if (_neededFrame != _nextFrame){
-	      if (_currFrame != null && _currFrame != _neededFrame){
-		// out.println("missed a frame!: " + _neededFrame);
-		_missedFrames++;
-		_cache.interruptDownload();
-		// in addition to interrupting the download, it should
-		// it should also tell it the next frame to download and 
-		// inform the WF
-	      }
-	      _neededFrame = _nextFrame;
-	    }
-
-	    if (_currFrame == null || _currFrame.getNum() != _neededFrame.getNum()){
-	      
-	      // out.println("Time is: " + currentTime() + " trying to show frame: " + _neededFrame.getNum());
-	      if (_cache.isDownloaded(_neededFrame.getNum() + ".jpg")){
-		// then show it.
-		_viewer.setNewFrame(true);		
-		_viewer.displayImage(_cacheDir + _neededFrame.getNum() + ".jpg");
-
-		// shift the frame window back
-		_currFrame = _neededFrame;
-		
-		// from here, the Viewer tries to load in the image, and calls this object's 
-		// imageShown method after the image is actually painted on the screen.
-	      } else {
-		Client.debug.println(_neededFrame.getNum() + ".jpg was not downloaded");
-	      }
-	    }
-	    // }
 	  try {
 	    sleep(CHECK_RATE);
 	  } catch (InterruptedException e){
 	    err.println("Client play thread error: " + e);
 	    shutdown();
 	  }
-
 	}
       }
     }.start();
 }
+  
+  private void checkNextFrame(){
+    _nextFrame = getFrame(_cache.getLevel(), currentTime() + _lookahead);
+	    
+    if (_nextFrame == null){
+      out.println("Are we at the end of the Video?");
+      _isActive = false;
+      return;
+    } 
+
+    // if time has changed, and we need to show a new frame
+    if (_neededFrame != _nextFrame){
+      if (_currFrame != null && _currFrame != _neededFrame){
+	// out.println("missed a frame!: " + _neededFrame);
+	_cache.interruptDownload();
+	// in addition to interrupting the download, it should also
+	// tell it the next frame to download and inform the WF
+      }
+      _neededFrame = _nextFrame;
+    }
+
+    if (_currFrame == null || _currFrame.getNum() != _neededFrame.getNum()){
+	      
+      // out.println("Time is: " + currentTime() + " trying to show frame: " + _neededFrame.getNum());
+      if (_cache.isDownloaded(_neededFrame.getNum() + ".jpg")){
+	// then show it.
+	_viewer.setNewFrame(true);		
+	_viewer.displayImage(_cacheDir + _neededFrame.getNum() + ".jpg");
+
+	// shift the frame window back
+	_currFrame = _neededFrame;
+		
+	// from here, the Viewer tries to load in the image, and calls this object's 
+	// imageShown method after the image is actually painted on the screen.
+      } else {
+	Client.debug.println(_neededFrame.getNum() + ".jpg was not downloaded");
+      }
+    }
+    // }
+  }
 
   // --------- Comm initiated actions ---------- //
   /**
@@ -318,8 +296,8 @@ class Client {
    */
   public void commPlay(){
     out.println("commPlay received");
-    _probe.setActive(true);
-    _probe.setProbingFrequency (5000);
+    // _probe.setActive(true);
+    // _probe.setProbingFrequency (5000);
     
     // have we started, if not, this is it!
     if (_startTime == 0){
@@ -370,7 +348,7 @@ class Client {
 
   public void changeLevel(String change){
 
-    out.println("Client setting new level: " + change);
+    debug.println("Client setting new level: " + change);
     if (change.indexOf("UP") != -1){
       if (_level > 0){
  	_level--;
@@ -383,11 +361,6 @@ class Client {
  	_cache.changeLevelDown(currentTime());
       }
      }
-
-    // reset the _lateFrames, so we can keep count anew
-    _missedFrames = 0;
-    _lateFrames = 0;
-    _earlyFrames= 0;
   }
   // ------- END: Comm initiated actions ------- //
 
