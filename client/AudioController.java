@@ -48,7 +48,7 @@ public class AudioController implements Runnable{
   private boolean isRunning;
 
   public AudioController(){
-    System.out.println("creating audio controller");
+    // System.out.println("creating audio controller");
     audioFormat = null;
     audioFileFormat = null;
     audioStream = null;
@@ -153,12 +153,9 @@ public class AudioController implements Runnable{
    * available threads.  Should keep an eye out on this method.
    */
   public void play() {
-    System.out.println("<AudioController> play");
-    System.out.println("isActive: " + isActive);
-    System.out.println("playThread.isAlive(): " + playThread.isAlive());
+    // System.out.println("<AudioController> play");
     if (!isActive && playThread != null){
       isActive = true;
-      System.out.println("calling playThread.start();");
       playThread.start();
     } 
 
@@ -171,7 +168,7 @@ public class AudioController implements Runnable{
   }
 
   public void pause(){
-    System.out.println("<AudioController> pause");
+    // System.out.println("<AudioController> pause");
     // toggle pause
     if (paused){
       paused = false;
@@ -179,17 +176,13 @@ public class AudioController implements Runnable{
     } else{
       paused = true;
       audioLine.flush();
-      // 999
-      // audioLine.stop();
     }
   }
 
   public void stop(){
-    System.out.println("<AudioController> stop");
+    // System.out.println("<AudioController> stop");
     if (isActive){
       stopped = true;
-      // 999
-      // audioLine.stop();
       audioLine.flush(); // flush out anything that was in there
       try {
 	audioFile.seek((int) 0);
@@ -200,7 +193,7 @@ public class AudioController implements Runnable{
   }
 
   public void gotoTimeSeconds(long time){
-    System.out.println("<AudioController> gotoTimeSeconds: " + time);
+    // System.out.println("<AudioController> gotoTimeSeconds: " + time);
     if (audioFile == null){
       System.err.println("Error, audioFile is null");
       return;
@@ -244,9 +237,9 @@ public class AudioController implements Runnable{
 
     audioLine.close();
 
-    // 999 we shouldn't have to do this, there's a resource that isn't
+    // we shouldn't have to do this, there's a resource that isn't
     // properly shutdown...
-    System.exit(0); 
+    // System.exit(0); 
   }
 
   // timeIndicator = time to skip to(sec) * frame rate * 4 bytes/frame
@@ -283,7 +276,7 @@ public class AudioController implements Runnable{
    */
   public void run(){
     // System.out.print("thread #" + ++threadCount);
-    System.out.print("<AudioController> playThread.run()");
+    // System.out.print("<AudioController> playThread.run()");
     if (audioLine == null){
       System.err.println("Error, audio line is false, initializeAudioLine first.");
       return;

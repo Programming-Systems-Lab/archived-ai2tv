@@ -1127,9 +1127,7 @@ public class Client extends Thread{
    * needs to start playing
    */
   void playPressed() {
-    // 999
-    // Client.debug.println("<Client> playPressed method called");
-    System.out.println("<Client> playPressed method called");
+    Client.debug.println("<Client> playPressed method called");
     if (!_isActive){
       if (_comm != null) _comm.playPressed();
     }
@@ -1141,9 +1139,7 @@ public class Client extends Thread{
    * needs to stop
    */
   void stopPressed() {
-    // 999
-    //   Client.debug.println("<Client> stopPressed method called");
-    System.out.println("<Client> stopPressed method called");
+    Client.debug.println("<Client> stopPressed method called");
     if (_isActive){
       if (_comm != null) _comm.stopPressed();
       if (_audio != null) _audio.stop();
@@ -1155,8 +1151,7 @@ public class Client extends Thread{
    * needs to pause
    */
   void pausePressed() {
-    // 999 Client.debug.println("Client: pausePressed method called");
-    System.out.println("Client: pausePressed method called");
+    Client.debug.println("Client: pausePressed method called");
     if (_isActive){
       if (_comm != null) _comm.pausePressed();
       if (_audio != null) _audio.pause();
@@ -1170,9 +1165,7 @@ public class Client extends Thread{
    * @param time: time to goto
    */
   void gotoPressed(int time) {
-    // 999
-    // Client.debug.println("Client: gotoPressed method called");
-    System.out.println("Client: gotoPressed method called");
+    Client.debug.println("Client: gotoPressed method called");
     if (_isActive){
       if (_comm != null) _comm.gotoPressed(time);
       if (_audio != null) _audio.gotoTimeSeconds((long)time);
