@@ -82,7 +82,7 @@ class FauxWF extends Thread implements Notifiable {
       int leftbound = event.getAttribute(SienaConstants.LEFTBOUND).intValue(); // DEBUG
       double bandwidth = event.getAttribute(SienaConstants.BANDWIDTH).doubleValue(); // DEBUG
       int level = event.getAttribute(SienaConstants.LEVEL).intValue();
-      long timeShown = event.getAttribute(SienaConstants.TIME_SHOWN).longValue();
+      double timeShown = event.getAttribute(SienaConstants.TIME_SHOWN).doubleValue();
 
       // first we see if the level needs to be changed.
       // Client.debug.println("currFrame: (leftbound) attribute: " + leftbound);

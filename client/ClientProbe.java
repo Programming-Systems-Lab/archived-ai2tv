@@ -62,7 +62,7 @@ class ClientProbe {
     setupSiena();
 
     _probeIndex = 0;
-    _probeTimes = new long[numProbes];
+    _probeTimes = new double[numProbes];
     for (int i=0; i<_probeTimes.length; i++)
       _probeTimes[i] = 0;
   }
@@ -93,7 +93,9 @@ class ClientProbe {
 
     // this element must be the last one added, as we are doing a
     // timing measurement to find the distance to the WF.
-    _frameEvent.putAttribute(SienaConstants.PROBE_TIME, System.currentTimeMillis());
+    // _frameEvent.putAttribute(SienaConstants.PROBE_TIME, System.currentTimeMillis());
+    // _frameEvent.putAttribute(SienaConstants.PROBE_TIME, _client.currentTime());
+    // _frameEvent.putAttribute(SienaConstants.CLIENT_CURRENT_TIME, _client.currentTime());
     try {
       _mySiena.publish(_frameEvent);
     } catch (SienaException se) {
@@ -108,7 +110,9 @@ class ClientProbe {
       _frameEvent.putAttribute(SienaConstants.RIGHTBOUND, fd.getEnd());
       _frameEvent.putAttribute(SienaConstants.MOMENT, fd.getNum());
       _frameEvent.putAttribute(SienaConstants.LEVEL, fd.getLevel());
-        _frameEvent.putAttribute(SienaConstants.SIZE, fd.getSize());
+      _frameEvent.putAttribute(SienaConstants.SIZE, fd.getSize());
+      // 000
+      _frameEvent.putAttribute(SienaConstants.PROBE_TIME, fd.currentTime());
     }
   }
 
@@ -130,7 +134,7 @@ class ClientProbe {
    * @param ID: the ID of the probe
    * @param time: start of time associated with this probe
    */
-  void startTimeProbe(int ID, long time){
+  void startTimeProbe(int ID, double time){
     if (ID >= 0 && ID < _probeTimes.length)
       _probeTimes[ID] = time;
   }
@@ -143,10 +147,11 @@ class ClientProbe {
    * @param natureOfMessage: header to message to be sent that expounds upon
    * nature of this probe.
    */
-  void endTimeProbe(int ID, long time, String natureOfMessage){
+  void endTimeProbe(int ID, double time, String natureOfMessage){
     // long diff = _time - _probeTimes[ID];
     if (ID >= 0 && ID < _probeTimes.length){
       Client.probeOutput.println("sending an update: time diff: " + (time - _probeTimes[ID]));
+      // this is where TIME_SHOWN is put in
       _frameEvent.putAttribute(natureOfMessage, (time - _probeTimes[ID]));
 
       if (natureOfMessage.equals(SienaConstants.TIME_SHOWN))
