@@ -75,6 +75,7 @@ public class Client extends Thread{
   private AI2TVJNIJava _jni;
   private CacheController _cache;
   private CommController _comm;
+  private AudioController _audio;
   private Viewer _viewer;
   private TimeController _clock;
   private LoginHandler _login;
@@ -181,6 +182,9 @@ public class Client extends Thread{
     // set some basic system vars
     getSystemVars();
 
+    // create the audio controller
+    _audio = new AudioController();
+
     // create the comm controller
     _comm = new CommController(this, _sienaServer);
     if (!_comm.isActive()) {
@@ -218,9 +222,25 @@ public class Client extends Thread{
     _framesInfo = new FrameIndexParser(_cacheDir + FRAME_FILE);
     _framesData = _framesInfo.frameData();
 
+    // initialize the internal clock
     _clock = new TimeController();
+
+    // initialize the internal communications controller
     _comm.setupSienaFilter();
 
+    // initialize the audio controller
+    String filename = "os_3.wav";
+    int bufferSize = 512;
+
+    if (_audio != null){
+      boolean audioSuccess = _audio.initializeAudioFile(filename, bufferSize) &&_audio.initializeAudioLine();
+      if (!audioSuccess)
+	System.err.println("Error, Audio Controller could not initialize.");
+    }
+
+    _audio.printAudioFileInfo();
+
+    // initialize the viewer
     if (!_attachedToCHIME)
       _viewer = new Viewer(this);
 
@@ -228,7 +248,7 @@ public class Client extends Thread{
     _nextFrame = null;
     _neededFrame = null;
 
-    _cache.initialize(); // initilize the cache controller
+    _cache.initialize(); // initialize the cache controller
 
     // select which video quality to load (this set the client level)
     // only if this wasn't set in the environment
@@ -1107,9 +1127,13 @@ public class Client extends Thread{
    * needs to start playing
    */
   void playPressed() {
-    Client.debug.println("Client: playPressed method called");
-    if (!_isActive)
-      _comm.playPressed();
+    // 999
+    // Client.debug.println("<Client> playPressed method called");
+    System.out.println("<Client> playPressed method called");
+    if (!_isActive){
+      if (_comm != null) _comm.playPressed();
+    }
+    if (_audio != null) _audio.play();
   }
 
   /**
@@ -1117,9 +1141,13 @@ public class Client extends Thread{
    * needs to stop
    */
   void stopPressed() {
-    Client.debug.println("Client: stopPressed method called");
-    if (_isActive)
-      _comm.stopPressed();
+    // 999
+    //   Client.debug.println("<Client> stopPressed method called");
+    System.out.println("<Client> stopPressed method called");
+    if (_isActive){
+      if (_comm != null) _comm.stopPressed();
+      if (_audio != null) _audio.stop();
+    }
   }
 
   /**
@@ -1127,9 +1155,12 @@ public class Client extends Thread{
    * needs to pause
    */
   void pausePressed() {
-    Client.debug.println("Client: pausePressed method called");
-    if (_isActive)
-      _comm.pausePressed();
+    // 999 Client.debug.println("Client: pausePressed method called");
+    System.out.println("Client: pausePressed method called");
+    if (_isActive){
+      if (_comm != null) _comm.pausePressed();
+      if (_audio != null) _audio.pause();
+    }
   }
 
   /**
@@ -1139,8 +1170,13 @@ public class Client extends Thread{
    * @param time: time to goto
    */
   void gotoPressed(int time) {
-    Client.debug.println("Client: gotoPressed method called");
-    _comm.gotoPressed(time);
+    // 999
+    // Client.debug.println("Client: gotoPressed method called");
+    System.out.println("Client: gotoPressed method called");
+    if (_isActive){
+      if (_comm != null) _comm.gotoPressed(time);
+      if (_audio != null) _audio.gotoTimeSeconds((long)time);
+    }
   }
   // --------- END: Viewer initiated actions ---------- //
 
