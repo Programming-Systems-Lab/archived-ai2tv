@@ -261,7 +261,7 @@ public class LogParser {
   }
 
   private double scoreMissedFrame(int theoreticalLevel, int currentLevel){
-    double missedFrameScore;
+    double missedFrameScore = 0;
     // old old old, yesteryear scoring scheme (arbitrary)
     // missedFrameScore = -1;
 
@@ -274,10 +274,10 @@ public class LogParser {
     // The missed frame score is computed by extrapolating the end point of the 0 quality level
     // worst score.  This equation was computed using a polynomial regression: -0.4795*(X*X)-0.2035*X+0.401
     // The score below uses X=6. (initial point starts at 1)
-    missedFrameScore = -18;
+    // missedFrameScore = -18;
 
     // A)
-    // missedFrameScore = 0; // goodness score does not count in the missed frames
+    missedFrameScore = 0; // goodness score does not count in the missed frames
 
     // B)
     // missedFrameScore = 1; // goodness score  simply counts the number of missed frames
