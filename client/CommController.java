@@ -56,6 +56,9 @@ class CommController implements Notifiable{
     _mySiena = null;
     _sienaServer = server;
     setupSienaListener();
+
+    // send out a registration packet to the WF
+    sendRegistrationToWF();
   }
 
   /**
@@ -105,6 +108,20 @@ class CommController implements Notifiable{
       // e.printStackTrace();
     }
   }
+  
+  private void sendRegistrationToWF(){
+    Notification event = new Notification();
+    try{
+      Client.out.println("Registering client: " + _client.getID());
+      event.putAttribute(SienaConstants.AI2TV_WF_REG, "");
+      Client.out.println("publishing event: " + Calendar.getInstance().getTime());
+      event.putAttribute(SienaConstants.CLIENT_ID, _client.getID());
+      _mySiena.publish(event);
+    } catch (siena.SienaException e){
+      Client.err.println("CommController publishing sienaException: " + e);
+    }      
+  }
+
 
   /**
    * showdown the communications layer
