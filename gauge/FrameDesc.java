@@ -101,4 +101,14 @@ public class FrameDesc {
 	  s += " :timeShown: " + timeShown + " timeOffset: " + timeOffset + " timeDownloaded: " + timeDownloaded;
 	  return s;
 	}
+
+  public boolean equals(Object o){
+    if (o instanceof FrameDesc){
+      FrameDesc fd = (FrameDesc)o;
+      return (num ==fd.getNum() && start == fd.getStart() &&
+	      end == fd.getEnd() && level == fd.getLevel() &&
+	      size == fd.getSize());
+    }
+    return false;
+  }
 }
