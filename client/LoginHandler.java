@@ -270,12 +270,21 @@ public class LoginHandler extends JFrame {
     if (availableVideos.size() != 0){ 
       menuLength += 80 + (availableVideos.size() * 20);
 
+      // get the current date/time
+      Calendar cal = Calendar.getInstance();
+      int year = cal.get(Calendar.YEAR);
+      int month = cal.get(Calendar.MONTH) + 1; // Jan = 0
+      int day = cal.get(Calendar.DAY_OF_MONTH);
+      int hour = cal.get(Calendar.HOUR_OF_DAY);
+      int min = cal.get(Calendar.MINUTE);
+      int sec = cal.get(Calendar.SECOND);
+
       // ------ Date ------ //
       JLabel dateLabel = new JLabel("Date to view video");
       menuPanel.add(dateLabel);
 
       _dateField = new JTextField(8);
-      _dateField.setText("2003-07-24");
+      _dateField.setText("" + year + "-" + month + "-" + day);
       menuPanel.add(_dateField);
 
       // ------ Time ------ //
@@ -283,7 +292,7 @@ public class LoginHandler extends JFrame {
       menuPanel.add(timeLabel);
 
       _timeField = new JTextField(8);
-      _timeField.setText("14:30:00");
+      _timeField.setText("" + hour + ":" + min + ":" + sec);
       menuPanel.add(_timeField);
     }
 

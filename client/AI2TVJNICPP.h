@@ -51,7 +51,7 @@ class AI2TVJNICPP
   long currentTime();
   int videoLength();
 
-  void setCacheDir(char* dir);
+  void setCacheDir(const char* dir);
   char* getCacheDir();
   void setBaseURL(char* url);
   char* getBaseURL();
@@ -61,7 +61,6 @@ class AI2TVJNICPP
   void loadVideo(char* name, char* date);
   void initialize();
   int getAvailableVideos(char videoList[10][50]);
-  // char[][] getAvailableVideos();
 
   void shutdown();
   

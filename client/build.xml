@@ -4,6 +4,7 @@
   <!-- the location of the build files (.class files) -->
   <property name="BUILD" value="build"/>
   <property name="SRCDIR" value="c:/pslroot"/>
+  <property name="CHIMEDIR" value="${SRCDIR}/psl/memento/virtual/client"/>
   <property name="JNIPREFIX" value="AI2TVJNI"/>
   <property name="JAVADIR" value="c:/java1.4"/>
   <property name="JAR_PATH" value="c:/pslroot/jars"/>
@@ -59,13 +60,37 @@
 
   <target name="jni" depends="prepare">
     <javac srcdir="${SRCDIR}" destdir="${BUILD}" classpathref="compile.classpath" includes="psl/ai2tv/client/*.java, psl/ai2tv/client/LoginHandler.java, psl/ai2tv/SienaConstants.java, psl/ai2tv/gauge/FrameDesc.java, psl/ai2tv/gauge/FrameIndexParser.java" />
+    <!-- javah classpath="${SRCDIR};${BUILD}" class="psl.ai2tv.client.${JNIPREFIX}Java" destdir="${CHIMEDIR}/chime"/-->
     <javah classpath="${SRCDIR};${BUILD}" class="psl.ai2tv.client.${JNIPREFIX}Java" destdir="."/>
-    <exec executable="${CPP_COMPILER}">
-      <arg line="-I${JAVADIR}/include -I${JAVADIR}/include/win32 -MD ${JNIPREFIX}CPP.cpp ${JAVADIR}/lib/jvm.lib -Fe${JNIPREFIX}CPP.dll" />
+
+    <!-- use these compilation commands to create a command line executable -->
+    <!--exec executable="${CPP_COMPILER}">
+      <arg line="-I${JAVADIR}/include -I${JAVADIR}/include/win32 -I${CHIMEDIR}/include -MD ${CHIMEDIR}/chime/${JNIPREFIX}CPP.cpp ${JAVADIR}/lib/jvm.lib -Fe${CHIMEDIR}/chime/${JNIPREFIX}CPP.dll" />
     </exec>
     <exec executable="${CPP_COMPILER}">
-      <arg line=" -I${JAVADIR}/include -I${JAVADIR}/include/win32 -MD ${JNIPREFIX}CPP.cpp ${JAVADIR}/lib/jvm.lib" />
+      <arg line=" -I${JAVADIR}/include -I${JAVADIR}/include/win32 -MD ${CHIMEDIR}/chime/${JNIPREFIX}CPP.cpp ${JAVADIR}/lib/jvm.lib" />
+    </exec-->
+
+    <!--exec executable="${CPP_COMPILER}">
+      <arg line="-I${JAVADIR}/include -I${JAVADIR}/include/win32 -Ic:/pslroot/psl/memento/virtual/client/include/ -Ic:/pslroot/psl/memento/virtual/client/chime/"/>
+      <arg line="-Ic:/pslroot/psl/memento/virtual/client/include/cssys/win32/ -I"/>
+      <arg line="-MD ${JNIPREFIX}CPP.cpp ${JAVADIR}/lib/jvm.lib -Fe${JNIPREFIX}CPP.dll" />
     </exec>
+    <exec executable="${CPP_COMPILER}">
+      <arg line="-I${JAVADIR}/include -I${JAVADIR}/include/win32 -Ic:/pslroot/psl/memento/virtual/client/include/ -Ic:/pslroot/psl/memento/virtual/client/chime/"/>
+      <arg line="-Ic:/pslroot/psl/memento/virtual/client/include/cssys/win32/ -IC:/Program Files/Microsoft Visual Studio .NET 2003/Vc7/PlatformSDK/Include"/>
+       <arg line="-MD ${JNIPREFIX}CPP.cpp ${JAVADIR}/lib/jvm.lib" />
+    </exec-->
+
+    <!--exec executable="${CPP_COMPILER}">
+      <arg line="-I${JAVADIR}/include -I${JAVADIR}/include/win32"/>
+      <arg line="-MD ${JNIPREFIX}CPP.cpp ${JAVADIR}/lib/jvm.lib -Fe${JNIPREFIX}CPP.dll" />
+    </exec>
+    <exec executable="${CPP_COMPILER}">
+      <arg line="-I${JAVADIR}/include -I${JAVADIR}/include/win32"/>
+       <arg line="-MD ${JNIPREFIX}CPP.cpp ${JAVADIR}/lib/jvm.lib" />
+    </exec-->
+
   </target>
 
   <!-- this command wasn't found in the ant tasks list.-->

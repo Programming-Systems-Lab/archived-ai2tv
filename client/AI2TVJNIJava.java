@@ -41,7 +41,7 @@ class AI2TVJNIJava{
    */
   void playPressed(){
     System.out.println("Java side <play>");
-    // _client.playPressed();
+    _client.playPressed();
   }
 
   /**
@@ -142,7 +142,7 @@ class AI2TVJNIJava{
    */
   void loadVideo(String name, String date){
     System.out.println("<Java> loadVideo: " + name + " @ " + date);
-    _client.loadVideo(name +";"+ date);
+    _client.loadVideo(name +","+ date);
   }
 
 
@@ -158,14 +158,10 @@ class AI2TVJNIJava{
    * @return list of available videos from the server
    */
   String[] getAvailableVideos(){
+    java.util.Vector v = _client.getAvailableVideos();
+
     // 999
-    // java.util.Vector v = _client.getAvailableVideos();
-
-    java.util.Vector v = new java.util.Vector();
-    v.add("CS4118-10");
-    v.add("CS4118-11");
-    v.add("CS4118-12");
-
+    System.out.println("available videos: " + v);
     String[] availableVideos;
     if (v != null && v.size() > 0)
       availableVideos = new String[v.size() + 1];
@@ -211,6 +207,7 @@ class AI2TVJNIJava{
    * the static block used to load the appropriate CPP library
    */
   static {
+    // System.loadLibrary("c:/pslroot/psl/memento/virtual/client/chime/AI2TVJNICPP");
     System.loadLibrary("AI2TVJNICPP");
   }
   // --- END: JNI related functions implemented on the C++ side -- //

@@ -52,12 +52,6 @@ import psl.ai2tv.SienaConstants;
  */
 
 public class Client extends Thread{
-  // this private class is declared here temporarily to separate the
-  // dependency on the C++ side of things, for testing and development
-  // purposes
-  // private class AI2TVJNIJava {
-  // }
-
   /** the format of the images we're viewing*/
   public static final String IMAGE_FORMAT = ".jpg";
   /** highest possible hierarchy */
@@ -604,9 +598,10 @@ public class Client extends Thread{
    * @param videoMosh: the name and date of the video, moshed together...
    */
   void loadVideo(String videoMosh){
-
     // first we get and set the video name and date
-    Client.debug.println("Client loading video: " + videoMosh);
+    // 999
+    // Client loading video: CS4118-10,2003-08-10;08:00:00,goofy
+    System.out.println("Client loading video: " + videoMosh);
     String[] info = videoMosh.split(",");
 
     String videoName = null;
