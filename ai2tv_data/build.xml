@@ -22,15 +22,16 @@
     <javac srcdir="${SRC}" destdir="${BUILD}" classpathref="compile.classpath" includes="psl/ai2tv/ai2tv_data/LogParser.java" />
   </target>
 
-  <target name="runWF">
+  <target name="run">
     <java classname="LogParser" classpathref="compile.classpath" fork="yes">
-      <arg value="goodness_logs/WF" />
+      <arg value="goodness_logs" />
     </java>
   </target>
 
-  <target name="runNoWF">
+  <target name="run-trial">
     <java classname="LogParser" classpathref="compile.classpath" fork="yes">
       <arg value="goodness_logs/noWF" />
+      <arg value="ai2tv_goodness 5clients VLowBW 4 startLevel2 noWF.log" />
     </java>
   </target>
 
