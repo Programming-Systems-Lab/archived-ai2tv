@@ -58,7 +58,7 @@ public class GaugeLDMPlugIn
   }
 
   public void execute() {
-    //logger.debug("--- STARTED excution slice of " + getClass().getName());
+    //logger.debug("--- STARTED excution slice of " + getClass().getRequirement());
     /*
       try {
       wait(250);
@@ -66,7 +66,7 @@ public class GaugeLDMPlugIn
 			
       }
     */
-    //logger.debug("--- ENDED excution slice of " + getClass().getName());
+    //logger.debug("--- ENDED excution slice of " + getClass().getRequirement());
 	
   }
 
