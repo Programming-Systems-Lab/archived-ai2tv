@@ -18,3 +18,4 @@ client:
 
 clean:
 	rm -rf *.class ${name}Java.h ${name}Java.class ${name}CPP.obj ${name}CPP.exp ${name}CPP.dll ${name}CPP.lib ${name}CPP.exe
+
