@@ -320,7 +320,11 @@ attending the lecture and class discussion.
 
 Our $\mathrm{AI}^2$TV project aims to contribute to the area of
 synchronous collaboration support for distance education, specifically
-in the context of collaborative video viewing over the Internet.
+in the context of collaborative video viewing over the Internet.  Our
+approach is directed at users with dial-up level bandwidths, who still
+constitute a significant portion of the Internet user community
+\cite{DIALUP}, to allow them to collaborate with other users that
+enjoy broadband or higher bandwidth resources.
 
 Viewing video on the Internet usually requires relatively high
 bandwidth resources, and low-bandwidth or lossy network connections
@@ -480,8 +484,8 @@ When any participant initiates such an action, all other group members
 receive the same command, thus all the video actions are synchronized.
 Video actions are time stamped so that clients can respond to those
 commands in reference to the common time base.  The video display
-knows which frame to display by using the current (or goto) video time
-and display quality level to index into the frame index for the
+knows which frame to display by using the current video time and
+display quality level to index into the frame index for the
 representative frame.  Before trying to render the frame, it asks the
 video buffer manager if the needed frame is available.  The video
 display also includes a control hook that enables external entities,
@@ -883,12 +887,12 @@ of the other participants to accommodate the lowest bandwidth client.
 Our approach seems preferable, since it enables each client to receive
 video quality commensurate with its bandwidth resources.
 
-Cen {\it et al.} provide a distributed real-time MPEG video/audio
-player that uses a software feedback loop between a single server and
-a single client to adjust frame rates \cite{CEN}.  Their architecture
-incorporates feedback logic within each video player and does not
-support synchronization across a group of players, while the work
-presented here explicitly supports the synchronization of semantically
+Cen {\it et al.} provide a distributed real-time MPEG player that uses
+a software feedback loop between a single server and a single client
+to adjust frame rates \cite{CEN}.  Their architecture incorporates
+feedback logic within each video player and does not support
+synchronization across a group of players, while the work presented
+here explicitly supports the synchronization of semantically
 equivalent video frames across a small group of clients.
 
 An earlier implementation of $\mathrm{AI}^2$TV is described in
@@ -909,23 +913,17 @@ can run alongside the CVE in a separate window.
 We present an architecture and prototype system that allows
 geographically dispersed student groups to collaboratively view
 lecture videos in synchrony. $\mathrm{AI}^2$TV employs an
-``autonomic'' (feedback loop) controller to autonomically and
-dynamically adapt the video quality according to each client's network
-bandwidth and other local resources.  A semantic compression
-algorithm, previously developed by other researchers specifically for
-lecture videos, facilitates the synchronization of video content to
-student clients with possibly very limited resources.  We rely on that
-algorithm to guarantee that the semantic composition of the
-simultaneously viewed video frames is equivalent for all clients.  Our
-system then distributes appropriate quality levels (different
-compression levels) of the video to clients, automatically adjusted
+``autonomic'' (feedback loop) controller to dynamically adapt the
+video quality according to each client's network bandwidth.  We rely
+on a semantic compression algorithm to guarantee that the semantic
+composition of the simultaneously viewed video frames is equivalent
+for all clients, some which may have very limited resources.  Our
+system distributes appropriate quality levels (different compression
+levels) of the video to clients, which are automatically adjusted
 according to their current and fluctuating bandwidth resources.  We
 have demonstrated the advantages of this approach through experimental
-trials using bandwidth throttling.  Our approach is admittedly fixated
-on users with dial-up level bandwidths, who still constitute a
-significant portion of the Internet user community \cite{DIALUP}, and
-does not directly address either synchronization or quality of service
-for broadband users.
+trials using bandwidth throttling to show that our system can provide
+synchronization of video together with optimized video quality.
 
 %ACKNOWLEDGMENTS are optional
 \section{Acknowledgments}
@@ -946,14 +944,7 @@ and by Microsoft Research.
 % The following two commands are all you need in the
 % initial runs of your .tex file to
 % produce the bibliography for the citations in your paper.
-\small
-\bibliographystyle{abbrv} \bibliography{ai2tv}
-% You must have a proper ".bib" file
-%  and remember to run:
-% latex bibtex latex latex
-% to resolve all references
-
-% ??? we'll need to do this right before submission
+% \bibliographystyle{abbrv} \bibliography{ai2tv}
 % \subsection{References}
 % 
 %% Generated by bibtex from your ~.bib file.  Run latex,
@@ -961,6 +952,278 @@ and by Microsoft Research.
 %% to create the ~.bbl file.  Insert that ~.bbl file into
 %% the .tex source file and comment out
 %% the command \texttt{{\char'134}thebibliography}.
+
+\begin{thebibliography}{10}
+\small
+\bibitem{Capella}
+{Capella University: Education. Reborn.}
+\newblock \url{http://www.capella.edu/}.
+
+\bibitem{COUGAAR}
+{Cognitive Agent Architecture (Cougaar) Open Source Project}.
+\newblock \url{http://www.cougaar.org/}.
+
+\bibitem{UPhoenix}
+{University of Phoenix: University for Working Adults}.
+\newblock \url{http://www.phoenix.edu/}.
+
+\bibitem{VNC}
+Vnc (virtual network computing).
+\newblock \url{http://www.realvnc.com/}.
+
+\bibitem{WebEx}
+Webex: Web conferencing, video conferencing and online meeting services.
+\newblock \url{http://www.webex.com/}.
+
+\bibitem{AmericanSchool}
+{Welcome To The American School}.
+\newblock \url{http://www.americanschoolofcorr.com/}.
+
+\bibitem{NSFReport}
+{The Application and Implications of Information Technologies in Postsecondary
+  Distance Education: An Initial Bibliography}.
+\newblock Technical Report NSF 03-305, {National Science Foundation, Division
+  of Science Resources Statistics}, December 2002.
+
+\bibitem{BAQAI}
+S.~Baqai, M.~F. Khan, M.~Woo, S.~Shinkai, A.~A. Khokhar, and A.~Ghafoor.
+\newblock Quality-based evaluation of multimedia synchronization protocols for
+  distributed multimedia information systems.
+\newblock {\em IEEE Journal of Selected Areas in Communications},
+  14(7):1388--1403, 1996.
+
+\bibitem{BURGESS}
+L.~A. Burgess and S.~D. Strong.
+\newblock Trends in online education: Case study at southwest missouri state
+  university.
+\newblock {\em Journal of Industrial Teacher Education}, 19(3), 2003.
+
+\bibitem{Lancaster}
+A.~Campell, G.~Coulson, F.~Garcia, and D.~Hutchison.
+\newblock A continuous media transport and orchestration service.
+\newblock In {\em {SIGCOMM92: Communications Architectures and Protocols}},
+  pages 99--110, 1992.
+
+\bibitem{CAPPS}
+M.~Capps, B.~Laddi, D.~Stotts, and L.~Nyland.
+\newblock Educational applications of multi-client synchronization through
+  improved web graph semantics.
+\newblock In {\em 5th International Workshops on Enabling Technologies:
+  Infrastructure for Collaborative Enterprises}, 1996.
+
+\bibitem{SIENA}
+A.~Carzaniga, D.~S. Rosenblum, and A.~L. Wolf.
+\newblock Design and evaluation of a wide-area event notification service.
+\newblock {\em ACM Transactions on Computer Systems}, 19(3):332--383, Aug.
+  2001.
+
+\bibitem{LJIL}
+A.~G. Cass, {Barbara Staudt Lerner}, E.~K. McCall, L.~J. Osterweil, {Stanley M.
+  Sutton, Jr.}, and A.~Wise.
+\newblock {Little-JIL/Juliette: A Process Definition Language and Interpreter}.
+\newblock In {\em 22nd International Conference on Software Engineering}, pages
+  754--757, June 2000.
+
+\bibitem{cheung96use}
+S.~Y. Cheung, M.~H. Ammar, and X.~Li.
+\newblock On the use of destination set grouping to improve fairness in
+  multicast video distribution.
+\newblock In {\em Proceedings IEEE INFOCOM '96}, pages 553--560, 1996.
+
+\bibitem{clark92supporting}
+D.~D. Clark, S.~Shenker, and L.~Zhang.
+\newblock Supporting real-time applications in an integrated services packet
+  network: Architecture and mechanism.
+\newblock In {\em {ACM SIGCOMM: Communications architectures and protocols}},
+  pages 14--26, 1992.
+
+\bibitem{CORTE}
+A.~L. Corte, A.~Lombardo, S.~Palazzo, and G.~Schembra.
+\newblock Control of perceived quality of service in multimedia retrieval
+  services: Prediction-based mechanism vs. compensation buffers.
+\newblock {\em Multimedia Systems}, 6(2):102--112, 1998.
+
+\bibitem{CHIME}
+S.~E. Dossick and G.~E. Kaiser.
+\newblock {CHIME: A Metadata-Based Distributed Software Development
+  Environment}.
+\newblock In {\em Joint 7th European Software Engineering Conference and 7th
+  ACM SIGSOFT International Symposium on the Foundations of Software
+  Engineering}, pages 464--475, 1999.
+
+\bibitem{FSP}
+J.~Escobar, C.~Partridge, and D.~Deutsch.
+\newblock Flow synchronization protocol.
+\newblock {\em IEEE Transactions on Networking}, 1994.
+
+\bibitem{Ferrari}
+D.~Ferrari.
+\newblock Design and application of a delay jitter control scheme for
+  packet-switching internetworks.
+\newblock In {\em 2nd International Conference on Network and Operating System
+  Support for Digital Audio and Video}, pages 72--83, 1991.
+
+\bibitem{gautier98design}
+L.~Gautier and C.~Diot.
+\newblock Design and evaluation of mimaze, a multi-player game on the internet.
+\newblock In {\em International Conference on Multimedia Computing and
+  Systems}, pages 233--236, 1998.
+
+\bibitem{GONZALEZ}
+A.~J. Gonzalez and H.~Adbel-Wahab.
+\newblock Lightweight stream synchronization framework for multimedia
+  collaborative applications.
+\newblock In {\em 5th IEEE Symposium on Computers and Communications}, July
+  2000.
+
+\bibitem{VECTORS}
+S.~Gupta and G.~Kaiser.
+\newblock {A Virtual Environment for Collaborative Distance Learning With Video
+  Synchronization}.
+\newblock In {\em 7th IASTED International Conference on Computers and Advanced
+  Technology in Education}, August 2004.
+
+\bibitem{IBM}
+{IBM}.
+\newblock {Autonomic Computing}.
+\newblock \url{http://www.research.ibm.com/autonomic/}.
+
+\bibitem{REFARCH}
+G.~Kaiser, P.~Gross, G.~Kc, J.~Parekh, and G.~Valetto.
+\newblock {An Approach to Autonomizing Legacy Systems, in Workshop on
+  Self-Healing, Adaptive and Self-Managed Systems}.
+\newblock In {\em Workshop on Self-Healing, Adaptive and Self-Managed Systems},
+  June 2002.
+
+\bibitem{AMS}
+G.~Kaiser, J.~Parekh, P.~Gross, and G.~Valetto.
+\newblock {Kinesthetics eXtreme: An External Infrastructure for Monitoring
+  Distributed Legacy Systems}.
+\newblock In {\em 5th Annual International Active Middleware Workshop}, June
+  2003.
+
+\bibitem{AMSJournal}
+G.~Kaiser, J.~Parekh, P.~Gross, and G.~Valetto.
+\newblock {Retrofitting Autonomic Capabilities onto Legacy Systems}.
+\newblock Technical Report CUCS-026-03, Columbia University Department of
+  Computer Science, October 2003.
+
+\bibitem{OSTERWEIL}
+B.~S. Lemer, E.~K. McCall, A.~Wise, A.~G. Cass, L.~J. Osterweil, and S.~M.~S.
+  Jr.
+\newblock Using little-jil to coordinate agents in software engineering.
+\newblock In {\em Automated Software Engineering Conference}, September 2000.
+
+\bibitem{LI}
+W.~Li.
+\newblock Overview of the fine granularity scalability in mpeg-4 video
+  standard.
+\newblock {\em IEEE Transactions on Circuits and Systems for Video Technology},
+  11(3):301--317, March 2001.
+
+\bibitem{li99video}
+X.~Li, M.~H. Ammar, and S.~Paul.
+\newblock Video multicast over the internet, April 1999.
+
+\bibitem{LIEBERMAN}
+H.~Lieberman, N.~V. Dyke, and A.~Vivacqua.
+\newblock Let's browse: A collaborative web browsing agent.
+\newblock In {\em International Conference on Intelligent User Interfaces},
+  1999.
+
+\bibitem{LIUSYNC}
+H.~Liu and M.~E. Zarki.
+\newblock A synchronization control scheme for real-time streaming multimedia
+  applications.
+\newblock In {\em Packet Video 2003}, April 2003.
+
+\bibitem{LIU2003}
+J.~Liu, B.~Li, and Y.-Q. Zhang.
+\newblock Adaptive video multicast over the internet.
+\newblock {\em IEEE Multimedia}, 10(1):22--33, January/March 2003.
+
+\bibitem{TIECHENG}
+T.~Liu and J.~R. Kender.
+\newblock Time-constrained dynamic semantic compression for video indexing and
+  interactive searching.
+\newblock In {\em IEEE Conference on Computer Vision and Pattern Recognition},
+  volume~2, pages 531--538, 2001.
+
+\bibitem{mccanne96receiverdriven}
+S.~McCanne, V.~Jacobson, and M.~Vetterli.
+\newblock Receiver-driven layered multicast.
+\newblock In {\em {ACM} {SIGCOMM}}, volume 26,4, pages 117--130, New York, AUG
+  1996. ACM Press.
+
+\bibitem{UWyoming}
+J.~Miller, C.~Ditzler, and J.~Lamb.
+\newblock {Reviving a Print-based Correspondence Study Program In the Wake of
+  Online Education}.
+\newblock In {\em American Association for Collegiate Independent Study:
+  Distance Learning: Pioneering the Future}, October 2003.
+
+\bibitem{NTP}
+D.~L. Mills.
+\newblock Network time protocol.
+\newblock RFC 958, 1985.
+
+\bibitem{DIALUP}
+M.~Richtel.
+\newblock {In a Fast-Moving Web World, Some Prefer the Dial-Up Lane}.
+\newblock {\em The New York Times}, April 19 2004.
+
+\bibitem{ASP}
+K.~Rothermel and T.~Helbig.
+\newblock {An Adaptive Protocol for Synchronizing Media Streams}.
+\newblock {\em Multimedia Systems}, 5:324--336, 1997.
+
+\bibitem{SHAPERD}
+L.~Santi.
+\newblock A user-mode traffic shaper for tcp-ip networks.
+\newblock \url{http://freshmeat.net/projects/shaperd/}.
+
+\bibitem{shivakumar95concord}
+N.~Shivakumar, C.~J. Sreenan, B.~Narendran, and P.~Agrawal.
+\newblock The concord algorithm for synchronization of networked multimedia
+  streams.
+\newblock In {\em International Conference on Multimedia Computing and
+  Systems}, pages 31--40, 1995.
+
+\bibitem{SIDLER}
+G.~Sidler, A.~Scott, and H.~Wolf.
+\newblock Collaborative browsing in the world wide web.
+\newblock In {\em 8th Joint European Networking Conference Proceedings}, 1997.
+
+\bibitem{ValettoThesis}
+G.~Valetto.
+\newblock {\em Orchestrating the Dynamic Adaptation of Distributed Software
+  with Process Technology}.
+\newblock PhD thesis, Columbia University, April 2004.
+
+\bibitem{ICSE}
+G.~Valetto and G.~Kaiser.
+\newblock {Using Process Technology to Control and Coordinate Software
+  Adaptation}.
+\newblock In {\em International Conference on Software Engineering}, May 2003.
+
+\bibitem{CEN}
+J.~Walpole, R.~Koster, S.~Cen, C.~Cowan, D.~Maier, D.~McNamee, C.~Pu,
+  D.~Steere, and L.~Yu.
+\newblock {A Player for Adaptive MPEG Video Streaming Over The Internet}.
+\newblock In {\em 26th Applied Imagery Pattern Recognition Workshop}. SPIE,
+  October 1997.
+
+\bibitem{CONWAY2000}
+Y.~Wang, J.~Ostermann, and Y.-Q. Zhang.
+\newblock {\em Video Processing and Communications}.
+\newblock Prentice Hall, 2002.
+
+\bibitem{WELLS}
+J.~G. Wells.
+\newblock Effects of an on-line computer-mediated communication course.
+\newblock {\em Journal of Industrial Technology}, 37(3), 2000.
+
+\end{thebibliography}
 
 % This next section command marks the start of
 % Appendix B, and does not continue the present hierarchy
