@@ -188,7 +188,6 @@ class ClientProbe {
    * 
    *
    * @param ID: the ID of the probe
-   * @param time: start of time associated with this probe
    */
   void setProbe(int ID){
     _probeStatus[ID] = true;

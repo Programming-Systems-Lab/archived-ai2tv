@@ -313,8 +313,11 @@ void AI2TVJNICPP::setLoginInfo(const char* login,
 			       const char* server, 
 			       const char* uid, 
 			       const char* gid){
+
+  printf("AI2TVJNICPP: Login info: %s %s %s %s %s\n", login, password, server, uid, gid);
   jmethodID mid;
   mid = _env->GetMethodID(_class, "setLoginInfo","(Ljava/lang/String;,Ljava/lang/String;,Ljava/lang/String;,Ljava/lang/String;,Ljava/lang/String;)V");
+  printf("AI2TVJNICPP: got mid: %d\n", mid);
   _env->CallVoidMethod(_obj, mid, _env->NewStringUTF(login),
 		       _env->NewStringUTF(password),
 		       _env->NewStringUTF(server),

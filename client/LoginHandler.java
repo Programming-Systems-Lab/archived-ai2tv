@@ -32,9 +32,6 @@ public class LoginHandler extends JFrame {
 
   static private final int REFRESH_RATE = 50;
 
-  private int _units;
-  private int _scale;
-
   private Canvas mainCanvas;
   private Color mainCanvasBG;
   private Color mainCanvasFG;

@@ -126,9 +126,10 @@ class AI2TVJNIJava{
    * 
    * NOTE!!! Need the rest of the login info to add to the param list
    * 
-   * @param info: login information
+   * @param login: login information
+   * @param passwd
    */
-  void setLoginInfo(String login, String password, String server,
+  void setLoginInfo(String login, String passwd, String server,
 		    String uid, String gid){
     ; // _client.login(info);
   }
@@ -158,10 +159,16 @@ class AI2TVJNIJava{
     java.util.Vector v = _client.getAvailableVideos();
 
     String[] availableVideos;
-    if (v != null && v.size() > 1)
+   if (v != null && v.size() > 1)
       availableVideos = new String[v.size() + 1];
-    else
-      return new String[0];
+    else {
+      availableVideos = new String[3];
+      availableVideos[0] = "CS4118-10";
+      availableVideos[1] = "CS4118-11";
+      availableVideos[2] = "CS4118-12";
+      return availableVideos;
+      // return new String[0];
+    }
 
     for (int i=0; i<v.size(); i++)
       availableVideos[i] = v.get(i).toString();

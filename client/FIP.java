@@ -1,29 +1,33 @@
 /*
- * @(#)FIP.java
- *
- * Copyright (c) 2001: The Trustees of Columbia University in the City of New York.  All Rights Reserved
- *
- * Copyright (c) 2001: @author Dan Phung
- * Last modified by: Dan Phung (dp2041@cs.columbia.edu)
- *
- * CVS version control block - do not edit manually
- *  $RCSfile$
- *  $Revision$
- *  $Date$
- *  $Source$
- */
+* @(#)FIP.java
+*
+* Copyright (c) 2001: The Trustees of Columbia University in the City of New York.  All Rights Reserved
+*
+* Copyright (c) 2001: @author Dan Phung
+* Last modified by: Dan Phung (dp2041@cs.columbia.edu)
+*
+* CVS version control block - do not edit manually
+*  $RCSfile$
+*  $Revision$
+*  $Date$
+*  $Source$
+*/
 
 import java.io.*;
 
-/** 
- * reads in the frame index file and outputs new frame index file with 
+/**
+ * reads in the frame index file and outputs new frame index file with
  * size of the each file as 4th element in each row.
- *
- * @param fip: old frame index file
- * @param newFip: new frame index file
- * @param dirname: directory holding all the pre-downloaded jpgs.
  */
 class FIP{
+  /**
+   * reads in the frame index file and outputs new frame index file with
+   * size of the each file as 4th element in each row.
+   *
+   * @param fip: old frame index file
+   * @param newFip: new frame index file
+   * @param dirname: directory holding all the pre-downloaded jpgs.
+   */
   FIP(String fip, String newFip, String dirname){
     String buff;
 
@@ -38,22 +42,22 @@ class FIP{
       int[] frames = new int[levels];
 
       for (int i=0; i<levels; i++){
-	frames[i] = Integer.parseInt(in.readLine().trim());
-	buff = "" + frames[i] + "\n";
-	System.out.println("writing: " + buff);
-	out.write(buff, 0, buff.length());
+        frames[i] = Integer.parseInt(in.readLine().trim());
+        buff = "" + frames[i] + "\n";
+        System.out.println("writing: " + buff);
+        out.write(buff, 0, buff.length());
       }
-      
+
       for (int i=0; i<levels; i++){
-	for (int j=0; j<frames[i]; j++){
-	  String nextline = in.readLine();
-	  String[] tokens = nextline.split("\t");
-	  File file = new File(dirname + tokens[0].trim() + ".jpg");
-	  long fileSize = file.length();
-	  buff = nextline + "\t" + fileSize + "\n";
-	  System.out.println("writing: " + buff);
-	  out.write(buff, 0, buff.length());
-	}
+        for (int j=0; j<frames[i]; j++){
+          String nextline = in.readLine();
+          String[] tokens = nextline.split("\t");
+          File file = new File(dirname + tokens[0].trim() + ".jpg");
+          long fileSize = file.length();
+          buff = nextline + "\t" + fileSize + "\n";
+          System.out.println("writing: " + buff);
+          out.write(buff, 0, buff.length());
+        }
       }
       out.flush();
       out.close();
@@ -79,7 +83,7 @@ class FIP{
       newFip = args[1];
       dirname = args[2];
     }
-    
+
     new FIP(fip, newFip, dirname);
   }
 }

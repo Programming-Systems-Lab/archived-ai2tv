@@ -1,5 +1,5 @@
 <!-- Ant build properties file for the AI2TV client module -->
-<project name="AI2TVClient" default="client" basedir=".">
+<project name="AI2TVClient" default="compile" basedir=".">
 
   <!-- the location of the build files (.class files) -->
   <property name="BUILD" value="build"/>
@@ -67,6 +67,7 @@
       <arg line=" -I${JAVADIR}/include -I${JAVADIR}/include/win32 -MD ${JNIPREFIX}CPP.cpp ${JAVADIR}/lib/jvm.lib" />
     </exec>
 
+    <copy file="${BUILD}/psl/ai2tv/client/AI2TVJNIJava.class" todir="." />
   </target>
 
   <!-- this command wasn't found in the ant tasks list.-->
@@ -79,7 +80,6 @@
   <target name="run-jni" description="this is to run the jni executable (if it's not already hooked onto another main)">
     <java classname="${JNIPREFIX}Java" classpath="." />
   </target>
-
 
 </project>
 

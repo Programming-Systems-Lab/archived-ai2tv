@@ -16,7 +16,6 @@
 package psl.ai2tv.client;
 
 import siena.*;
-import siena.comm.*;
 import psl.ai2tv.SienaConstants;
 import psl.ai2tv.gauge.FrameDesc;
 

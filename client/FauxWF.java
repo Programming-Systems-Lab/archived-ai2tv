@@ -15,7 +15,6 @@
 package psl.ai2tv.client;
 
 import java.io.*;
-import java.util.Calendar;
 import java.util.Vector;
 
 import siena.*;
