@@ -39,14 +39,17 @@ public class TimeController{
   }
 
   /**
-   * set the start time of the internal clock
+   * start the time of the internal clock
+   *
+   * @param absTimeSent: absolute system time at which the command was originally sent
    */
-  public void startTime() {
+  public void startTime(long absSentTime) {
     if (!_isActive){
       _isActive = true;
-      _startTime = System.currentTimeMillis();
+      // _startTime = System.currentTimeMillis() ;
+      _startTime = absSentTime;
     } else if (_pauseActive){
-      pauseTime();
+      pauseTime(absSentTime);
     }
   }
 
@@ -69,40 +72,51 @@ public class TimeController{
 
   /**
    * toggle pause
+   *
+   * @param absTimeSent: absolute system time at which the command was originally sent
    */
-  public void pauseTime() {
+  public void pauseTime(long absTimeSent) {
     if (!_pauseActive) {
       System.out.println("pausing time");
       _pauseActive = true;
-      pause();
+      pause(absTimeSent);
     } else {
       System.out.println("unpausing time");
       _pauseActive = false;
-      unpause();
+      unpause(absTimeSent);
     }
   }
 
   /**
    * pause the time
+   *
+   * @param absTimeSent: absolute system time at which the command was originally sent
    */
-  private void pause() {
-    _pausedStartTime = System.currentTimeMillis();
+  private void pause(long absTimeSent) {
+    System.currentTimeMillis();    
+    // _pausedStartTime = System.currentTimeMillis();
+    _pausedStartTime = absTimeSent;
   }
 
   /**
    * unpause the time
+   *
+   * @param absTimeSent: absolute system time at which the command was originally sent
    */
-  private void unpause() {
-    _pausedTime += (System.currentTimeMillis() - _pausedStartTime);
+  private void unpause(long absTimeSent) {
+    // _pausedTime += (System.currentTimeMillis() - _pausedStartTime);
+    _pausedTime += (absTimeSent - _pausedStartTime);
   }
   
   /**
    * state that the time is the given time
    *
+   * @param absTimeSent: absolute system time at which the command was originally sent
    * @param newTime: new current time
    */
-  public void gotoTime(long newTime) {
-    _startTime = System.currentTimeMillis() - newTime * 1000;
+  public void gotoTime(long absTimeSent, long newTime) {
+    // _startTime = System.currentTimeMillis() - newTime * 1000;
+    _startTime = absTimeSent - newTime * 1000;
   }
 
   /**

@@ -43,7 +43,7 @@ class CommController implements Notifiable{
   private String _sienaServer;
   private boolean _isActive = false;
 
-    /**
+  /**
    * create a CommController
    *
    * @param c: higher level client to communicate with
@@ -69,19 +69,8 @@ class CommController implements Notifiable{
    */
   private void setupFilter() throws siena.SienaException {
     Filter filter = new Filter();
-    filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, SienaConstants.PLAY);
-    _mySiena.subscribe(filter, this);
-
-    filter = new Filter();
-    filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, SienaConstants.STOP);
-    _mySiena.subscribe(filter, this);
-
-    filter = new Filter();
-    filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, SienaConstants.PAUSE);
-    _mySiena.subscribe(filter, this);
-
-    filter = new Filter();
-    filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, SienaConstants.GOTO);
+    // the string "FOO" doesn't mean anything (the string is ignored)
+    filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, Op.ANY, "FOO");
     _mySiena.subscribe(filter, this);
   }
 
@@ -131,9 +120,10 @@ class CommController implements Notifiable{
     Client.out.println("Unsubscribing to Siena server");
     try {
       Filter filter = new Filter();
-      filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, SienaConstants.PLAY);
+      filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, Op.ANY, "FOO");
       _mySiena.unsubscribe(filter, this);
 
+      /*
       filter = new Filter();
       filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, SienaConstants.STOP);
       _mySiena.unsubscribe(filter, this);
@@ -145,7 +135,7 @@ class CommController implements Notifiable{
       filter = new Filter();
       filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, SienaConstants.GOTO);
       _mySiena.unsubscribe(filter, this);
-
+      */
     } catch (siena.SienaException e) {
       Client.err.println("error:" + e);
     }
@@ -178,24 +168,29 @@ class CommController implements Notifiable{
    * @param event: Notification sent by the Siena server
    */
   private void handleNotification(Notification event){
-    Client.out.println("handleNotification(): I just got this event:" + event + ": at : " 
+    // dp2041: debug
+    // Client.out.println("handleNotification(): I just got this event:" + event + ": at : " 
+    // + Calendar.getInstance().getTime());
+    System.out.println("handleNotification(): I just got this event:" + event + ": at : " 
 		       + Calendar.getInstance().getTime());
+
     
     String name = event.toString().substring(7).split("=")[0];
     String attrib = event.getAttribute(name).stringValue();
     Client.out.println("handle notification: name: " + name);
     Client.out.println("handle notification: attrib: " + attrib);
     if (name.equals(SienaConstants.AI2TV_VIDEO_ACTION)){
+      long absTimeSent = event.getAttribute(SienaConstants.ABS_TIME_SENT).longValue();
       if (attrib.equals(SienaConstants.PLAY)){
-	_client.commPlay(); 
+	_client.commPlay(absTimeSent); 
       } else if (attrib.equals(SienaConstants.STOP)){
-	_client.commStop(); 
+	_client.commStop(absTimeSent);
 
       } else if (attrib.equals(SienaConstants.PAUSE)){
-	_client.commPause(); 
+	_client.commPause(absTimeSent);
 
       } else if (attrib.equals(SienaConstants.GOTO)){
-	_client.commGoto(event.getAttribute(SienaConstants.NEWTIME).intValue());
+	_client.commGoto(absTimeSent, event.getAttribute(SienaConstants.NEWTIME).intValue());
       } else {
 	Client.err.println("AI2TV_VIDEO_ACTION: Notification Error, received unknown attribute: " + attrib);
       }
@@ -258,6 +253,7 @@ class CommController implements Notifiable{
   private void publishNotification(Notification event){
     try{
       Client.out.println("publishing event: " + Calendar.getInstance().getTime());
+      event.putAttribute(SienaConstants.ABS_TIME_SENT, System.currentTimeMillis());
       event.putAttribute(SienaConstants.CLIENT_ID, _client.getID());
       _mySiena.publish(event);
     } catch (siena.SienaException e){
