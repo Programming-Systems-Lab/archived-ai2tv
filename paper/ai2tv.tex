@@ -424,18 +424,19 @@ applications.
 The autonomic controller remains conceptually separate from the
 controlled $\mathrm{AI}^2$TV video system and employs a software based
 workflow engine, named Workflakes \cite{ICSE}.  Note that the workflow
-used here is software based as opposed to human based workflow
-systems.  The use of software based workflow for the specification and
-enactment of the plan that coordinates actuators is taken from Wise at
-al. \cite{OSTERWEIL} among others.  The Workflakes engine has been
-developed for and used in a variety of domains \cite{AMS,ICSE}, in
-which it orchestrates the work of software entities to achieve the
-fully automated dynamic adaptation of distributed applications.  The
-design of the autonomic controller is a part of an externalized
-autonomic computing platform proposed by Kaiser \cite{REFARCH}.  In
-the context of $\mathrm{AI}^2$TV, Workflakes coordinates the
-adjustment of the compression level assigned to each client along the
-hierarchy of the $\mathrm{AI}^2$TV video.
+used here coordinates the behavior of software entities, as opposed to
+human-oriented workflow systems.  The use of software based workflow
+for the specification and enactment of the plan that coordinates
+actuators is taken from Wise at al. \cite{OSTERWEIL} among others.
+The Workflakes engine has been developed for and used in a variety of
+domains \cite{AMS,ICSE}, in which it orchestrates the work of software
+entities to achieve the fully automated dynamic adaptation of
+distributed applications.  The design of the autonomic controller is a
+part of an externalized autonomic computing platform proposed by
+Kaiser \cite{REFARCH}.  In the context of $\mathrm{AI}^2$TV,
+Workflakes coordinates the adjustment of the compression level
+assigned to each client along the hierarchy of the $\mathrm{AI}^2$TV
+video.
 
 % (FIGURE: semantic compression )
 % (FIGURE: key frames hierarchy )
@@ -856,13 +857,14 @@ conditions of the network) and needs to be corrected on the fly.
 Our approach to synchronization can be classified as a distributed
 adaptive scheme that employs a global clock and operates in a
 proactive way.  The main difference with respect to other approaches,
-such as the Adaptive Synchronization Protocol \cite{ASP},
-\cite{GONZALEZ}, or \cite{LIUSYNC} (which can all be used equally for
-inter- and intra-stream applications) is that it is not based on the
-idea of play-out delay.  Instead, it takes advantage of layered
-semantic compression coupled with buffering to "buy more time" for
-clients that might not be able to remain in sync, by putting them on a
-less demanding level of the compression hierarchy.
+such as the Adaptive Synchronization Protocol \cite{ASP}, the work of
+Gonzalez and Adbel-Wahab \cite{GONZALEZ}, or that of Liu and El
+Zarki\cite{LIU} (which can all be used equally for inter- and
+intra-stream applications) is that it is not based on the idea of
+play-out delay.  Instead, it takes advantage of layered semantic
+compression coupled with buffering to "buy more time" for clients that
+might not be able to remain in sync, by putting them on a less
+demanding level of the compression hierarchy.
 
 To ensure stream synchronization across a group of clients, it is
 usually necessary to implement some form of trade-off impacting the
@@ -872,6 +874,24 @@ the Concord local synchronization algorithm \cite{Concord}, allows a
 choice among other quality parameters besides delay, like packet loss
 rate.  Our approach sacrifices frame rates to achieve synchronization
 when resources are low.
+
+Liu et al. provide a comprehensive summary of the mechanisms used in
+video multicast for quality and fairness adaptation as well as network
+and coding requirements \cite{LIU}.  To frame our work in that
+context, our current design models a single-rate server adaptation
+scheme to each of the clients because the video quality we provide is
+tailored specifically to that client's network resources.  The focus
+in our work is directed towards the client side end user perceived
+quality and synchrony, so we did not utilize the most efficient server
+model.  The authors believe that it would be trivial to substitute in
+a simulcast server adaptation model \cite{CHEUNG,LI}.  Our design also
+fits into the category of layered adaptation.  This adaptation model
+defines a base quality level that users must achieve.  Once users have
+acquired that level, the algorithm attempts to incrementally acquire
+more frames to present a higher quality video.  In the work presented
+here, the definition of quality translates to a higher frame rate.
+Liu's discussion of bandwidth fairness, coding techniques and network
+transport perspectives lie out of the scope of this paper.
 
 With respect to the software architecture, our approach most resembles
 the Lancaster Orchestration Service \cite{Lancaster} since it is based
