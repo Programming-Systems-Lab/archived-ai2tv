@@ -25,7 +25,7 @@ import java.util.*;
  * There are performace issues, however, with growing the vector from the beginning (adding
  * elements before the beginning).
  *
- * @version	$Revision$
+ * @version	$$
  * @author	Dan Phung (dp2041@cs.columbia.edu)
  */
 public class Histogram {
@@ -173,7 +173,7 @@ public class Histogram {
     FrameIndexParser fip = new FrameIndexParser(filename);
     int levels = fip.levels();
     int[] frameNum = fip.frameNum();
-    int[][][] frameData = fip.frameData();
+    FrameDesc[][] frameData = fip.frameData();
 
     int windowBeg = 0;
     int windowEnd = 0;
@@ -190,7 +190,7 @@ public class Histogram {
     for (i=0, k=0 ; i<levels; i++){
       for (j=0; j<frameNum[i]; j++)
 	{
-	  time = frameData[i][j][0];
+	  time = frameData[i][j].getNum();
 	  if (time < windowBeg)
 	    windowBeg = time;
 	  if (time > windowEnd)

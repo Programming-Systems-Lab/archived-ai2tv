@@ -12,7 +12,6 @@
  *  $Date$
  *  $Source$
  */
-
 package psl.ai2tv.gauge;
 
 import java.io.*;
@@ -22,7 +21,7 @@ import java.util.*;
  * Compute and generate a data structue to hold the equivalent
  * classes across AI2TV frame heirarchies.
  *
- * @version	$Revision$
+ * @version	$$
  * @author	Dan Phung (dp2041@cs.columbia.edu)
  */
 class EquivClasses {
@@ -119,25 +118,26 @@ class EquivClasses {
    * the input ArrayList to be consecutive pairs of (hierarchyLevel,
    * frameNumber).  Compares all others against the first pair.
    *
-   * @param frames: the frames to compare.
-   * @return an array of the equivalences
+   * @param base: the frame to compare used as reference
+   * @param candidates: the other frames to be compared to the base
+   * @return an array of the equivalences of the same size as <code>candidates</code>
    */
-  public double[] computeEquivalence(int[] frames){
+  public double[] computeEquivalence(FrameDesc base, FrameDesc[] candidates){
     // check if the ArrayList has at least 2 pairs
-    if (frames.length<2 || (frames.length%2 > 0 )) {
+    if (base == null || (candidates.length == 0 )) {
       err.println("Error: EquivClasses.computeEquivalence input incorrect");
       return null;
     }
-    double[] results = new double[frames.length/2];
+    double[] results = new double[candidates.length];
     int index = 0;
     int firstBeg, firstEnd, secondBeg, secondEnd;
-    firstBeg = _fip.getFrameTime(frames[0], frames[1], 0);
-    firstEnd = _fip.getFrameTime(frames[0], frames[1], 1);
+    firstBeg = _fip.getFrameTime(base.getLevel(), base.getNum()).getStart();
+    firstEnd = _fip.getFrameTime(base.getLevel(), base.getNum()).getEnd();
     
     // the first iteration is redundant, but i left it for clarity
-    for (int i=0; i<frames.length; i+=2){
-      secondBeg = _fip.getFrameTime(frames[i], frames[i+1], 0);
-      secondEnd = _fip.getFrameTime(frames[i], frames[i+1], 1);
+    for (int i=0; i<candidates.length; i++){
+      secondBeg = _fip.getFrameTime(candidates[i].getLevel(), candidates[i].getNum()).getStart();
+      secondEnd = _fip.getFrameTime(candidates[i].getLevel(), candidates[i].getNum()).getEnd();
 
       results[index++] = _computeOverlap(firstBeg, firstEnd, secondBeg, secondEnd);
     }
@@ -186,10 +186,11 @@ class EquivClasses {
      * pair.  Negative values mean that the second window starts
      * earlier than the first.
      */
-    double[] results = ec.computeEquivalence(al);
+/*    double[] results = ec.computeEquivalence(al);
     for (int i=0; i<results.length; i++)
       System.out.println("[" +i+ "]: " + results[i]);
     long b = java.util.Calendar.getInstance().getTimeInMillis();
     System.out.println("time test: " + (b - a));
+*/
   }
 }

@@ -12,7 +12,6 @@
  *  $Date$
  *  $Source$
  */
-
 package psl.ai2tv.gauge;
 
 import java.io.*;
@@ -22,10 +21,10 @@ import java.util.*;
  * Parses the frame index file and puts it in an accessible data
  * structure.
  *
- * @version	$Revision$
+ * @version	$$
  * @author	Dan Phung (dp2041@cs.columbia.edu)
  */
-class FrameIndexParser {
+public class FrameIndexParser {
   /** debugging utility */
   public static final int DEBUG = 0;
 
@@ -40,7 +39,7 @@ class FrameIndexParser {
    * [2] end of frame context.
    */
   private final int _numTimeData = 3;
-  /** the number of architectural levels */
+  /** the number of hierarchy levels */
   private int _levels;
   /** the number of frames in each level */
   private int[] _frameNum;
@@ -49,16 +48,11 @@ class FrameIndexParser {
    * the main data structure holding all the data in the frame index
    * file <br>
    *
-   * Note that this structure wastes space in that it allocates an NxN
-   * array but doesn't use it all.  Space here is traded for the
-   * quickness and ease in using this data structure
-   *
    * indexed by: <br>
    * [i] hierarchy level <br>
-   * [h] frame index <br>
-   * [j] data number in frame (see _numTimeData) <br>
+   * [h] frame index within each hierarchy level <br>
    */
-  private int[][][] _frameData;
+  private FrameDesc[][] _frameData;
 
   /**
    * the secondary data structure holding all the data in the frame index
@@ -109,24 +103,29 @@ class FrameIndexParser {
 
       // get the frame times for each level
       // assuming that the first level is the highest
-      _frameData = new int[_levels][_frameNum[0]][3];
+      _frameData = new FrameDesc[_levels][];
       String[] tempBuffer;
+      int num;
+      int start;
+      int end;
       for (i=0; i<_levels; i++){
-	for (j=0; j<_frameNum[i]; j++){
-	  tempBuffer = in.readLine().trim().split("\\s");
-	  if (DEBUG > 0)
-	    out.print(" level: [" + i + "]: " +
-		      " frame: [" + j + "]: ");
-	  for (k=0; k<_numTimeData; k++){
-	    _frameData[i][j][k] = Integer.parseInt(tempBuffer[k].trim());
-	    if (DEBUG > 0)
-	      out.print(_frameData[i][j][k] + " ");
-	  }
-	  if (DEBUG > 0)
-	    out.println("");
-	}
-      }
+      	_frameData[i] = new FrameDesc[_frameNum[i]];
+		for (j=0; j<_frameNum[i]; j++){
+		    tempBuffer = in.readLine().trim().split("\\s");
+		    if (DEBUG > 0)
+	    		out.print(" level: [" + i + "]: " +
+		      			" frame: [" + j + "]: ");
 
+		    num = Integer.parseInt(tempBuffer[0]);
+		    start = Integer.parseInt(tempBuffer[1]);
+		    end = Integer.parseInt(tempBuffer[2]);
+	    	_frameData[i][j] = new FrameDesc(num, start, end, i);
+	    	if (DEBUG > 0)
+	      		out.print(_frameData[i][j] + "\n");
+	  	}
+	  	if (DEBUG > 0)
+	    	out.println("");
+		}
 
     } catch (IOException e){
       err.println("Caught IOException: " + e);
@@ -153,7 +152,7 @@ class FrameIndexParser {
 	out.print(" level: [" + i + "]: " +
 		  " frame: [" + j + "]: ");
 	for (k=0; k<_numTimeData; k++)
-	  out.print(_frameData[i][j][k] + " ");
+	  out.print(_frameData[i][j] + " ");
 	out.println("");
       }
     }
@@ -170,10 +169,8 @@ class FrameIndexParser {
     for (i=0; i<_frameNum.length; i++){
       Hashtable tempHash = new Hashtable(_frameNum[i]);
       for (j=0; j<_frameNum[i]; j++){
-	ArrayList tempArray = new ArrayList(2);
-	tempArray.add(0, new Integer(_frameData[i][j][1]));
-	tempArray.add(1, new Integer(_frameData[i][j][2]));
-	tempHash.put(new Integer(_frameData[i][j][0]), tempArray);
+		FrameDesc fd = _frameData[i][j];      	
+		tempHash.put(new Integer(fd.getNum()), fd);
       }
       _frameTimes.add(i, tempHash);
     }
@@ -201,20 +198,20 @@ class FrameIndexParser {
   }
 
   /**
-   * @return the data of the frame index file indexed by: <br>
+   * @return the data of the frame index file in a fashion suitable for 
+   * sequential access.<br>
    * [i] hierarchy level <br>
-   * [j] frame index <br>
-   * [k] data number in frame (see _numTimeData) <br>
+   * [j] frame sequence <br>
    */
-  public int[][][] frameData(){
+  public FrameDesc[][] frameData(){
     return _frameData;
   }
 
   /**
-   * @return the data of the frame index file indexed by: <br>
-   * [i] hierarchy level, which returns an ArrayList <br>
-   * [j] frame number, which returns a Hashtable <br>
-   * [k] frame number, which returns an Integer <br>
+   * @return the data of the frame index file in a fashion suitable for 
+   * random access.<br>
+   * [i] hierarchy level, which returns a Hashtable <br>
+   * [k] frame number, which returns an FrameDesc <br>
    *
    * DO NOT USE THIS TO ACCESS THE DATA! Use getFrameTime() instead.
    */
@@ -225,16 +222,13 @@ class FrameIndexParser {
   /**
    * get the specified frame time
    *
-   * @param level: heirarchy level
+   * @param level: hierarchy level
    * @param frameNumber: the actual frame number
-   * @param index: beginning [0] or end of the window [1]
    * @return the time specified by the parameters
    */
-  public int getFrameTime(int level, int frameNumber, int index){
-    return ((Integer)((ArrayList)
-		      ((Hashtable) _frameTimes.get(level)).
-		      get(new Integer(frameNumber)))
-	    .get(index)).intValue();
+  public FrameDesc getFrameTime(int level, int frameNumber){
+  	Hashtable ht = (Hashtable)_frameTimes.get(level);
+  	return (FrameDesc)ht.get(new Integer(frameNumber));
   }
 
   public static void main(String[] args){
