@@ -176,6 +176,7 @@ public class LoginHandler extends JFrame {
     menuPanel.add(passwdLabel);
 
     _passwdField = new JPasswordField(8);
+    _passwdField.setText("happy");
     menuPanel.add(_passwdField);
 
     // ------ login ------ //

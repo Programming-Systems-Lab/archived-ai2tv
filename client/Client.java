@@ -131,9 +131,7 @@ public class Client extends Thread{
   private Hashtable _activeVSIDs;
 
   // we should have these in a config file
-  // 999
-  // private String _cacheDir = null;
-  private String _cacheDir = "cache/";
+  private String _cacheDir = null;
   private String _baseURL;     // the base url of the available videos
   private String _videoURL;    // the video url holding the frame_index.txt file and the frames
   private String _sienaServer;
@@ -240,6 +238,7 @@ public class Client extends Thread{
 
     // select which video quality to load (this set the client level)
     // only if this wasn't set in the environment
+    
     if (_level == -1)
       _level = computeVideoQuality(_dateToView);
     debug.println("Client level: " + _level);
@@ -836,10 +835,11 @@ public class Client extends Thread{
    * @param image: image to load
    */
   void loadImage(String image) {
-    if (_attachedToCHIME)
-      _viewer.loadImage(image);
-    else
+    if (_attachedToCHIME){
       _jni.loadImage(image);
+    } else {
+      _viewer.loadImage(image);
+    }
   }
 
   /**

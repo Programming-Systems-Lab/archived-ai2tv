@@ -158,10 +158,16 @@ class AI2TVJNIJava{
    * @return list of available videos from the server
    */
   String[] getAvailableVideos(){
-    java.util.Vector v = _client.getAvailableVideos();
-      
+    // 999
+    // java.util.Vector v = _client.getAvailableVideos();
+
+    java.util.Vector v = new java.util.Vector();
+    v.add("CS4118-10");
+    v.add("CS4118-11");
+    v.add("CS4118-12");
+
     String[] availableVideos;
-    if (v != null && v.size() < 1)
+    if (v != null && v.size() > 0)
       availableVideos = new String[v.size() + 1];
     else {
       return null;
