@@ -20,3 +20,13 @@ DATE:   19 March 2003
   > environment path 
     c:\pslroot\psl\ai2tv\client (this is for the java lib dir)
 
+
+[ Client ]-----[CommController] <--siena--> WF
+     \    \       /   |
+      \    \     /    \/
+       \    \---/-[CacheController]
+        \      /     /\
+         \     |     /
+          \    |    /
+           \   \/   \/
+            \--[Viewer]
