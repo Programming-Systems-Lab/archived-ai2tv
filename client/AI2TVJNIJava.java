@@ -18,7 +18,7 @@ package psl.ai2tv.client;
 /**
  * The Java side JNI interface for the AI2TV client.
  *
- * @version	$$
+ * @version    $Revision$
  * @author	Dan Phung (dp2041@cs.columbia.edu)
  */
 class AI2TVJNIJava extends Thread{
