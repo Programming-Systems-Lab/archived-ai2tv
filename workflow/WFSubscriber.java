@@ -15,7 +15,7 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
 
   private static final Logger logger = Logger.getLogger(WFSubscriber.class);
 
-  private static final long REFRESH_DURATION = 1000; // check clients every 5 secs
+  private static final long REFRESH_DURATION = 5000; // check clients every 5 secs
 
   private WFGauge myGauge;
   private long _id;
@@ -59,8 +59,6 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
     // 1) check that the current times reported by
     // the clients are all syncrhonized
     // 2)
-    System.out.println("checking clients, there is/are: " + clientIDs.size() + " client(s)");
-    
     ClientDesc currentClient;
     for (Iterator i=clientIDs.iterator(); i.hasNext(); ){
       currentClient = (ClientDesc) i.next();
@@ -73,9 +71,8 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
     probe.putAttribute(SienaConstants.AI2TV_WF_UPDATE_REQUEST, "");
     probe.putAttribute(SienaConstants.CLIENT_ID, currentClient.getClientID());
     probe.putAttribute(SienaConstants.ABS_TIME_SENT, System.currentTimeMillis());
-    System.out.println("dp2041: publishing report request: " + probe);
     try {
-      mainSiena.publish(probe);
+      siena.publish(probe);
     } catch (siena.SienaException e){
       System.err.println("WFSubscriber publishing sienaException during report request: " + e);
     }
@@ -90,8 +87,9 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
   }
 
   private void handleNotification(Notification e){
+    long now = System.currentTimeMillis();
     ClientDesc currentClient;
-    logger.debug("received " + e);
+    // logger.debug("received " + e);
 
     // get the propagation delay
     AttributeValue absAttrib = e.getAttribute(SienaConstants.ABS_TIME_SENT);
@@ -99,11 +97,9 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
     long ppd = -1; // ppd: previous propagation delay
     if (absAttrib != null){
       // here we calculate the difference between when the request was
-      // sent and when it was received/handled .  Note that this
-      // difference includes some overhead of some attrib checking so
-      // it is not entirely accurate
+      // sent and when it was received/handled.
       absTimeSent = absAttrib.longValue();
-      ppd = System.currentTimeMillis() - absTimeSent;
+      ppd = now - absTimeSent;
     }
 
     String id = String.valueOf(e.getAttribute(SienaConstants.CLIENT_ID).longValue());
@@ -121,27 +117,27 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
       // this here so that I don't get an error later.
 
     } else if (e.getAttribute(SienaConstants.AI2TV_FRAME) != null){
-      long currentTime = myGauge.clock.currentTime();
       currentClient.setFrame(e.getAttribute(SienaConstants.LEFTBOUND).intValue(),
 			     e.getAttribute(SienaConstants.MOMENT).intValue(),
 			     e.getAttribute(SienaConstants.RIGHTBOUND).intValue(),
-			     currentTime,
 			     e.getAttribute(SienaConstants.LEVEL).intValue(),
-			     e.getAttribute(SienaConstants.SIZE).intValue());
+			     e.getAttribute(SienaConstants.SIZE).intValue(),
+			     e.getAttribute(SienaConstants.TIME_SHOWN).intValue(),
+			     e.getAttribute(SienaConstants.TIME_OFFSET).intValue(),
+			     e.getAttribute(SienaConstants.TIME_DOWNLOADED).longValue()
+			     );
 
-      // dp2041: need to implement
     } else if (e.getAttribute(SienaConstants.AI2TV_WF_UPDATE_REPLY) != null){
-      System.out.println(" ---------------------------------------- ");
-      System.out.println("WF just got an update reply from a client");
-      System.out.println("WF -> client was: " + ppd);
-      
-      ppd = System.currentTimeMillis() 
-	- e.getAttribute(SienaConstants.ABS_TIME_SENT).longValue();
-      e.getAttribute(SienaConstants.ABS_TIME_SENT).longValue();
-      System.out.println("client -> WF was: " + ppd);
-      System.out.println(" ---------------------------------------- ");
-      
+      currentClient.addDistClient2WF(ppd);
+      // logger.debug("client -> WF avg is: " + 
+      // currentClient.getAvgDistClient2WF() + 
+      // " +/- " + currentClient.getStddevDistClient2WF());
 
+      currentClient.addDistWF2Client(e.getAttribute(SienaConstants.PREV_PROP_DELAY).longValue());
+      // logger.debug("WF -> client avg is: " + 
+      // currentClient.getAvgDistWF2Client() + 
+      // " +/- " + currentClient.getStddevDistWF2Client());
+      
     } else if (e.getAttribute(SienaConstants.AI2TV_VIDEO_ACTION) != null){
       String action = e.getAttribute(SienaConstants.AI2TV_VIDEO_ACTION).stringValue();
       if (action.equals(SienaConstants.PLAY)) {
@@ -164,7 +160,7 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
 	WFGauge.clock.stopTime();
 
       } else if (action.equals(SienaConstants.GOTO)) {
-	long clientid = e.getAttribute(SienaConstants.AI2TV_VIDEO_ACTION).longValue();
+	long clientid = e.getAttribute(SienaConstants.CLIENT_ID).longValue();
 	// id of -1 is reserved for the WF
 	if (clientid != _id){
 	  WFGauge.clock.gotoTime(absTimeSent, e.getAttribute(SienaConstants.NEWTIME).intValue());

@@ -18,22 +18,22 @@ public abstract class SimpleGaugeSubscriber implements GaugeSubscriber {
 
   private static final Logger logger = Logger.getLogger(SimpleGaugeSubscriber.class);
 
-  protected static Siena mainSiena = null;
+  protected static Siena siena = null;
 	
   public static Siena getSiena() throws SienaException, IOException {
-    if (mainSiena == null){
+    if (siena == null){
       String server = System.getProperty("ai2tv.server");
       if (server != null) {
-	mainSiena = new ThinClient(server);
-	//logger.debug("Connnected to server at " + ((ThinClient)mainSiena).getServer());
+	siena = new ThinClient(server);
+	//logger.debug("Connnected to server at " + ((ThinClient)siena).getServer());
       } else {
 	// this won't work.  we need to lookup what a ThinClient
-	// mainSiena = new HierarchicalDispatcher();
-	// ((HierarchicalDispatcher) mainSiena).setReceiver(new KAPacketReceiver(sienaPort));
-	logger.debug ("Siena Server Up: " + new String(((HierarchicalDispatcher) mainSiena).getReceiver().address()));
+	// siena = new HierarchicalDispatcher();
+	// ((HierarchicalDispatcher) siena).setReceiver(new KAPacketReceiver(sienaPort));
+	logger.debug ("Siena Server Up: " + new String(((HierarchicalDispatcher) siena).getReceiver().address()));
       }
     }
-    return mainSiena;
+    return siena;
   }
   
   /** Siena and subscriptions initialization */
@@ -46,23 +46,23 @@ public abstract class SimpleGaugeSubscriber implements GaugeSubscriber {
     // listen for frame updates from clients
     Filter filter = new Filter();
     filter.addConstraint(SienaConstants.AI2TV_FRAME, Op.ANY, "ANY");
-    mainSiena.subscribe(filter, this);
+    siena.subscribe(filter, this);
 
     // listen to a registration notification
     filter = new Filter();
     filter.addConstraint(SienaConstants.AI2TV_WF_REG, Op.ANY, "ANY");
-    mainSiena.subscribe(filter, this);
+    siena.subscribe(filter, this);
 
 
     // listen for client's actions
     filter = new Filter();
     filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, Op.ANY, "ANY");
-    mainSiena.subscribe(filter, this);
+    siena.subscribe(filter, this);
 
     // listen for client status updates coming back
     filter = new Filter();
     filter.addConstraint(SienaConstants.AI2TV_WF_UPDATE_REPLY, Op.ANY, "ANY");
-    mainSiena.subscribe(filter, this);
+    siena.subscribe(filter, this);
 
   }
 

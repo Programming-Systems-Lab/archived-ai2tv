@@ -57,10 +57,10 @@ public class WFHelperFunctions implements ExecutableTask {
   ClientAsset baseCA, clientAsset;
   NewClientPG basePG;
   ClientPG clientPG, medianPG;
-  FramePG framePG;
+  FramePG clientFramePG;
   Vector clients;
   Notification event;
-  Siena mySiena;
+  Siena siena;
 
   /**
    *
@@ -73,10 +73,10 @@ public class WFHelperFunctions implements ExecutableTask {
     clientPG = null;
     clients = null;
     medianPG = null;
-    framePG = null;
+    clientFramePG = null;
     event = null;
     try {
-      mySiena = SimpleGaugeSubscriber.getSiena();
+      siena = SimpleGaugeSubscriber.getSiena();
     } catch (siena.SienaException e) {
       System.err.println("Error in WFHelperFunctions, could not get Siena server: " + e);
     } catch (java.io.IOException e) {
@@ -131,7 +131,6 @@ public class WFHelperFunctions implements ExecutableTask {
 
     logger.debug("findBase: baseClient=" + baseCA + ", client=" + clients);
 
-    // 999
     SortedMap m = new TreeMap();
     for (int i = 0; i < clients.size(); i++) {
       clientAsset = (ClientAsset) clients.get(i);
@@ -162,13 +161,7 @@ public class WFHelperFunctions implements ExecutableTask {
    * @param outParams: hash of output paramters
    */
   private void evaluateClientWrtBase(Hashtable inParams, Hashtable outParams) {
-    /*
-     * need to ask peppo about the logic here.  so why are we
-     * evaluating and adapting in two separate functions?  if
-     * we evaluate a client to be defecient, do we then adjust him
-     * here, or how do we flag that he needs to change, and how do
-     * we specify the type of change needed?
-     */
+    // not currently used
   }
 
   /**
@@ -180,44 +173,39 @@ public class WFHelperFunctions implements ExecutableTask {
   private void adaptClient(Hashtable inParams, Hashtable outParams) {
     clientAsset = (ClientAsset) inParams.get("clients");
     clientPG = clientAsset.getClientPG();
-    framePG = clientAsset.getFramePG();
+    clientFramePG = clientAsset.getFramePG();
 
     baseCA = (ClientAsset) inParams.get("baseClient");
     basePG = (NewClientPG) baseCA.getClientPG();
 
-    logger.debug("findBase: baseClient=" + baseCA + ", client=" + clientPG);
+    // logger.debug("findBase: baseClient=" + baseCA + ", client=" + clientPG);
 
-    // hopefully, though I need to verify with peppo,
-    // the FramePG is the current frame.
-
-    // how do we get to the equivalent classes
+    // dp2041: how do we get to the equivalent classes
     // function?
-
-    // right now we'll just see if the frame the other clients
-    // are viewing is at the right time, if not, we'll
-    // try to drop it down a hierarchy, see if that doesn't
-    // help (though I don't think it will.
-
-    // !!! need to add the cilentID to the wf info
     event = null;
-    double end = (double)framePG.getEnd()/30;
-    double start = (double)framePG.getStart()/30;
-    double timeDiff = (double)basePG.getSampleTime()/1000;
-    // double timeDiff = (double)baseClient.getTimeShown()/1000;
+    double end = (double)clientFramePG.getEnd()/30;
+    double start = (double)clientFramePG.getStart()/30;
+    double timeShown = (double)clientFramePG.getTimeShown()/1000;
+    double timeOffset = (double)clientFramePG.getTimeOffset()/1000;
+    double timeDownloaded = (double)clientFramePG.getTimeDownloaded()/1000;
 
-    logger.debug("frame start=" + start + ",end=" + end + ",sampleTime=" + timeDiff
+    logger.debug("- - -");
+    logger.debug("client's avg WF->client: " + clientPG.getAvgDistWF2Client());
+    logger.debug("frame's info: " + timeShown + ", " + timeOffset + ", " + timeDownloaded);
+    logger.debug("- - -");
+
+    logger.debug("frame start=" + start + ",end=" + end + ",timeShown=" + timeShown
 		 + ", clientid=" + clientPG.getId());
 	
-    int threshold = 2000;
-    if (timeDiff == 0){
-      ; // we're right on time, do nothing
+    
 
-    } else if (timeDiff > 2000 && timeDiff < 15000) {
+    int threshold = 2000;
+    if (timeShown > 2000 && timeShown < 15000) {
       event = new Notification();
       event.putAttribute(SienaConstants.AI2TV_CLIENT_ADJUST, "");
       event.putAttribute(SienaConstants.CLIENT_ID, clientPG.getId());
       event.putAttribute(SienaConstants.CHANGE_LEVEL, SienaConstants.CHANGE_LEVEL_DOWN);
-    } else if ( timeDiff < 200) {
+    } else if ( timeShown < 200) {
       event = new Notification();
       event.putAttribute(SienaConstants.AI2TV_CLIENT_ADJUST, "");
       event.putAttribute(SienaConstants.CLIENT_ID, clientPG.getId());
@@ -227,7 +215,7 @@ public class WFHelperFunctions implements ExecutableTask {
     if (event != null) {
       logger.info("sending event: " + event);
       try {
-	mySiena.publish(event);
+	siena.publish(event);
       } catch (siena.SienaException e) {
 	System.err.println("Error in WF, AdaptClient Seina Publishing: " + e);
       }

@@ -18,17 +18,20 @@ group.doc=set of clients in the same group and sampled; includes ClientAsset ins
 
 [ClientPG]
 doc=representation of an A2TV client as sampled
-slots=String id, String host, double bandwidth, long sampleTime
+slots=String id, String host, double bandwidth, long sampleTime, double avgDistWF2Client
 id.doc=unique client ID
 host.doc=host name
 bandwidth.doc=last bandwidth measure
-sampleTime.doc= moment of the sample - same as the equivalent field in BucketPG
+sampleTime.doc=moment of the sample - same as the equivalent field in BucketPG
+avgDistWF2Client.doc=the average propagation delay measured from the WF to the client
 
 [FramePG]
 doc=representation of a downloaded video frame
-slots=int level, int num, int start, int end
+slots=int level, int num, int start, int end, int timeShown, int timeOffset, long timeDownloaded
 level.doc=hierarchy level
 num.doc=frame number
 start.doc=start of the represented frame interval
 end.doc=end of the represented frame interval
-
+timeShown=video clock time when the frame was shown
+timeOffset=time offset at which the frame was shown (0 is right on time, negative values are early)
+timeDownloaded=video clock time when the frame was downloaded

@@ -53,9 +53,9 @@ class WFGauge extends GroupGauge {
 	      System.err.println("Error, sleep interrupted in defineNominalClient: " + ie);
 	    }
 
-	    progress = (int) clock.currentTime();
+	    progress = clock.currentTime();
 	    // in the time elapsed (in secs.) 30 frames per second have been nominally shown
-	    nomProgress = (int) (30 * progress / GroupGauge.SAMPLE_INTERVAL);
+	    nomProgress = (30 * progress / GroupGauge.SAMPLE_INTERVAL);
 	    //logger.debug("nominalClientThread calling evaluate progress");
 	    try {
 	      evaluateStatus(progress);
@@ -75,15 +75,13 @@ class WFGauge extends GroupGauge {
       String id = (String) allClients.next();
       ClientDesc cd = (ClientDesc) groupClients.get(id);
       FrameDesc fd = cd.getFrame();
-      // t here is the time that the frame was shown
-      // note: should also change name of the getDownloadedTime
-      // function to reflect what the time really is
-      long timeFrameShown = fd.getFrameShownTime();
+      long timeShown = fd.getTimeShown();
 
       // update the bucket if the time of the last info about a client
       // is within the time of the last sample and this moment
-
-      if (timeFrameShown <= currentTime && timeFrameShown > _lastCheckTime){
+      logger.debug("checking client: " + id + " with frame: " + fd);
+      logger.debug(" @ time: " + _lastCheckTime + " < " + timeShown + " > " + currentTime);
+      if (_lastCheckTime < timeShown && timeShown <= currentTime){
 	logger.debug("updating bucket for client " + id);
 	bucket.update(id, cd);
       }
@@ -93,8 +91,6 @@ class WFGauge extends GroupGauge {
       }
     }
 
-    // dp2041
-    // _lastCheckTime = t; ?? or was it like this?
     _lastCheckTime = currentTime;
     bucket.setTime(currentTime);
   }

@@ -48,7 +48,7 @@ public class GroupGauge {
   	frames nominally seen since start time (assuming nominal frame rate 30 fps)
   	NOTE: expresses a frame number
   */
-  protected int nomProgress = 0;
+  protected long nomProgress = 0;
   
   /**
   	Holds clients descriptors for the set of clients in this group
