@@ -104,10 +104,6 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
 
     if (e.getAttribute(SienaConstants.AI2TV_FRAME) != null){
 
-      //normalize download time
-      // e.getAttribute(SienaConstants.PROBE_TIME).longValue();
-      // - myGauge.getStartTime();
-      // long t = myGauge.currentTime();
       long t = myGauge.clock.currentTime();
       currentClient.setFrame(e.getAttribute(SienaConstants.LEFTBOUND).intValue(),
 			     e.getAttribute(SienaConstants.MOMENT).intValue(),
@@ -122,7 +118,7 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
 
 
 
-    } else {
+    } else if (e.getAttribute(SienaConstants.AI2TV_VIDEO_ACTION) != null){
       String action = e.getAttribute(SienaConstants.AI2TV_VIDEO_ACTION).stringValue();
       if (action.equals(SienaConstants.PLAY)) {
 	//check if clients are already running
@@ -149,9 +145,14 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
 	  WFGauge.clock.gotoTime(e.getAttribute(SienaConstants.NEWTIME).intValue());
 	}
       } else {
+	// event that we don't know what action this is
 	// should throw an unknown error, or something
 	logger.debug("Received unknown event: " + e);
       }
+    } else {
+      // event that we don't know what EVENT this is
+      // should throw an unknown error, or something
+      logger.debug("Received unknown event: " + e);
     }
   }
 }
