@@ -15,6 +15,7 @@
 
 package psl.ai2tv.client;
 import java.io.*;
+import java.util.Calendar;
 import java.net.*;
 import psl.ai2tv.gauge.*;
 import siena.*;
@@ -34,8 +35,7 @@ class CommController implements Notifiable, Runnable{
 
   private Notification frameEvent;
   private String clientID;
-  private CacheController _cache;
-  private Viewer _viewer;
+  private Client _client;
 
   public static final int DEBUG = 0;
 
@@ -43,60 +43,62 @@ class CommController implements Notifiable, Runnable{
   public static PrintStream err = System.err;
 
   private boolean _isActive = false;
-  private AI2TVJNIJava _JNIIntf;
+
   private ThinClient _mySiena;
-  // private HierarchicalDispatcher _mySiena;
 
   private Filter filter;
 
   String _mySienaServer;
-
-  private class AI2TVJNIJava{}
-
-  CommController(String id, String sienaServer){
-    this(id, sienaServer, null, null, null);
-  }
     
-  CommController(String id, String sienaServer, AI2TVJNIJava intf, Viewer v, CacheController c){
+  CommController(Client c, String id, String sienaServer){
     probeDelay = 10000;
     _isActive = true;
-    _JNIIntf = intf;
+    _client = c;
     clientID = id;
     _mySiena = null;
-    _cache = c;
     setupSienaListener();
     _mySienaServer = sienaServer;
     Thread mainThread = new Thread(this);
     mainThread.start();
   }
 
-  private void setupFilter(){
+  // dp2041: is there a better way to do this?
+  private void setupFilter() throws siena.SienaException {
     filter = new Filter();
-    /*
-    filter.addConstraint("AI2TV_VIDEO_ACTION", "UP_LEVEL");   // form the sync WF: go to the higher hierarchy
-    filter.addConstraint("AI2TV_VIDEO_ACTION", "DOWN_LEVEL"); // form the sync WF: go to the lower hierarchy
-    */
-    // don't quite understand filters, tried the other constraints
-    // thinking they were parallel, but it looks like they are additive.
-    filter.addConstraint("AI2TV_VIDEO_ACTION", "PLAY");	   // from other clients: start playing
-    // filter.addConstraint("AI2TV_VIDEO_ACTION", "PAUSE");	   // from other clients: pause playing
-    // filter.addConstraint("AI2TV_VIDEO_ACTION", "STOP");	   // from other clients: stop playing
+    filter.addConstraint("AI2TV_VIDEO_ACTION", "UP_LEVEL");
+    _mySiena.subscribe(filter, this);
+
+    filter = new Filter();
+    filter.addConstraint("AI2TV_VIDEO_ACTION", "DOWN_LEVEL");
+    _mySiena.subscribe(filter, this);
+
+    filter = new Filter();
+    filter.addConstraint("AI2TV_VIDEO_ACTION", "PLAY");
+    _mySiena.subscribe(filter, this);
+
+    filter = new Filter();
+    filter.addConstraint("AI2TV_VIDEO_ACTION", "STOP");
+    _mySiena.subscribe(filter, this);
+
+    filter = new Filter();
+    filter.addConstraint("AI2TV_VIDEO_ACTION", "PAUSE");
+    _mySiena.subscribe(filter, this);
+
+    filter = new Filter();
+    filter.addConstraint("AI2TV_VIDEO_ACTION", "GOTO");
+    _mySiena.subscribe(filter, this);
   }
 
   private void setupSienaListener(){
     try {
-      // _mySiena = new HierarchicalDispatcher();
-      // _mySiena.setMaster(_mySienaServer);
       _mySiena = new ThinClient("ka:localhost:4444");
 
       setupFilter();
-      System.out.println("subscribing for " + filter.toString());
-      _mySiena.subscribe(filter, this);
+      // System.out.println("subscribing for " + filter.toString());
 
-      // } catch (IOException e) {
-      // System.out.println ("Caught exception in setting up the Siena server: "  + e);
     } catch (siena.comm.PacketSenderException e) {
-      ; // what is this?
+      // what is this?
+      System.out.println ("Caught exception in setting up the Siena server: "  + e);
     } catch (SienaException e) {
       // ; // WTF?
       // } catch (siena.comm.InvalidSenderException e) {
@@ -172,13 +174,76 @@ class CommController implements Notifiable, Runnable{
     System.out.println("Shutting down Siena server");
     _mySiena.shutdown();
   }
-
+  
   public void notify(Notification e) {
-    System.out.println("I just got this event:");
-    System.out.println(e.toString());
+    handleNotification(e);
   };
 
   public void notify(Notification [] s) { }
+
+  private void handleNotification(Notification event){
+    System.out.println("handleNotification(): I just got this event:" + event + ": at : " 
+		       + Calendar.getInstance().getTime());
+    AttributeValue attrib = event.getAttribute("AI2TV_VIDEO_ACTION");
+    if (attrib.toString().equals("\"PLAY\"")){
+      _client.commPlay(); 
+    } else if (attrib.toString().equals("\"STOP\"")){
+      _client.commStop(); 
+    } else if (attrib.toString().equals("\"PAUSE\"")){
+      _client.commPause(); 
+    } else if (attrib.toString().startsWith("\"GOTO")){
+      _client.commGoto(event.getAttribute("NEWTIME").intValue());
+    } else {
+      System.err.println("Notification Error, received unknown attribute: " + attrib);
+    }
+  }
+
+  // --------- Viewer initiated actions ---------- //
+  /*
+   *
+   */
+  void playPressed(){
+    // need to publish the notification that we are need to start playing.
+    Notification event = new Notification();
+    event.putAttribute("AI2TV_VIDEO_ACTION", "PLAY");
+    System.out.println("CommController publishing event: " + event);
+    publishNotification(event);
+  }
+
+  void pausePressed(){
+    // need to publish the notification that we are need to start playing.
+    Notification event = new Notification();
+    event.putAttribute("AI2TV_VIDEO_ACTION", "PAUSE");
+    System.out.println("CommController publishing event: " + event);
+    publishNotification(event);
+  }
+
+  void stopPressed(){
+    Notification event = new Notification();
+    event.putAttribute("AI2TV_VIDEO_ACTION", "STOP");
+    System.out.println("CommController publishing event: " + event);
+    publishNotification(event);
+  }
+
+  void gotoPressed(int gotoTime){
+    Notification event = new Notification();
+    event.putAttribute("AI2TV_VIDEO_ACTION", "GOTO");
+    event.putAttribute("NEWTIME", gotoTime);
+    System.out.println("CommController publishing event: " + event);
+    publishNotification(event);
+  }
+  
+  private void publishNotification(Notification event){
+    try{
+      System.out.println("publishing event: " + Calendar.getInstance().getTime());
+      _mySiena.publish(event);
+    } catch (siena.SienaException e){
+      System.err.println("CommController publishing sienaException: " + e);
+    }  
+  }
+
+  // ------- END Viewer initiated actions -------- //
+  
 
   // void setTarget(CacheController cc) { cache = cc; }
   void setProbingFrequency (long f) {probeDelay = f; }
@@ -186,14 +251,5 @@ class CommController implements Notifiable, Runnable{
   boolean isActive() { return _isActive; }
   void setActive(boolean flag) {
     _isActive = flag;
-  }
-	
-
-  public static void main(String args[]){
-    if(args.length != 1) {
-      System.err.println("Usage: CommController <server-address>");
-      System.exit(1);
-    }
-    CommController foo = new  CommController("foobar", args[0]);
   }
 }
