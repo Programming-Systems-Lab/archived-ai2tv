@@ -39,7 +39,7 @@ class CommController implements Notifiable{
   private Notification frameEvent;
   private long clientID;
   private Client _client;
-  private ThinClient _mySiena;
+  private ThinClient _siena;
   private String _sienaServer;
   private boolean _isActive = false;
 
@@ -53,7 +53,7 @@ class CommController implements Notifiable{
   CommController(Client c, long id, String server){
     _client = c;
     clientID = id;
-    _mySiena = null;
+    _siena = null;
     _sienaServer = server;
     setupSienaListener();
 
@@ -71,11 +71,11 @@ class CommController implements Notifiable{
     Filter filter = new Filter();
     // the string "FOO" doesn't mean anything (the string is ignored)
     filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, Op.ANY, "FOO");
-    _mySiena.subscribe(filter, this);
+    _siena.subscribe(filter, this);
 
     filter = new Filter();
     filter.addConstraint(SienaConstants.AI2TV_WF_UPDATE_REQUEST, Op.ANY, "FOO");
-    _mySiena.subscribe(filter, this);
+    _siena.subscribe(filter, this);
   }
 
   /**
@@ -83,7 +83,7 @@ class CommController implements Notifiable{
    */
   private void setupSienaListener(){
     try {
-      _mySiena = new ThinClient(_sienaServer);
+      _siena = new ThinClient(_sienaServer);
 
       // subsribe to the events (specified in the method)
       setupFilter();
@@ -110,7 +110,7 @@ class CommController implements Notifiable{
 
       Client.out.println("publishing event: " + Calendar.getInstance().getTime());
       event.putAttribute(SienaConstants.CLIENT_ID, _client.getID());
-      _mySiena.publish(event);
+      _siena.publish(event);
     } catch (siena.SienaException e){
       Client.err.println("CommController publishing sienaException: " + e);
     }      
@@ -126,12 +126,12 @@ class CommController implements Notifiable{
     try {
       Filter filter = new Filter();
       filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, Op.ANY, "FOO");
-      _mySiena.unsubscribe(filter, this);
+      _siena.unsubscribe(filter, this);
     } catch (siena.SienaException e) {
       Client.err.println("error:" + e);
     }
     Client.out.println("Shutting down Siena server");
-    _mySiena.shutdown();
+    _siena.shutdown();
   }
   
   /**
@@ -159,6 +159,7 @@ class CommController implements Notifiable{
    * @param event: Notification sent by the Siena server
    */
   private void handleNotification(Notification event){
+    long now = System.currentTimeMillis();
     // dp2041: 999
     // Client.out.println("handleNotification(): I just got this event:" + event + ": at : " 
     // + Calendar.getInstance().getTime());
@@ -175,7 +176,7 @@ class CommController implements Notifiable{
       // difference includes some overhead of some attrib checking so
       // it is not entirely accurate
       absTimeSent = absAttrib.longValue();
-      ppd = System.currentTimeMillis() - absTimeSent;
+      ppd = now - absTimeSent;
     }
 
     String name = event.toString().substring(7).split("=")[0];
@@ -277,7 +278,7 @@ class CommController implements Notifiable{
       Client.out.println("publishing event: " + Calendar.getInstance().getTime());
       event.putAttribute(SienaConstants.ABS_TIME_SENT, System.currentTimeMillis());
       event.putAttribute(SienaConstants.CLIENT_ID, _client.getID());
-      _mySiena.publish(event);
+      _siena.publish(event);
     } catch (siena.SienaException e){
       Client.err.println("CommController publishing sienaException: " + e);
     }  
