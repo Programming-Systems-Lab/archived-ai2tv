@@ -9,12 +9,16 @@ class WFGauge extends GroupGauge {
 
   private static final Logger logger = Logger.getLogger(WFGauge.class);
   private GaugeLDMPlugIn LDMHandle = null;
-  private TimeController _clock;
-
+  static TimeController clock;
   private long _lastCheckTime;
 
+  /**
+   * used to check if we're in the middle of echoing the client
+   */
+  private boolean _echoingClient;
+  
   WFGauge(){
-    _clock = new TimeController();
+    clock = new TimeController();
     _lastCheckTime = -1;
   }
 
@@ -52,7 +56,7 @@ class WFGauge extends GroupGauge {
 	    //nomProgress is the time elapsed since client start time
 	    //dp2041 changed, debug
 	    // progress = (int) (System.currentTimeMillis() - startTime);
-	    progress = (int) currentTime();
+	    progress = (int) clock.currentTime();
 	    // in the time elapsed (in secs.) 30 frames per second have been nominally shown
 	    nomProgress = (int) (30 * progress / GroupGauge.SAMPLE_INTERVAL);
 	    //logger.debug("nominalClientThread calling evaluate progress");
@@ -75,7 +79,7 @@ class WFGauge extends GroupGauge {
       ClientDesc cd = (ClientDesc) groupClients.get(id);
       FrameDesc fd = cd.getFrame();
       // long t = fd.getDownloadedTime();
-      long t = currentTime(); // gets the time from our internal clock
+      long t = clock.currentTime(); // gets the time from our internal clock
 
       // update the bucket if the time of the last info about a client
       // is within the time of the last sample and this moment
@@ -117,28 +121,4 @@ class WFGauge extends GroupGauge {
     ec.computeAllEquivalents(0);
     return ret;
   }
-
-  // time controller interfacing functions.  Assuming that the WFGauge
-  // is a focal point in the WF.  these functions could easily be
-  // moved to another class.
-  protected void startTime(){
-    _clock.startTime();
-  }
-
-  protected void pauseTime(){
-    _clock.pause();    
-  }
-
-  protected void stopTime(){
-    _clock.stopTime();        
-  }
-
-  protected void gotoTime(int newtime){
-    _clock.gotoTime(newtime);
-  }
-
-  protected long currentTime(){
-    return _clock.currentTime();
-  }
-
 }

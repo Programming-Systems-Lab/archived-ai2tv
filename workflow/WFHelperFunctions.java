@@ -150,7 +150,7 @@ public class WFHelperFunctions implements ExecutableTask {
     private void evaluateClientWrtBase(Hashtable inParams, Hashtable outParams) {
         /*
          * need to ask peppo about the logic here.  so why are we
-         * evaluating and adapting in two separate clients?  if
+         * evaluating and adapting in two separate functions?  if
          * we evaluate a client to be defecient, do we then adjust him
          * here, or how do we flag that he needs to change, and how do
          * we specify the type of change needed?
@@ -197,20 +197,16 @@ public class WFHelperFunctions implements ExecutableTask {
 	
 	int threshold = 2000;
 	if (timeDiff == 0){
-	  ; // we're right on time
+	  ; // we're right on time, do nothing
 
-	  // } else if (end < now) {
-	  // } else if (now > theshold) {
 	} else if (timeDiff > 2000 && timeDiff < 15000) {
             event = new Notification();
-            event.putAttribute(SienaConstants.AI2TV_FRAME_UPDATE, "");
+            event.putAttribute(SienaConstants.AI2TV_CLIENT_ADJUST, "");
             event.putAttribute(SienaConstants.CLIENT_ID, currentClient.getId());
             event.putAttribute(SienaConstants.CHANGE_LEVEL, SienaConstants.CHANGE_LEVEL_DOWN);
-	    // } else if (start > now) {
-	    // } else if ( now < -threshold) {
 	} else if ( timeDiff < 200) {
             event = new Notification();
-            event.putAttribute(SienaConstants.AI2TV_FRAME_UPDATE, "");
+            event.putAttribute(SienaConstants.AI2TV_CLIENT_ADJUST, "");
             event.putAttribute(SienaConstants.CLIENT_ID, currentClient.getId());
             event.putAttribute(SienaConstants.CHANGE_LEVEL, SienaConstants.CHANGE_LEVEL_UP);
         }
