@@ -18,9 +18,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "jni_md.h"
+#include "jni.h"
 #include "psl_ai2tv_client_AI2TVJNIJava.h"
-#include "c:\\java1.4\\include\\win32\\jni_md.h"
-#include "c:\\java1.4\\include\\jni.h"
 
 /**
  * The CPP side JNI interface for the AI2TV client.
