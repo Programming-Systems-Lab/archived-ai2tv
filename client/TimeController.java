@@ -107,7 +107,16 @@ public class TimeController{
     // _pausedTime += (System.currentTimeMillis() - _pausedStartTime);
     _pausedTime += (absTimeSent - _pausedStartTime);
   }
+
+  /**
+   * @return whether the time is paused.
+   */
+  public boolean isPaused() {
+    return _pauseActive;
+  }
   
+
+
   /**
    * state that the time is the given time
    *
