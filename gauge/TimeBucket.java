@@ -32,6 +32,10 @@ public class TimeBucket {
 		ClientDesc cd = (ClientDesc) groupState.get(clientKey);
 		return cd;
 	}
+
+	public void remove (Object clientKey) {
+	  groupState.remove(clientKey);
+	}
 		
 	public void setTime(long t) { time = t;}
 	public long getTime() { return time; }

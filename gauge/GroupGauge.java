@@ -76,7 +76,10 @@ public class GroupGauge {
  	}
  	
  	public Hashtable getGroupClients() { return groupClients; }
- 	public void removeClient(String id) {groupClients.remove(id);}
+ 	public void removeClient(String id) {
+	  bucket.remove(id);
+	  groupClients.remove(id);
+	}
 	public TimeBucket getBucket() { return bucket; }
 	public boolean isRunning() {return running; }
 	public void startNominal() { nominal.start(); }
