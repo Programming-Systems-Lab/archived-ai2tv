@@ -33,6 +33,8 @@ public class FrameIndexParser {
   /** error stream */
   public static PrintStream err = System.err;
 
+  /** frame rate at which the frames were sampled at*/
+  private final int FRAME_RATE = 30;
   /** data fields on each line <br>
    * [0] frame number, <br>
    * [1] start of frame context, <br>
@@ -43,6 +45,8 @@ public class FrameIndexParser {
   private int _levels;
   /** the number of frames in each level */
   private int[] _frameNum;
+  /** the average needed bandwidth for each level */
+  private double[] _avgBandwidthNeeded;
 
   /**
    * the main data structure holding all the data in the frame index
@@ -72,6 +76,7 @@ public class FrameIndexParser {
   public FrameIndexParser(String filename){
     _parseFile(filename);
     _createReverseLookup();
+    _computeAvgBandwidthNeeded();
   }
 
   /**
@@ -179,6 +184,41 @@ public class FrameIndexParser {
   }
 
   /**
+   * compute the average needed bandwith for each level by assuming
+   * that each frame only has the time from when the last frame was
+   * shown to when the current frame needs to be shown.  Assumes that
+   * the first frame has 5 seconds until when it is to be displayed.
+   */
+  private void _computeAvgBandwidthNeeded(){
+    _avgBandwidthNeeded = new double[_levels];
+
+    int prefetch = 5; // this is the number of seconds to prefetch the first frame
+    FrameDesc frame;
+    double timeNeeded;
+    double sum;
+    int j=0;
+    for (int i=0; i<_levels; i++){
+      sum = 0;
+      timeNeeded = prefetch; // initialized for each first frame
+
+      for (j=0; j<_frameNum[i]; j++){
+
+	frame = _frameData[i][j];
+	sum += frame.getSize() / timeNeeded;
+	timeNeeded = ((double) frame.getEnd() - frame.getStart())/FRAME_RATE;
+      }
+      _avgBandwidthNeeded[i] = sum/j;
+    }
+  }
+
+  /**
+   * @return the array holding the average needed bandwith for each level
+   */
+  public double[] getAvgBandwidthNeeded(){
+    return _avgBandwidthNeeded;
+  }
+
+  /**
    * @return the number of time related data elements
    */
   public int numTimeData(){
@@ -258,7 +298,6 @@ public class FrameIndexParser {
     long a = java.util.Calendar.getInstance().getTimeInMillis();
     FrameIndexParser fip = new FrameIndexParser(args[0]);
     long b = java.util.Calendar.getInstance().getTimeInMillis();
-    System.out.println("time to create fip: " + (b-a));
     // fip.print();
   }
 
