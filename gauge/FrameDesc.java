@@ -1,5 +1,7 @@
 package psl.ai2tv.gauge;
 
+import java.util.*;
+
 /** Class descrbing a video frame. 
 	Holds the information presented in the format of the frame index file
 	plus runtime state information 
@@ -27,12 +29,16 @@ public class FrameDesc {
 	/** time at which the Frame was downloaded */
 	private long downloadedTime;
 	
+	/** Vector containing the FrameDeac of all the equivalent frames to this frame */
+	private Vector equivalents;
+	
 	public FrameDesc() {
 		level = -1;
 		num = -1;
 		start = -1;
 		end = -1;
 		downloadedTime = -1;	
+		equivalents = null;
 	}
 	
 	public FrameDesc(int n, int s, int e, int level) {
@@ -61,6 +67,9 @@ public class FrameDesc {
 	
 	public long getDownloadedTime() {return downloadedTime; }
 	public void setDownloadedTime(long t) { downloadedTime = t; }
+	
+	public void setEquivalents(Vector v) { equivalents = v; }
+	public Iterator getEquivalents() { return equivalents.iterator(); }
 	
 	public String toString() {
 		String s = " : level =  " + level + " frame # = " + num + " < " + start + " - " + end + " >";

@@ -106,6 +106,16 @@ public class VisualGauge extends GroupGauge {
   	System.out.println (bucket.toString());
   }
   
+  protected FrameIndexParser setFrameInfo() {
+  	FrameIndexParser ret = super.setFrameInfo();
+  	
+  	//now compute equivalent frames for each frame
+  	EquivClasses ec = new EquivClasses(ret);
+  	ec.computeAllEquivalents(0);
+  	return ret;
+  	
+  }
+  
   //Main method
   public static void main(String[] args) {
     try {

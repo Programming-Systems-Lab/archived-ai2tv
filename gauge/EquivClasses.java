@@ -24,7 +24,7 @@ import java.util.*;
  * @version	$$
  * @author	Dan Phung (dp2041@cs.columbia.edu)
  */
-class EquivClasses {
+public class EquivClasses {
   public static final int DEBUG = 0;
 
   public static PrintStream out = System.out;
@@ -36,8 +36,38 @@ class EquivClasses {
   /**
    * create the data structure of equivalence classes
    */
-  EquivClasses(String filename){
+  public EquivClasses(String filename){
     _fip = new FrameIndexParser(filename);
+  }
+  
+  /** set the data structure for equivalence classes */
+  public EquivClasses(FrameIndexParser fip) {
+  	_fip = fip;
+  }
+  
+  /**
+  	Compute equivalent frames for all frames in the @see fip
+  	Equivalent frames are stored as a vector within <code>FrameDesc.equivalents</code>
+  */
+  public void computeAllEquivalents(double equivThreshold) {
+	System.out.println("PRE-Computing all equivalent frames now");
+  	FrameDesc[][] allFrames = _fip.frameData();
+  	int lev = _fip.levels();
+  	Vector v = new Vector();
+  	Vector matched;
+  	//external loop (each hierarchy level)
+  	for (int i = 0; i < lev; i++) {
+  		// internal loop (each frame within i-th hierarchy level)
+  		for (int j = 0; j < allFrames[i].length; j++) {
+  			for (int l = 0; l < lev; l++) {
+  				if (l != i) {
+  					matched = computeEquivalence(allFrames[i][j], allFrames[l], equivThreshold);
+  					v.addAll(matched);	
+ 				}	
+  			}
+  		 allFrames[i][j].setEquivalents(v);
+  		}	
+  	}
   }
 
   /**
@@ -142,6 +172,22 @@ class EquivClasses {
       results[index++] = _computeOverlap(firstBeg, firstEnd, secondBeg, secondEnd);
     }
     return results;
+  }
+  
+  private Vector computeEquivalence(FrameDesc base, FrameDesc[] candidates, double threshold){
+  		Vector v = new Vector();
+  		double[] overlaps = computeEquivalence(base, candidates);
+  		for (int i = 0; i< overlaps.length; i++) {
+  			double absolute = overlaps[i];
+  			if (overlaps[i] < 0)
+  				absolute = -absolute;
+  			if (absolute > threshold) {
+  				v.add(candidates[i]);
+  				//System.out.println (base.toString() + " " + absolute + "% EQ TO " + candidates[i].toString());	
+  			}
+  		}
+  		
+  		return v;
   }
 
   public static void main(String[] args){
