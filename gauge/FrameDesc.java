@@ -87,7 +87,7 @@ public class FrameDesc {
 	public void setEnd (int e) { end = e; }
 	public int getLevel() { return level; }
 	public void setLevel(int l) { level = l; }
-	public int getSize() { return level; }
+	public int getSize() { return size; }
 	public void setSize(int s) { size = s; }
 	public long getTimeShown() {return timeShown; }
 	public void setTimeShown(long t) { timeShown = t; }
