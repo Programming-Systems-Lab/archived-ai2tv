@@ -53,18 +53,21 @@ public class EquivClasses {
 	System.out.println("PRE-Computing all equivalent frames now");
   	FrameDesc[][] allFrames = _fip.frameData();
   	int lev = _fip.levels();
-  	Vector v = new Vector();
+  	Vector v;
   	Vector matched;
   	//external loop (each hierarchy level)
   	for (int i = 0; i < lev; i++) {
   		// internal loop (each frame within i-th hierarchy level)
   		for (int j = 0; j < allFrames[i].length; j++) {
+  			v = new Vector();
   			for (int l = 0; l < lev; l++) {
   				if (l != i) {
+  					//for each level compute frames that are equivalent and append them
   					matched = computeEquivalence(allFrames[i][j], allFrames[l], equivThreshold);
   					v.addAll(matched);	
  				}	
   			}
+  		 //System.out.println (allFrames[i][j] + " - " + v.size()); 
   		 allFrames[i][j].setEquivalents(v);
   		}	
   	}

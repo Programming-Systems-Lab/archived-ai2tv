@@ -8,7 +8,7 @@ import java.util.*;
 public class TimeBucket {
 
 	/** info on the group state. 
-		The <code>Map</code> contains the latest FrameDescriptor for each client before this snapshot
+		The <code>Map</code> contains the latest Client Descriptor for each client before this snapshot
 		was taken.
 		It is synchronized and allows for null elements and values.
 	*/
@@ -24,24 +24,26 @@ public class TimeBucket {
 		groupState.put(clientKey, null);
 	}
 	
-	public void update (Object name, FrameDesc fd) {
-		groupState.put(name, fd);
+	public void update (Object name, ClientDesc cd) {
+		groupState.put(name, cd);
 	}
 	
-	public FrameDesc retrieve (Object clientKey) {
-		FrameDesc fd = (FrameDesc) groupState.get(clientKey);
-		return fd;
+	public ClientDesc retrieve (Object clientKey) {
+		ClientDesc cd = (ClientDesc) groupState.get(clientKey);
+		return cd;
 	}
 		
 	public void setTime(long t) { time = t;}
 	public long getTime() { return time; }
+	
+	public Map getGroupState() { return groupState; }
 	
 	public void clearValues() {
 		Set s = groupState.keySet();
 		synchronized (groupState) {
 			Iterator iter = s.iterator();
 			while (iter.hasNext())	{
-				this.update(iter.next(), (FrameDesc) null);	
+				this.update(iter.next(), (ClientDesc) null);	
 			}	
 		}
 	}
@@ -54,7 +56,7 @@ public class TimeBucket {
 		synchronized (groupState) {
 			Iterator iter = theSet.iterator();
 			while (iter.hasNext())	{
-				FrameDesc fd = (FrameDesc) groupState.get(id = (String)iter.next());
+				FrameDesc fd = ((ClientDesc)groupState.get(id = (String)iter.next())).getFrame();
 				s += "Client " + id + " : ";
 				if (fd != null)
 					s += fd.toString();	
