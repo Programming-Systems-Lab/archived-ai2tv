@@ -102,10 +102,11 @@ public class GaugeLDMPlugIn
 			// if some entry in the Time Bucket is empty, the bucket is not valid
 			// and the report is nto produced
 			// we will wait until the next
-			if (cd == null)
+			if (cd == null) {
+                //logger.warn("clientDesc is null, not publishing");
 				return;
+            }
 
-			logger.debug("--- Time " + sampleTime + " Updating report");
 			FrameDesc fd = cd.getFrame();
 			logger.debug(cd.getClientID() + " : " + fd.toString());
 			ca = (ClientAsset)factory.createInstance("ClientProto");
@@ -120,21 +121,23 @@ public class GaugeLDMPlugIn
 
 		setSampleTime(report, sampleTime);
 		//should insert a new ReportAsset in the BB, not simply update an exisiting one
-		insertAsset(report);
+		logger.debug("inserting report " + report + ", time=" + sampleTime + ",group=" + report.getBucketPG().getGroup());
+        insertAsset(report);
 		bucket.clearValues();
 	}
 	
 	// methods to prepare and set the data that goes into the BB
 	
 	private void setSampleTime(ReportAsset rep, long t) {
-		NewBucketPG bPG;
+		/*NewBucketPG bPG;
 		try {
 			bPG = (NewBucketPG)rep.providePropertyGroup(Class.forName("psl.ai2tv.workflow.assets.BucketPG"));
 		} catch (ClassNotFoundException e) {
 			logger.warn ("ALARM - Couldn't modify ReportAsset state");
 			e.printStackTrace();
 			return;
-		}
+		}*/
+        NewBucketPG bPG = (NewBucketPG) rep.getBucketPG();
 		bPG.setSampleTime(t);
 		rep.setBucketPG(bPG);	
 	}

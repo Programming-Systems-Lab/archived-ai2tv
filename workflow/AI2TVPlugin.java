@@ -101,7 +101,7 @@ public class AI2TVPlugin extends ComponentPlugin {
 
         NewClassPG classPG = (NewClassPG) factory.createPropertyGroup("ClassPG");
         //classPG.setClassName("psl.workflakes.littlejil.TaskExecutorInternalPlugin$DummyExecutableTask");
-        classPG.setClassName("psl.ai2tv.workflow.AI2TVPlugin$DummyExecutableTask");
+        classPG.setClassName("psl.ai2tv.workflow.WFHelperFunctions");
         asset.setExecutorPG(executorPG);
         asset.setClassPG(classPG);
 

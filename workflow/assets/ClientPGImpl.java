@@ -226,6 +226,10 @@ public class ClientPGImpl extends java.beans.SimpleBeanInfo
       return ClientPGImpl.class;
     }
 
+
+      public String toString() {
+          return "[id=" + getId() + ",bandwidth=" + getBandwidth() + ",time=" + getSampleTime() + "]";
+      }
   }
 
 }
