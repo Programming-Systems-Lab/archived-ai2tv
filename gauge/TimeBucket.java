@@ -2,10 +2,18 @@ package psl.ai2tv.gauge;
 
 import java.util.*;
 
+/** represents a periodic report constructed by the gauge,
+	a snapshot of the states of all the clients in an AI2TV group at a given time
+*/
 public class TimeBucket {
 
-	// want to have nulls
+	/** info on the group state. 
+		The <code>Map</code> contains the latest FrameDescriptor for each client before this snapshot
+		was taken.
+		It is synchronized and allows for null elements and values.
+	*/
 	private Map groupState;
+	/** time of the snapshot */
 	private long time;
 	
 	public TimeBucket () {
@@ -58,20 +66,6 @@ public class TimeBucket {
 		}
 		return s;
 	}
-
-/*	
-	class ClientState {
-		String id;
-		long t;
-		int level;
-		long bandwidth;
-		
-		public String toString() {
-			String s = "Client " + id + " : level =  " + level + " time = " + t + " bandwidth = " + bandwidth;
-			return s;
-		}
-	}
-*/
 }
 
 

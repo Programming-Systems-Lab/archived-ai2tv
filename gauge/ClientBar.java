@@ -4,25 +4,29 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.*;
 
-
+/**
+	Envelopes info about a client: its ID, its state and its GUI elements.
+*/
 class ClientBar {
 
+	/** contains client ID */
 	private JLabel label;
+	
+	/** Progress bar for visualization */
 	private JProgressBar bar;
+	
+	/** panel for showing the progress bar and the label */
 	private JPanel clientPanel;
 	
 	/** time of client start - normalized at the first client's start  */
 	private long startTime;
-	private FrameDesc fd;
 	
-	private long nominalAvgDistance;
-	private int samples;
+	/** last frame being displayed by the client */
+	private FrameDesc fd;
 	
 	ClientBar(String name, int max) {
 		startTime = 0;
 		fd = new FrameDesc();
-		nominalAvgDistance = 0;
-		samples = 0;
 				
 		label = new JLabel (name);
 		bar = new JProgressBar(0, max);
@@ -47,18 +51,6 @@ class ClientBar {
 	
 	FrameDesc getFrame() { return fd; }
 	
-	void updateAvgDistance(long d) {
-		/*
-		if (samples == 0)
-			nominalAvgDistance = d;
-		else
-			nominalAvgDistance = (nominalAvgDistance * samples + d) / ++samples;
-		
-		//trouble related to excessive distance
-		if (nominalAvgDistance > 200)
-			insertReport (new GaugeReport(label.getText(), 0, nominalAvgDistance, 0, 0, 0));
-		*/	
-	}
 	
 	JLabel getLabel() { return label; }
 	JProgressBar getBar() { return bar; }
@@ -66,6 +58,4 @@ class ClientBar {
 
 	long getStartTime() { return startTime; }
 	void setStartTime(long st) { startTime = st; } 
-	
-
 }

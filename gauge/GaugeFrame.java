@@ -8,6 +8,7 @@ import java.util.*;
 import siena.*;
 import siena.comm.*;
 
+/** Main real estate for the Gauge GUI */
 public class GaugeFrame extends JFrame {
   public static final int sienaPort = 4444;
   static long nomInterval;
@@ -30,7 +31,13 @@ public class GaugeFrame extends JFrame {
   JButton jButton1;
   ClientBar nominalBar = new ClientBar("Nominal", barMax);
   Hashtable clientBars = new Hashtable();
+  
+  /** Designed to keep track of what a nominal client 
+  - enjoying 30 fps - would progress 
+  */
   Thread nominal;
+  
+  /** data structure for taking snapshot of the clients' group*/
   TimeBucket bucket;
   
  
@@ -149,13 +156,17 @@ public class GaugeFrame extends JFrame {
 	publishStatus();
 	clearStatus();
   }
-    
+  
+  /** 
+  	communicates the latest snapshot taken as refelcted by the @see TimeBucket
+  */  
   private void publishStatus() {
+  	// for now just a printout 
   	System.out.println (bucket.toString());
   }
   
   /**
-  	clears the time bucket before starting next sample
+  	clears the time bucket before starting data collection for next sample
   */
   private void clearStatus() {
   	bucket.clearValues();

@@ -1,14 +1,30 @@
 package psl.ai2tv.gauge;
 
+/** Class descrbing a video frame. 
+	Holds the information presented in the format of the frame index file
+	plus runtime state information 
+*/
 public class FrameDesc {
 
+	/** Hierarchy level of the frame */
 	private int level;
+	/** frame number */
 	private int num;
+	
+	/** beginning of the frame interval represented by this frame at its hierarchy level 
+		(expresssed as a frame number)	
+	*/ 
 	private int start;
+
+	/** end of the frame interval represented by this frame at its hierarchy level  
+		(expresssed as a frame number)	
+	*/
 	private int end;
+	
+	/** has it been downloaded in the cache already? */
 	private boolean downloaded = false;
 	
-	/** time at which the Frame is downloaded */
+	/** time at which the Frame was downloaded */
 	private long downloadedTime;
 	
 	public FrameDesc() {
@@ -42,8 +58,6 @@ public class FrameDesc {
 	public void setEnd (int e) { end = e; }
 	public int getLevel() { return level; }
 	public void setLevel(int l) { level = l; }
-	
-	double interval() { return end - start; }
 	
 	public long getDownloadedTime() {return downloadedTime; }
 	public void setDownloadedTime(long t) { downloadedTime = t; }

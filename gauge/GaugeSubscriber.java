@@ -4,6 +4,10 @@ import siena.*;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+	Siena-based event receiver for the gauge.
+	Updates also visual bars with progress
+*/
 class GaugeSubscriber implements Notifiable {
 	private Filter gaugeFilter;
 	private GaugeFrame GUI;
@@ -17,6 +21,9 @@ class GaugeSubscriber implements Notifiable {
 	
 	Filter getGaugeFilter() { return gaugeFilter; }
 	
+	/**
+		
+	*/
     public void notify(Notification e) {
     	//System.out.println(e);
     	ClientBar currentBar;
@@ -34,6 +41,7 @@ class GaugeSubscriber implements Notifiable {
 	    }
     	
     	if (e.getAttribute("Start") != null) {
+    		//new client up,, update the gauge GUI with its progress bar
     		System.out.println("Connecting Client - " + id);
     		long st = e.getAttribute("Start").longValue();
 			// if this is the first client issuing a "Start", start the gauge thread
@@ -46,8 +54,6 @@ class GaugeSubscriber implements Notifiable {
 			else
 				// normalize all the client start times
 				currentBar.setStartTime(GUI.nominalBar.getStartTime());
-				
-   			    	
 	    }
     	else {
     		/* consider only if the event refers to the time interval currently considered,
