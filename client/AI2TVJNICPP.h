@@ -18,7 +18,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "AI2TVJNIJava.h"
+#include "psl_ai2tv_client_AI2TVJNIJava.h"
 #include "c:\\java1.4\\include\\win32\\jni_md.h"
 #include "c:\\java1.4\\include\\jni.h"
 

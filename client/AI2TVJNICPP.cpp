@@ -15,6 +15,8 @@
 
 #include "AI2TVJNICPP.h"
 
+int isActive = 1;
+
 /**
  * The CPP side JNI interface for the AI2TV client.
  *
@@ -131,8 +133,14 @@ void AI2TVJNICPP::playPressed(){
 // ----- JNI related functions called by the Java side ----- //
 
 JNIEXPORT void JNICALL
-Java_AI2TVJNIJava_displayFrame(JNIEnv *env, jobject obj, jstring frameNum) {
+// Java_psl_ai2tv_client_AI2TVJNIJava_shutdown(JNIEnv *env, jobject obj) {
+Java_psl_ai2tv_client_AI2TVJNIJava_shutdown(JNIEnv *env, jobject obj) {
+  printf("C++ side: shutdown");
+  isActive = 0;
+}
 
+JNIEXPORT void JNICALL
+Java_psl_ai2tv_client_AI2TVJNIJava_displayFrame(JNIEnv *env, jobject obj, jstring frameNum) {
   // char buf[128];
   // const char *str = env->GetStringUTFChars(frameNum, true);
   jboolean* isCopy = new jboolean(false);
@@ -149,17 +157,26 @@ Java_AI2TVJNIJava_displayFrame(JNIEnv *env, jobject obj, jstring frameNum) {
 
 // point of entry, uncomment if you're going to use this class from
 // the command line
-
+/*
 int main(int argc, char **argv) {
   // JNIEnv* env = create_vm();
   AI2TVJNICPP* foo = new AI2TVJNICPP();
   printf("success, now trying to invoke a class\n");
   foo->playPressed();
-  // invoke_class( env );
   printf("\n");
+
+  printf("Entering wait thread\n");  
+  while(isActive != 0){
+    printf("sleeping...\n");
+    system("sleep 5");
+    printf("awake!\n");
+  }
+  printf("Out of wait thread\n");  
+
   printf("<ZZZ - ");
-  delete foo;
+  if (foo != NULL)
+    delete foo;
   printf(" - ZZZ>\n");
   return 0;
 }
-
+*/

@@ -21,12 +21,12 @@ package psl.ai2tv.client;
  * @version	$$
  * @author	Dan Phung (dp2041@cs.columbia.edu)
  */
-class AI2TVJNIJava {
-  private AI2TVCommController _comm;
+class AI2TVJNIJava extends Thread{
+  // private AI2TVCommController _comm;
 
   AI2TVJNIJava(){
     System.out.println("Java side <AI2TVJNIJava constructor>");    
-    _comm = new AI2TVCommController();
+    // _comm = new AI2TVCommController(this);
   }
 
 
@@ -52,13 +52,12 @@ class AI2TVJNIJava {
   // ----- JNI related functions implemented on the C++ side ----- //
   // the following are function stubs implemented on the C++ side, 
   // accessed through the library loaded in the static block
-  private native void displayFrame(String frameNum);
-  private native void initialize();
+  native void displayFrame(String frameNum);
+  native void shutdown();
   static {
     System.loadLibrary("AI2TVJNICPP");
   }
   // --- END: JNI related functions implemented on the C++ side -- //
-
 
   public static void main(String[] args) {
     AI2TVJNIJava intf = new AI2TVJNIJava();
