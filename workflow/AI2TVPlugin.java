@@ -187,17 +187,17 @@ public class AI2TVPlugin extends ComponentPlugin {
 
         public void taskPublished(String taskName) {
             logger.debug(taskName + " published, adding timestamp");
-            PluginUtil.Timing.addTimestamp("publish" + taskName);
+            PluginUtil.Timing.addTimestamp("PUB " + taskName);
         }
 
         public void leafTaskPublished(String taskName) {
             logger.debug(taskName + " published, adding timestamp");
-            PluginUtil.Timing.addTimestamp("publish" + taskName);
+            PluginUtil.Timing.addTimestamp("PUB " + taskName);
         }
 
         public void taskFinished(String taskName) {
             logger.debug(taskName + " finished, adding timestamp");
-            PluginUtil.Timing.addTimestamp("end" + taskName);
+            PluginUtil.Timing.addTimestamp("END " + taskName);
 
             if (taskName.equals("ROOT")) {
                 PluginUtil.Timing.newRow();
