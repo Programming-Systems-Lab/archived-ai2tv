@@ -150,7 +150,7 @@ that each participant will view semantically equivalent content at all
 times.  Video actions can be initiated by any of the participants and
 the results of those actions are seen by all the members.  These
 features allow group members to review lectures videos in tandem to
-faciliate the learning process.  We employ an autonomic controller
+facilitate the learning process.  We employ an autonomic controller
 that monitors client video status and adjusts the quality of the video
 according to the resources of each client.  We show that our system
 can successfully synchronize video for distributed clients and
@@ -190,14 +190,14 @@ off-campus students \cite{CVN, STANDFORD}.  These courses then
 included both on and off campus students.  The latter population
 introduced the term of distanced learning to describe students
 enrolled in a local program yet attending the courses off-campus.
-With the addition of lecture videos to the available online materals,
+With the addition of lecture videos to the available online materials,
 online students have access to a greater wealth of information.
 
 Traditionally, the courses intended for online students are geared
 towards individual learning practices.  The introduction of a whole
 new set of courses from on-campus lectures introduced courses that are
 sometimes designed for group work.  Also, because on-campus students
-are in the same class as off-campus studnets, the new courses mixed in
+are in the same class as off-campus students, the new courses mixed in
 a population of students who like to study in groups, a practice
 commonly urged by professors to develop additional learning skills.
 This highlighted the lack of support for group collaboration.  Support
@@ -212,7 +212,7 @@ students \cite{BURGESS}.
 %% with the Web portal metaphor.  
 
 Our work contributes to the area of synchronous collaboration support,
-and, more specificially, to collaborative video viewing.  In this
+and, more specifically, to collaborative video viewing.  In this
 scenario, students that are dispersed across different geographical
 regions can view a lecture video simultaneously and in a synchronized
 manner: within a video session, participants can play, pause, stop and
@@ -225,11 +225,11 @@ be assured that all the participants are referencing the same
 material.
 
 % - motivate the use of video as distributed collaboration tool
-Viewing video on the Internet requires relatively high bandiwdth
+Viewing video on the Internet requires relatively high bandwidth
 resources.  Network traffic is usually erratic, which can lead to lost
 video content.  Furthermore, the differences of network and computing
 resources available to dispersed users in the same collaboration group
-can be very signficant.  Collaborative video viewing poses a twofold
+can be very significant.  Collaborative video viewing poses a twofold
 problem: on the one hand, it is mandatory to keep all users
 synchronized with respect to the content they are supposed to see at
 any moment during play time; on the other hand, it is important to
@@ -261,7 +261,7 @@ of our contributions.
 The advent of the Internet and the World Wide Web as a major means of
 communication has presented the educational community with the
 potential for great gains in the realm of accessibility to education
-through eLearning.  A variety of eLearning applications that support
+through e-Learning.  A variety of e-Learning applications that support
 individual study practices exist, and typically follow the metaphor of
 a Web portal where registered users can individually browse class
 material or post completed assignments \cite{WEBPORTAL}???.  Several
@@ -367,8 +367,8 @@ of video clients while fine tuning the video quality for each client.
 The term \textit{autonomic} as used here simply refers to the system's
 ability to self-adjust to network conditions and can be seen as a form
 of feedback control.  The idea of using an autonomic controller to
-support group video synchronization and other multimedia apps was
-first introduced in \cite{EWSPT}.
+support group video synchronization and other multimedia applications
+was first introduced in \cite{EWSPT}.
 
 The autonomic controller remains conceptually separate from the
 controlled ai2tv video system and employs a software based workflow
@@ -407,7 +407,7 @@ file.  For each frame in the index file, a time interval
 \texttt{[start:end]}, is provided that represents the valid times in
 which the frame can be played.  The task of the video server is simply
 to provide remote download access to the frames and the index file
-over http.
+over HTTP.
 
 % video client
 The task of video clients is to acquire video frames, display them at
@@ -416,17 +416,17 @@ a functional design perspective, the client is composed of three major
 modules: a video display, a video buffer and manager for fetching and
 storing downloaded frames, and a time controller.
 
-The video display renders the JPG frames into a window for display
-and provides a user interface for play, pause, goto, and stop.  When
-any participant initiates one of these actions, all the other group
+The video display renders the JPG frames into a window for display and
+provides a user interface for play, pause, goto, and stop.  When any
+participant initiates one of these actions, all the other group
 members receive the same command, thus all the video actions are
 synchronized.  The video display knows which frame to display by using
 the current video time and display quality level to index into the
 frame index for the representative frame.  Before trying to render the
 frame, it asks the video buffer manager if the needed frame is
 available.  The video display also includes a control entity that
-enables external entities, like the autonomic controler, to adjust the
-current display quality level.
+enables external entities, like the autonomic controller, to adjust
+the current display quality level.
 
 The video buffer and manager constitute the downloading daemon that
 continuously downloads frames at a certain level.  It keeps a hash of
@@ -465,7 +465,7 @@ expediency of design and to minimize the communication latency to it.
 They receive the sensor reports from individual clients, collect them
 in buckets, similar to the approach in \cite{MIMAZE}, and pass the
 bucket data structure to the coordination engine.  The coordination
-engine directs the flow of the information through a pre-defined
+engine directs the flow of the information through a predefined
 workflow plan described in the next section.
 
 During the evaluation of the data, a set of helper functions that are
@@ -485,7 +485,7 @@ video actions, sensor reports and adaptation directives.  Video
 actions pertain to the functionality of the ai2tv system, since they
 represent commands issued on a video client, such as pause, play or
 stop, which need to be propagated to all clients in the group to
-enforce the same behaviour.  All video actions are time stamped so
+enforce the same behavior.  All video actions are time stamped so
 that clients can respond to those commands in reference to the common
 time base.
 
@@ -494,7 +494,7 @@ time base.
 The adaptation scheme falls into two levels: a higher level data flow,
 and a lower level adjustment heuristic.  The former directs the flow
 of data through a logical sequence to provide a formal decision
-process while the latter provides the critera as to when to make
+process while the latter provides the criteria as to when to make
 certain adjustments.
 
 The higher level logic is shown in Figure ???, according to the
@@ -595,7 +595,7 @@ synchrony and quality of service (frame rate).
 
 \textit{Evaluating Synchrony} \\ One major goal of the system is to
 provide synchronous viewing to all clients.  To measure the
-effectiveness of the synchrony, we probe the clients at perodic time
+effectiveness of the synchrony, we probe the clients at periodic time
 intervals and log the frame currently being displayed.  This procedure
 effectively takes a snapshot of the system, which we can evaluate for
 correctness.  This evaluation proceeds by checking whether the frame
@@ -608,7 +608,7 @@ system by summing the number of clients not showing an acceptable
 frame and normalizing over the total number of clients.  A score of 0
 indicates a synchronized system.
 
-Our experiments for the evaluation of synchronization iniitially
+Our experiments for the evaluation of synchronization initially
 involved groups of clients that were set to begin playing the test
 video at different levels in the compression hierarchy, and were
 assigned the corresponding baseline bandwidth. In those experiments,
@@ -622,14 +622,14 @@ push the clients beyond their bandwidth resource capacity.
 We also ran another set of experiments, in which the clients in the
 group were assigned more casually selected levels of starting
 bandwidths.  This casual selection is representative of a real world
-situation, like listening to internet radio, where users must choose a
+situation, like listening to Internet radio, where users must choose a
 desired frame rate to receive.  The user may have been informed that
 she is allocated a level of bandwidth from her Internet service
-provider, but she may actually be receiving a significanty lower rate.
+provider, but she may actually be receiving a significantly lower rate.
 We ran experiments first without the aid of the autonomic controller
 and then with it. In the former case, clients with insufficient
 bandwidth were stuck at the compression level originally selected, and
-thus missd an average of 63\% of the needed frames.  In the latter
+thus missed an average of 63\% of the needed frames.  In the latter
 case, the same clients only missed 35\% of the needed frames.  These
 results provide evidence of the benefits of the adaptive scheme
 implemented by the autonomic controller.
@@ -647,10 +647,10 @@ To attain a quantitative measure of the quality of service provided by
 a client assisted by the autonomic controller, we use a scoring system
 relative to the baseline client's quality level.  We give a weighted
 score for each level above or below the baseline quality level.  The
-weighted score is calculated as the ratio of the fram rate of the two
+weighted score is calculated as the ratio of the frame rate of the two
 levels.  So, for example, if a client is able to play at one level
 higher then the baseline, and the baseline plays at an average
-\texttt{n} fps while the level higher plays at \texttt{2*n} fpm, the
+\texttt{n} fps while the level higher plays at \texttt{2*n} fps, the
 given score for playing at the higher level is 2.  The weighted score
 is calculated between the computed average frame rates of the chosen
 quality levels.  Theoretically, the baseline client should receive a
@@ -751,7 +751,7 @@ transport perspectives lie out of the scope of this paper.
 Stream synchronization is a widely studied topic in multimedia
 research.  Some classifications of synchronization schemes are whether
 the scheme is local or distributed (i.e., one or multiple sinks),
-whether they take action reactiely or pro-actively, and whether it
+whether they take action reactively or pro-actively, and whether it
 requires the notion of a global clock.  Our work does not deal with
 the problem of synchronization of multiple modalities (ie. video and
 audio) within a multimedia stream where the concern is to ensure the
@@ -782,7 +782,7 @@ variations in the conditions of the network) and needs to be corrected
 on the fly.
 
 Our approach to synchronization can be classified as a distributed
-adpative scheme that employs a global clock and operates in a
+adaptive scheme that employs a global clock and operates in a
 proactive way.  The main difference with respect to other approaches,
 such as the Adaptive Synchronization Protocol \cite{ASP},
 \cite{Gonzalez}, or \cite{Liu} (which can all be used equally for
@@ -810,7 +810,7 @@ the delay-based scheme described above ??? (fill in more).
 
 A different design and implementation of the concepts outlined here
 was completed in VECTORS \cite{VECTORS}.  That system uses a
-peer-to-peer architecutre to implement a synchronization scheme, and
+peer-to-peer architecture to implement a synchronization scheme, and
 does away with the central controller, following a design that is
 often employed in gaming systems.  Moreover, in VECTORS, the
 synchronization machinery is tightly coupled with a collaborative
@@ -829,8 +829,8 @@ geographically dispersed participants to collaboratively view a video
 in synchrony.  The system also employs a autonomic controller
 architecture that adapts the video quality according to client network
 bandwidth resources.  The other novel concept that we put forth is the
-use of semantic compression to facillitate the synchronization of
-video content to clients with heterogenous resources.  We rely on the
+use of semantic compression to facilitate the synchronization of
+video content to clients with heterogeneous resources.  We rely on the
 semantic compression algorithm to guarantee the semantic composition
 of the video frames is similar for all clients.  We then distribute
 appropriate versions of the video to clients according to their
