@@ -82,11 +82,9 @@ public class TimeController{
    */
   public void pauseTime(long absTimeSent) {
     if (!_pauseActive) {
-      System.out.println("pausing time");
       _pauseActive = true;
       pause(absTimeSent);
     } else {
-      System.out.println("unpausing time");
       _pauseActive = false;
       unpause(absTimeSent);
     }

@@ -27,7 +27,7 @@
   </target>
 
   <target name="compile" depends="prepare">
-    <javac srcdir="${SRCDIR}" destdir="${BUILD}" classpathref="compile.classpath" listfiles="yes" includes="psl/ai2tv/client/Client.java, psl/ai2tv/client/CommController.java, psl/ai2tv/client/CacheController.java, psl/ai2tv/client/TimeController.java, psl/ai2tv/client/Viewer.java, psl/ai2tv/client/LoginHandler.java, psl/ai2tv/client/ClientProbe.java, psl/ai2tv/client/ClientEffector.java, psl/ai2tv/gauge/FrameDesc.java, psl/ai2tv/gauge/FrameIndexParser.java, psl/ai2tv/SienaConstants.java" />
+    <javac srcdir="${SRCDIR}" destdir="${BUILD}" classpathref="compile.classpath" listfiles="yes" includes="psl/ai2tv/client/Client.java, psl/ai2tv/client/CommController.java, psl/ai2tv/client/CacheController.java, psl/ai2tv/client/TimeController.java, psl/ai2tv/client/Viewer.java, psl/ai2tv/client/LoginHandler.java, psl/ai2tv/client/ClientProbe.java, psl/ai2tv/client/ClientEffector.java, psl/ai2tv/gauge/FrameDesc.java, psl/ai2tv/gauge/FrameIndexParser.java, psl/ai2tv/SienaConstants.java, psl/ai2tv/client/AudioController.java" />
     <copy file="ai2tv_ready.jpg" todir="${BUILD}/psl/ai2tv/client" />
   </target>
 

@@ -153,7 +153,7 @@ public class Client extends Thread{
   }
 
   Client(boolean attachedToCHIME) {
-    System.out.println("<Java side> Client ctor");
+    // System.out.println("<Java side> Client ctor");
 
     _attachedToCHIME = attachedToCHIME;    
     // debugging/logging stuff
@@ -554,7 +554,7 @@ public class Client extends Thread{
         videos.remove(0); // the first entry is the parent dir
 
     } catch (IOException e){
-      System.out.println("caught exception: " + e);
+      System.err.println("caught exception: " + e);
       e.printStackTrace();
       return null;
     }
@@ -622,9 +622,8 @@ public class Client extends Thread{
    */
   void loadVideo(String videoMosh){
     // first we get and set the video name and date
-    // 999
     // Client loading video: CS4118-10,2003-08-10;08:00:00,goofy
-    System.out.println("Client loading video: " + videoMosh);
+    Client.debug.println("Client loading video: " + videoMosh);
     String[] info = videoMosh.split(",");
 
     String videoName = null;
@@ -865,14 +864,14 @@ public class Client extends Thread{
    * @param image: image to load
    */
   void loadImage(String image) {
-    System.out.println("<Java> loading Client.loadImage: " + image);
+    // System.out.println("<Java> loading Client.loadImage: " + image);
     if (_attachedToCHIME){
       String[] tokens = image.split("/");
       String imageName = tokens[tokens.length - 1];
       String name = imageName.substring(0,imageName.indexOf(IMAGE_FORMAT));
       String source = "cache/" + imageName;
 	
-      System.out.println("<Java> loading Client.loadImage name: " + name + " source: " + source); 
+      // System.out.println("<Java> loading Client.loadImage name: " + name + " source: " + source); 
       _jni.loadImage(name, source);
 
     } else {
@@ -1085,8 +1084,13 @@ public class Client extends Thread{
    */
   public void commPlay(long absTimeSent) {
     Client.debug.println("Client: commPlay method called");
-    _clock.startTime(absTimeSent);
-    startViewerThread();
+    if (!_isActive){
+      _clock.startTime(absTimeSent);
+      startViewerThread();
+    } else if (_clock != null && _clock.isPaused()){
+      // if paused, toggle the paused state
+      _clock.pauseTime(absTimeSent);      
+    }
   }
 
   /**
@@ -1128,9 +1132,7 @@ public class Client extends Thread{
    */
   void playPressed() {
     Client.debug.println("<Client> playPressed method called");
-    if (!_isActive){
-      if (_comm != null) _comm.playPressed();
-    }
+    if (_comm != null) _comm.playPressed();
     if (_audio != null) _audio.play();
   }
 
