@@ -127,6 +127,13 @@ class Client {
    */
   public void commPlay(){
     System.out.println("commPlay received");
+
+    // have we started, if not, this is it!
+    if (_startTime == 0){
+      System.out.println("starting time");
+      startTime();
+    }
+
     _isActive = true;
     new Thread(){
       public void run(){
@@ -200,11 +207,6 @@ class Client {
 
   // --------- Viewer initiated actions ---------- //
   void playPressed(){
-    // have we started, if not, this is it!
-    if (_startTime == 0){
-      System.out.println("starting time");
-      startTime();
-    }
       // start the pseudoWF thread. 
       // this thread is doing a simple version of what 
       // the WF will be doing.
@@ -223,7 +225,6 @@ class Client {
   }
 
   void gotoPressed(int gotoTime){
-    // if (_isActive)
       _comm.gotoPressed(gotoTime);
   }
 
