@@ -115,8 +115,14 @@ class Viewer extends JFrame {
 
     // load the ready image and start the viewer
     _filename = "ai2tv_ready.jpg";
-    loadImage(_filename);
-    displayImage(_filename);
+    ImageIcon imageIcon = null;
+    try {
+    ClassLoader cl = getClass().getClassLoader();
+    imageIcon = new ImageIcon((java.net.URL) cl.getSystemResources("psl/ai2tv/client/ai2tv_ready.jpg").nextElement());
+    } catch (java.io.IOException e) { e.printStackTrace(); }
+
+    loadImage(imageIcon.getImage(), _filename);
+    displayImage(imageIcon.getImage());
 
     show();
   }
@@ -271,6 +277,10 @@ class Viewer extends JFrame {
     _newFrame = value;
   }
 
+  void displayImage(Image image) {
+    _image = image;
+  }
+
   /**
    * displays given image filename.  filename must refer to 
    * a previously loaded file using loadImage(String).
@@ -293,14 +303,18 @@ class Viewer extends JFrame {
     }
   }
 
+  void loadImage(String filename) {
+    Image image = toolkit.createImage(filename);
+    loadImage(image, filename);
+  }
+
   /**
    * load the image into memory.  the specified file must be local 
    * to this system.
    * 
    * @param filename: image file to display.  
    */  
-  void loadImage(String filename) {
-    Image image = toolkit.createImage(filename);
+  void loadImage(Image image, String filename) {
     try {
       _mediaTracker.addImage(image, _imageIndex);
       _mediaTracker.waitForID(_imageIndex);
