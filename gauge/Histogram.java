@@ -25,7 +25,7 @@ import java.util.*;
  * There are performace issues, however, with growing the vector from the beginning (adding
  * elements before the beginning).
  *
- * @version	$$
+ * @version	$Revision$
  * @author	Dan Phung (dp2041@cs.columbia.edu)
  */
 public class Histogram {

@@ -22,7 +22,7 @@ import java.util.*;
  * Parses the frame index file and puts it in an accessible data
  * structure.
  *
- * @version	$$
+ * @version	$Revision$
  * @author	Dan Phung (dp2041@cs.columbia.edu)
  */
 class FrameIndexParser {

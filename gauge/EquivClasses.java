@@ -22,7 +22,7 @@ import java.util.*;
  * Compute and generate a data structue to hold the equivalent
  * classes across AI2TV frame heirarchies.
  *
- * @version	$$
+ * @version	$Revision$
  * @author	Dan Phung (dp2041@cs.columbia.edu)
  */
 class EquivClasses {
