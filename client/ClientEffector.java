@@ -135,18 +135,19 @@ class ClientEffector implements Notifiable {
       Client.out.println("found a WF commmand to do something, directed to ME!");
       Client.out.println("");
       if (event.getAttribute(SienaConstants.CHANGE_CLIENT_LEVEL) != null){
-	// Client.out.println("ClientEffector found command to change levels: " + event.getAttribute(SienaConstants.CHANGE_LEVEL).toString());
+	System.out.println("ClientEffector found command to change client level: " + event.getAttribute(SienaConstants.CHANGE_CLIENT_LEVEL).toString());
 	_client.changeLevel(event.getAttribute(SienaConstants.CHANGE_CLIENT_LEVEL).intValue());
       }
       if (event.getAttribute(SienaConstants.CHANGE_CACHE_LEVEL) != null){
-	// Client.out.println("ClientEffector found command to change levels: " + event.getAttribute(SienaConstants.CHANGE_LEVEL).toString());
+	System.out.println("ClientEffector found command to change cache level: " + event.getAttribute(SienaConstants.CHANGE_CACHE_LEVEL).toString());
 	_client.changeCacheLevel(event.getAttribute(SienaConstants.CHANGE_CACHE_LEVEL).intValue());
       }
       if (event.getAttribute(SienaConstants.JUMP_TO) != null){
-	Client.out.println("ClientEffector found command to jump to a certain frame: " + event.getAttribute(SienaConstants.JUMP_TO).stringValue());
+	System.out.println("ClientEffector found command to jump to a certain frame: " + event.getAttribute(SienaConstants.JUMP_TO).stringValue());
 	_client.jumpTo(event.getAttribute(SienaConstants.JUMP_TO).stringValue());
       } 
       if (event.getAttribute(SienaConstants.CHANGE_FRAME_RATE) != null){
+	System.out.println("ClientEffector found command to change frame rate: " + event.getAttribute(SienaConstants.CHANGE_FRAME_RATE).stringValue());
 	_client.setFrameRate(event.getAttribute(SienaConstants.CHANGE_FRAME_RATE).intValue());
       }
 
@@ -165,9 +166,9 @@ class ClientEffector implements Notifiable {
     event.putAttribute(SienaConstants.AI2TV_WF_UPDATE_REPLY, "");
     event.putAttribute(SienaConstants.PREV_PROP_DELAY, ppd);
     event.putAttribute(SienaConstants.LEVEL, _client.getLevel());
+    event.putAttribute(SienaConstants.CACHE_LEVEL, _client.getCacheLevel());
     event.putAttribute(SienaConstants.BANDWIDTH, _client.getBandwidth());
     event.putAttribute(SienaConstants.FRAME_RATE, _client.getFrameRate());
-    event.putAttribute(SienaConstants.CACHE_LEVEL, _client.getCacheLevel());
     event.putAttribute(SienaConstants.CLIENT_RESERVE_FRAMES, _client.getReserveFrames());
     event.putAttribute(SienaConstants.PREFETCHED_FRAMES, _client.getNumPrefetchedFrames(_client.getCacheLevel()));
     addFrameInfo(event);
@@ -199,7 +200,8 @@ class ClientEffector implements Notifiable {
       update.putAttribute(SienaConstants.LEFTBOUND, fd.getStart());
       update.putAttribute(SienaConstants.RIGHTBOUND, fd.getEnd());
       update.putAttribute(SienaConstants.MOMENT, fd.getNum());
-      update.putAttribute(SienaConstants.LEVEL, fd.getLevel());
+      // this was conflicting with the client's level
+      // update.putAttribute(SienaConstants.LEVEL, fd.getLevel());
       update.putAttribute(SienaConstants.SIZE, fd.getSize());
       update.putAttribute(SienaConstants.TIME_SHOWN, fd.getTimeShown());
       update.putAttribute(SienaConstants.TIME_OFFSET, fd.getTimeOffset());

@@ -93,9 +93,9 @@ class ClientProbe {
   private void sendUpdate(){
     _frameEvent.putAttribute(SienaConstants.AI2TV_FRAME, "");
     _frameEvent.putAttribute(SienaConstants.LEVEL, _client.getLevel());
+    _frameEvent.putAttribute(SienaConstants.CACHE_LEVEL, _client.getCacheLevel());
     _frameEvent.putAttribute(SienaConstants.BANDWIDTH, _client.getBandwidth());
     _frameEvent.putAttribute(SienaConstants.FRAME_RATE, _client.getFrameRate());
-    _frameEvent.putAttribute(SienaConstants.CACHE_LEVEL, _client.getCacheLevel());
     _frameEvent.putAttribute(SienaConstants.CLIENT_RESERVE_FRAMES, _client.getReserveFrames());
     _frameEvent.putAttribute(SienaConstants.PREFETCHED_FRAMES, _client.getNumPrefetchedFrames(_client.getCacheLevel()));
 
@@ -172,7 +172,8 @@ class ClientProbe {
       _frameEvent.putAttribute(SienaConstants.LEFTBOUND, fd.getStart());
       _frameEvent.putAttribute(SienaConstants.RIGHTBOUND, fd.getEnd());
       _frameEvent.putAttribute(SienaConstants.MOMENT, fd.getNum());
-      _frameEvent.putAttribute(SienaConstants.LEVEL, fd.getLevel());
+      // this was conflicting with the client's level
+      // _frameEvent.putAttribute(SienaConstants.LEVEL, fd.getLevel());
       _frameEvent.putAttribute(SienaConstants.SIZE, fd.getSize());
       _frameEvent.putAttribute(SienaConstants.TIME_SHOWN, fd.getTimeShown());
       _frameEvent.putAttribute(SienaConstants.TIME_OFFSET, timeOffset);

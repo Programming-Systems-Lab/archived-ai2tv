@@ -115,8 +115,8 @@ public class GaugeLDMPlugIn
       ca = (ClientAsset)factory.createInstance("ClientProto");
       ca.setItemIdentificationPG(makeIdentificationPG("AI2TV_Client "+ cd.getClientID()
 						      + "@" + sampleTime));
-      ca.setClientPG(makeClientPG(cd.getClientID(), "127.0.0.1", cd.getLevel(), cd.getFrameRate(),
-				  cd.getCacheLevel(), cd.getBandwidth(), sampleTime, cd.getPrefetchedFrames(), 
+      ca.setClientPG(makeClientPG(cd.getClientID(), "127.0.0.1", cd.getLevel(), cd.getCacheLevel(),
+				  cd.getFrameRate(), cd.getBandwidth(), sampleTime, cd.getPrefetchedFrames(), 
 				  cd.getReserveFrames(), cd.getAvgDistWF2Client(), cd.getPenalties()
 				  ));
       if (cd.getPenalties() > 0)
@@ -224,14 +224,16 @@ public class GaugeLDMPlugIn
     cPG.setId(id);
     cPG.setHost(hostname);
     cPG.setLevel(level);
-    cPG.setFrameRate(frameRate);
     cPG.setCacheLevel(cacheLevel);
-    cPG.setReserveFrames(reserveFrames);
+    cPG.setFrameRate(frameRate);
     cPG.setBandwidth(bw);
     cPG.setSampleTime(t);
     cPG.setPrefetchedFrames(prefetchedFrames);
+    cPG.setReserveFrames(reserveFrames);
     cPG.setAvgDistWF2Client(avgDist);
     cPG.setPenalties(penalties);
+    cPG.setAdapt(false);
+    cPG.setNewFrameRate(WFHelperFunctions.DEFAULT_FRAME_RATE);
 		
     return cPG;
   }

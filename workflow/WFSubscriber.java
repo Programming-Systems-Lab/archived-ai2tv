@@ -117,6 +117,7 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
       ht.put(id, currentClient = new ClientDesc(id));
       myGauge.getBucket().update(id, currentClient);
     }
+    currentClient.setPenalties(0); // reset the penalties on each report
     if (e.getAttribute(SienaConstants.AI2TV_WF_REG) != null){
       // don't do anything as we register above.  I catch
       // this here so that I don't get an error later.
@@ -128,8 +129,8 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
 	currentClient.setFrame(e.getAttribute(SienaConstants.LEFTBOUND).intValue(),
 			       e.getAttribute(SienaConstants.MOMENT).intValue(),
 			       e.getAttribute(SienaConstants.RIGHTBOUND).intValue(),
-			       e.getAttribute(SienaConstants.LEVEL).intValue(),
 			       e.getAttribute(SienaConstants.SIZE).intValue(),
+			       e.getAttribute(SienaConstants.LEVEL).intValue(),
 			       e.getAttribute(SienaConstants.TIME_SHOWN).longValue(),
 			       e.getAttribute(SienaConstants.TIME_OFFSET).intValue(),
 			       e.getAttribute(SienaConstants.TIME_DOWNLOADED).longValue());
@@ -149,8 +150,8 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
 	currentClient.setFrame(e.getAttribute(SienaConstants.LEFTBOUND).intValue(),
 			       e.getAttribute(SienaConstants.MOMENT).intValue(),
 			       e.getAttribute(SienaConstants.RIGHTBOUND).intValue(),
-			       e.getAttribute(SienaConstants.LEVEL).intValue(),
 			       e.getAttribute(SienaConstants.SIZE).intValue(),
+			       e.getAttribute(SienaConstants.LEVEL).intValue(),
 			       e.getAttribute(SienaConstants.TIME_SHOWN).longValue(),
 			       e.getAttribute(SienaConstants.TIME_OFFSET).intValue(),
 			       e.getAttribute(SienaConstants.TIME_DOWNLOADED).longValue());
@@ -207,8 +208,8 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
     if (e.getAttribute(SienaConstants.PREFETCHED_FRAMES) != null)
       currentClient.setPrefetchedFrames(e.getAttribute(SienaConstants.PREFETCHED_FRAMES).intValue());
     currentClient.setLevel(e.getAttribute(SienaConstants.LEVEL).intValue());
-    currentClient.setBandwidth(e.getAttribute(SienaConstants.BANDWIDTH).doubleValue());
     currentClient.setCacheLevel(e.getAttribute(SienaConstants.CACHE_LEVEL).intValue());
+    currentClient.setBandwidth(e.getAttribute(SienaConstants.BANDWIDTH).doubleValue());
     currentClient.setFrameRate(e.getAttribute(SienaConstants.FRAME_RATE).intValue());
     currentClient.setReserveFrames(e.getAttribute(SienaConstants.CLIENT_RESERVE_FRAMES).intValue());
   }

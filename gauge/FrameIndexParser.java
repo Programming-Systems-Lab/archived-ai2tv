@@ -45,7 +45,7 @@ public class FrameIndexParser {
   private int _levels;
   /** the number of frames in each level */
   private int[] _frameNum;
-  /** the average needed bandwidth for each level */
+  /** the average needed bandwidth for each level (kbytes/sec) */
   private double[] _avgBandwidthNeeded;
 
   /**
@@ -184,10 +184,11 @@ public class FrameIndexParser {
   }
 
   /**
-   * compute the average needed bandwith for each level by assuming
-   * that each frame only has the time from when the last frame was
-   * shown to when the current frame needs to be shown.  Assumes that
-   * the first frame has 5 seconds until when it is to be displayed.
+   * compute the average needed bandwith (kbytes/sec) for each level
+   * by assuming that each frame only has the time from when the last
+   * frame was shown to when the current frame needs to be shown.
+   * Assumes that the first frame has 5 seconds until when it is to be
+   * displayed.
    */
   private void _computeAvgBandwidthNeeded(){
     _avgBandwidthNeeded = new double[_levels];
@@ -207,12 +208,13 @@ public class FrameIndexParser {
 	sum += frame.getSize() / timeNeeded;
 	timeNeeded = ((double) frame.getEnd() - frame.getStart())/FRAME_RATE;
       }
-      _avgBandwidthNeeded[i] = sum/j;
+      _avgBandwidthNeeded[i] = (sum/1000)/j;
     }
   }
 
   /**
-   * @return the array holding the average needed bandwith for each level
+   * @return the array holding the average needed bandwith
+   * (kbytes/sec) for each level
    */
   public double[] getAvgBandwidthNeeded(){
     return _avgBandwidthNeeded;
@@ -299,6 +301,10 @@ public class FrameIndexParser {
     FrameIndexParser fip = new FrameIndexParser(args[0]);
     long b = java.util.Calendar.getInstance().getTimeInMillis();
     // fip.print();
+
+    double[] foo = fip.getAvgBandwidthNeeded();
+    for (int i=0; i<foo.length; i++)
+      System.out.println("for level: " + i + " avg bandwidth needed: " + foo[i] + " kbytes/sec");
   }
 
 }

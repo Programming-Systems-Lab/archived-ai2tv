@@ -204,7 +204,7 @@ public class AI2TVPlugin extends ComponentPlugin {
             PluginUtil.Timing.addTimestamp("END " + taskName);
 
             if (taskName.equals("ROOT")) {
-	        PluginUtil.Timing.addTimestamp(" " + taskName, (System.currentTimeMillis() - startTime));
+	        PluginUtil.Timing.addTimestamp("DIFF" + taskName, (System.currentTimeMillis() - startTime));
                 PluginUtil.Timing.newRow();
             }
         }

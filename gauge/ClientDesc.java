@@ -35,7 +35,7 @@ public class ClientDesc {
   /** rate at which frames were sampled */
   protected int frameRate;
 
-  /** bandwidth as sampled last */
+  /** cache level as sampled last */
   protected int cacheLevel;
 
   /** number of reserved frames if the client and cache levels are not the same */
@@ -119,6 +119,7 @@ public class ClientDesc {
     fd.setTimeDownloaded(timeDownloaded);
   }
 	
+  public String getClientID() { return clientID; }
   public FrameDesc getFrame() { return fd; }
   public long getStartTime() { return startTime; }
   public void setStartTime(long st) { startTime = st; } 
@@ -132,7 +133,6 @@ public class ClientDesc {
   public void setReserveFrames(int rf) { reserveFrames = rf; }
   public double getBandwidth() { return bandwidth; }
   public void setBandwidth(double d) { bandwidth = d; }
-  public String getClientID() { return clientID; }
   public int getPrefetchedFrames() { return prefetchedFrames; }
   public void setPrefetchedFrames(int p) { prefetchedFrames = p; }
   public int getPenalties(){ return penalties; }

@@ -60,17 +60,20 @@ public class WFHelperFunctions implements ExecutableTask {
 
   private static final Logger logger = Logger.getLogger(WFHelperFunctions.class);
 
-  public final int HIGHEST_LEVEL = 0;
-  public final int LOWEST_LEVEL = 4; 
-  public final int PREFETCH_THRESHOLD = 4;
-  public final int PREFETCH_CHANGE_THRESHOLD = 2;
-  public final int RESERVE_THRESHOLD = 2;
-  public final int OFFSET_THRESHOLD = 2000;
+  public static final int HIGHEST_LEVEL = 0;
+  public static final int LOWEST_LEVEL = 4;
+  public static final int PREFETCH_THRESHOLD = 4;
+  public static final int PREFETCH_CHANGE_THRESHOLD = 2;
+  public static final int RESERVE_THRESHOLD = 2;
+  public static final int OFFSET_THRESHOLD = 2000;
+  public static final int DEFAULT_FRAME_RATE = 30;
+  public static final double DEFAULT_FRAME_RATE_ADJUSTMENT = .5;
+
 
   private WFGauge myGauge = WFSubscriber.myGauge;
   private ClientAsset baseCA, clientAsset;
   private NewClientPG basePG;
-  private ClientPG clientPG, medianPG;
+  private NewClientPG clientPG, medianPG;
   private FramePG clientFramePG;
   private Vector clients;
   private Notification event;
@@ -82,11 +85,10 @@ public class WFHelperFunctions implements ExecutableTask {
   
   private double lowestBandwidth; // used in FindBase
   private double bandwidth;       // used in FindBase
-  private int level;       // used in FindBase  
+  private int level;              // used in FindBase  
   private double ratio;
   private int frameRate;
   private int newFrameRate;
-  private boolean changeFrameRate;
 
   /**
    * 
@@ -104,7 +106,7 @@ public class WFHelperFunctions implements ExecutableTask {
     medianPG = null;
     clientFramePG = null;
     event = null;
-    changeFrameRate = false;
+    //changeFrameRate = false;
     newFrameRate = -1;
     try {
       siena = SimpleGaugeSubscriber.getSiena();
@@ -131,13 +133,12 @@ public class WFHelperFunctions implements ExecutableTask {
     if (method.equals("FindBase"))
       findBase(inParams, outParams);
     else if (method.equals("EvaluateClient"))
-      evaluateClientWrtBase(inParams, outParams);
+      ; // evaluateClientWrtBase(inParams, outParams);
     else if (method.equals("AdaptClient"))
       adaptClient(inParams, outParams);
     else
       throw new Exception("WFHelperFunctions Exception: unknown method name " + method);
   }
-
 
   /**
    * This method computes the base clients that other client will be
@@ -156,44 +157,108 @@ public class WFHelperFunctions implements ExecutableTask {
   private void findBase(Hashtable inParams, Hashtable outParams)
     throws Exception {
 
+    logger.debug("- - - - - - - - - - - - - - - - - - - - ");
+    logger.debug("- - - - - WF Helper Functions: findBase - - - - - \n\n");
+
+    // changeFrameRate = false;
     baseCA = (ClientAsset) inParams.get("baseClient");
     basePG = (NewClientPG) baseCA.getClientPG();
     clients = (Vector) inParams.get("clients");
 
-    logger.debug("findBase: baseClient=" + baseCA + ", client=" + clients);
-    logger.debug("- - - - - - - - \n\nBase (midway) client before: " + basePG);
+    // logger.debug("findBase: baseClient=" + baseCA + ", client=" + clients);
 
     lowestBandwidth = 99999;
     int baseIndex = -1;
+    int lowestBWIndex = -1;
+
+    // first we check to see if anybody's missed any frames and what the lowest 
+    // level client is
     for (int i = 0; i < clients.size(); i++) {
       clientAsset = (ClientAsset) clients.get(i);
-      clientPG = clientAsset.getClientPG();
+      clientPG = (NewClientPG) clientAsset.getClientPG();
       penalties = clientPG.getPenalties();
-      bandwidth = clientPG.getBandwidth();
+      bandwidth = clientPG.getBandwidth(); // switch to bytes/sec
+      level = clientPG.getLevel(); // switch to bytes/sec
 
-      if (penalties > 0 && bandwidth < lowestBandwidth ){
+      logger.debug("frame rate: " + clientPG.getFrameRate());
+      logger.debug("bandwidth: " + bandwidth);
+      logger.debug("level: " + level);
+      logger.debug("penalties: " + penalties);
+
+      if (bandwidth < lowestBandwidth && level == LOWEST_LEVEL){
 	lowestBandwidth = bandwidth;
-	baseIndex = i;
+	lowestBWIndex = i;	
+	if (penalties > 0)
+	  baseIndex = i;
       }
     }
 
-    // basePG.getID().indexOf("dummyID") != -1
-    if (baseIndex != -1){
+    logger.debug("!!!!!! baseIndex: " + baseIndex + " lowestBWIndex: " + lowestBWIndex);
+    // if there were no penalites
+    if (baseIndex < 0 && lowestBWIndex >= 0 ){
+      ; /*
+      clientAsset = (ClientAsset) clients.get(lowestBWIndex);
+      clientPG = (NewClientPG) clientAsset.getClientPG();
+      level = clientPG.getLevel();
+      if (clientPG.getPrefetchedFrames() > PREFETCH_CHANGE_THRESHOLD){
+	if (lowestBandwidth < avgBandwidthNeeded[level]) {
+	  // this frame rate will hopefully keep the client steady
+	  newFrameRate = (int)(lowestBandwidth / avgBandwidthNeeded[level]) * DEFAULT_FRAME_RATE;
+	} else {
+	  // this frame rate is if the lowest bandwidth is greater than the client's avg need, so the
+	  // ratio is greater than one, so the client should be fine at this frame rate
+	  newFrameRate = DEFAULT_FRAME_RATE;
+	}
+	newFrameRate = (int)(clientPG.getFrameRate() + clientPG.getFrameRate() * 0.5);
+	for (int i = 0; i < clients.size(); i++) {
+	  clientAsset = (ClientAsset) clients.get(i);
+	  clientPG = (NewClientPG) clientAsset.getClientPG();
+	  clientPG.setAdapt(true);
+	  clientPG.setNewFrameRate(newFrameRate);
+	  }
+	}
+	*/ 
+    } else if (baseIndex != -1){
       clientAsset = (ClientAsset) clients.get(baseIndex);
-      clientPG = clientAsset.getClientPG();
+      clientPG = (NewClientPG) clientAsset.getClientPG();
       bandwidth = clientPG.getBandwidth();
-      level = clientPG.getLevel();      
-      frameRate = clientPG.getLevel();
-      ratio = bandwidth / avgBandwidthNeeded[level];
-      if (ratio < 0)
-	basePG.setFrameRate((int)(ratio * frameRate));
+      frameRate = clientPG.getFrameRate();
+      level = clientPG.getLevel();
+
+      if (bandwidth < avgBandwidthNeeded[level])
+	ratio = bandwidth / avgBandwidthNeeded[level];
+      else 
+	ratio = DEFAULT_FRAME_RATE_ADJUSTMENT;
+
+      logger.debug("the client's bandwith is: " + bandwidth);
+      logger.debug("the calculated needed bandwith is: " + avgBandwidthNeeded[level]);
+      logger.debug("the client's level is: " + level);
+      logger.debug("the client's frame rate is: " + frameRate);
+      logger.debug("the ratio is: " + ratio);
+      // if (ratio > 0)
+      // basePG.setFrameRate((int)(ratio * frameRate));
       // need to clone the clientpg here
       // basePG.setBandwidth(bandwidth);
       // basePG.setHost(clientPG.getHost());
       // basePG.setId(clientPG.getId());
       // basePG.setSampleTime(clientPG.getSampleTime());
+      logger.debug("found a client that needs adjusting");
+      logger.debug("new frame rate is: " + (int)(ratio * frameRate));
+
+      // changeFrameRate = true;
+      newFrameRate = (int)(ratio * frameRate); // basePG.getFrameRate();
+      for (int i = 0; i < clients.size(); i++) {
+	clientAsset = (ClientAsset) clients.get(i);
+	clientPG = (NewClientPG) clientAsset.getClientPG();
+	clientPG.setAdapt(true);
+	clientPG.setNewFrameRate(newFrameRate);
+      }
     }
-    logger.debug("Base (midway) client after: " + basePG + "\n\n- - - - - - - - - - -");
+
+    // logger.debug("Base (midway) client after: " + basePG);
+    // logger.debug("frame rate: " + basePG.getFrameRate());
+    // logger.debug("bandwidth: " + basePG.getBandwidth());
+    logger.debug("\n\n- - - - - - - - - - - - - - - - - - - - ");
   }
 
 
@@ -204,7 +269,8 @@ public class WFHelperFunctions implements ExecutableTask {
    * @param outParams: hash of output paramters
    */
   private void evaluateClientWrtBase(Hashtable inParams, Hashtable outParams) {
-    changeFrameRate = false;
+
+    /*
     baseCA = (ClientAsset) inParams.get("baseClient");
     basePG = (NewClientPG) baseCA.getClientPG();
     clientAsset = (ClientAsset) inParams.get("clients");
@@ -222,6 +288,7 @@ public class WFHelperFunctions implements ExecutableTask {
       // need to know that the base client has a certain change, and we should adjust everybody.
       // there are no per client changes wrt to the base.
     }
+    */
   }
 
   /**
@@ -257,7 +324,7 @@ public class WFHelperFunctions implements ExecutableTask {
 
   private void adaptClient(Hashtable inParams, Hashtable outParams) {  
     clientAsset = (ClientAsset) inParams.get("clients");
-    clientPG = clientAsset.getClientPG();
+    clientPG = (NewClientPG) clientAsset.getClientPG();
     clientFramePG = clientAsset.getFramePG();
 
     // we don't use the base currently
@@ -274,14 +341,12 @@ public class WFHelperFunctions implements ExecutableTask {
     timeOffset = (double)clientFramePG.getTimeOffset()/1000;
     penalties = clientPG.getPenalties();
     prefetchedFrames = clientPG.getPrefetchedFrames();
-    clientLevel = clientFramePG.getLevel();
+    clientLevel = clientPG.getLevel();
     cacheLevel = clientPG.getCacheLevel();
     reserveFrames = clientPG.getReserveFrames();
 
-    // logger.debug("- - - - - - - - - - - - - - - - - - - - ");
-    // logger.debug("- - - - - WF Helper Functions - - - - - ");
-    // logger.debug("");
-    // logger.debug("");
+    logger.debug("- - - - - - - - - - - - - - - - - - - - ");
+    logger.debug("- - - - - WF Helper Functions: adaptClient - - - - - \n\n");
     // logger.debug("client's avg WF->client: " + clientPG.getAvgDistWF2Client());
     // logger.debug("frame's info: " + timeShown + ", " + timeOffset + ", " + timeDownloaded);
     // logger.debug("- - -");
@@ -289,18 +354,21 @@ public class WFHelperFunctions implements ExecutableTask {
     // logger.debug("frame start=" + start + ",end=" + end + ",timeShown=" + timeShown
     // + ", clientid=" + clientPG.getId());
 
-    // logger.debug("clientLevel: " + clientLevel);
-    // logger.debug("cacheLevel: " + cacheLevel);
-    // logger.debug("penalties: " + penalties);
-    // logger.debug("prefetched: " + prefetchedFrames);
-    // logger.debug("reserveFrames: " + reserveFrames);
+    logger.debug("clientLevel: " + clientLevel);
+    logger.debug("cacheLevel: " + cacheLevel);
+    logger.debug("penalties: " + penalties);
+    logger.debug("prefetched: " + prefetchedFrames);
+    logger.debug("reserveFrames: " + reserveFrames);
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //
     // - - - - - - - -  Adjustments made to clients all clients! - - - - - - - - //
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //
-    if (changeFrameRate){
+    logger.debug("CHANGE THE FRAME RATE? " + clientPG.getAdapt());
+    if (clientPG.getAdapt()){
+      logger.debug("Changing the frame rates to " + clientPG.getNewFrameRate());
       event = new Notification();
-      event.putAttribute(SienaConstants.CHANGE_FRAME_RATE, newFrameRate);
+      event.putAttribute(SienaConstants.CHANGE_FRAME_RATE, clientPG.getNewFrameRate());
+      clientPG.setAdapt(false);
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //
@@ -308,15 +376,15 @@ public class WFHelperFunctions implements ExecutableTask {
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //
     if (penalties > 0 || timeOffset > OFFSET_THRESHOLD || reserveFrames == RESERVE_THRESHOLD){
       if (clientLevel > (LOWEST_LEVEL - 1)){
-	// logger.debug("!!! client is too slow, must skip frames !!!");
+	logger.debug("!!! client is too slow, must skip frames !!!");
 	if (event == null)
 	  event = new Notification();
-	fd = computeNextDownload(clientLevel, clientFramePG.getNum(), 
-					   clientPG.getBandwidth(), 
-					   clientPG.getAvgDistWF2Client());
-	event.putAttribute(SienaConstants.JUMP_TO, fd.getNum());
+	// fd = computeNextDownload(clientLevel, clientFramePG.getNum(), 
+	// clientPG.getBandwidth(), 
+	// clientPG.getAvgDistWF2Client());
+	// event.putAttribute(SienaConstants.JUMP_TO, fd.getNum());
       } else {
-	// logger.debug("!!! client is too slow!  setting client/cache DOWN a level !!!");
+	logger.debug("!!! client is too slow!  setting client/cache DOWN a level !!!");
 	if (event == null)
 	  event = new Notification();
 	// we want the cache and the client levels to be the same here.
@@ -330,12 +398,12 @@ public class WFHelperFunctions implements ExecutableTask {
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //
 
     } else if (clientLevel == cacheLevel && prefetchedFrames >= PREFETCH_THRESHOLD){
-      // logger.debug("!!! client is WAY FAST!  setting client CACHE UP a level !!!");
+      logger.debug("!!! client is WAY FAST!  setting client CACHE UP a level !!!");
       if (event == null)
 	event = new Notification();
       event.putAttribute(SienaConstants.CHANGE_CACHE_LEVEL, (cacheLevel - 1));
-    } else if (clientLevel != cacheLevel && prefetchedFrames >= PREFETCH_CHANGE_THRESHOLD) {
-      // logger.debug("!!! client's cache is ready.  Setting client UP a level !!!");
+    } else if (clientLevel > cacheLevel && prefetchedFrames >= PREFETCH_CHANGE_THRESHOLD) {
+      logger.debug("!!! client's cache is ready.  Setting client UP a level !!!");
       if (event == null)
 	event = new Notification();
       event.putAttribute(SienaConstants.CHANGE_CLIENT_LEVEL, cacheLevel);
@@ -347,6 +415,7 @@ public class WFHelperFunctions implements ExecutableTask {
       event.putAttribute(SienaConstants.CLIENT_ID, clientPG.getId());
       // logger.info("sending event: " + event);
       try {
+	logger.debug("publishing: " + event);
 	siena.publish(event);
       } catch (siena.SienaException e) {
 	System.err.println("Error in WF, AdaptClient Seina Publishing: " + e);
@@ -354,9 +423,7 @@ public class WFHelperFunctions implements ExecutableTask {
     } else {
       // logger.debug("!!! client is normal, doing nothing !!!");      
     }
-    // logger.debug("");
-    // logger.debug("");
-    // logger.debug("- - - - - - - - - - - - - - - - - - - - ");
+    logger.debug("\n\n- - - - - - - - - - - - - - - - - - - - ");
   }
 
   /**
@@ -402,25 +469,30 @@ public class WFHelperFunctions implements ExecutableTask {
   private FrameDesc computeNextDownload(int level, int frameNum, double bandwidth, double overhead){
     
     long now = myGauge.clock.currentTime();
-    // first we fast-forward to the index of the current from that 
-    // should be showing now.
-    int j=0, i=0;
-    FrameDesc fd;
-    for (; i<numLevels; i++, j++){
-      fd = allFrames[i][j];
-      if (now < ((double) fd.getStart() * 1000) / 30)
+    // first we fast-forward to the index of the current frame that 
+    // should be showing next
+    int j=0;
+    FrameDesc fd = null;
+
+    for (; j<allFrames[level].length; j++){
+      fd = allFrames[level][j];
+      if (now > ((double) fd.getStart() * 1000 / 30))
 	break;
     }
 
+    if (fd == null)
+      return null;
+    // disregard this for now
     // we just ff-ed to the current frame that should be showing, so 
     // we want to see if we can get the next frame in line.
-    fd = allFrames[i][++j];      
+    // FrameDesc fd = allFrames[level][++j];      
 
     // the timeNeeded calculation is :
     // (bytes / kbytes/sec) == (kbytes / kbytes/millisec) = ms needed
     double timeNeeded = fd.getSize() / bandwidth;
-    while ((now + timeNeeded + (overhead * 1000)) > fd.getStart()){
-      fd = allFrames[i][++j];  
+    while ((now + timeNeeded + (overhead * 1000)) > fd.getStart() 
+	   && j<allFrames[level].length){
+      fd = allFrames[level][++j];  
       timeNeeded = fd.getSize() / bandwidth;
     }
     return fd;
