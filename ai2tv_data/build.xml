@@ -1,0 +1,41 @@
+<!-- Ant build properties file for the ai2tv_datae -->
+<project name="ai2tv data analysis" default="compile" basedir=".">
+
+  <!-- the location of the build files (.class files) -->
+  <property name="BUILD" value="build"/>
+  <property name="SRC" value="c:/pslroot"/>
+  <property name="LIB" value="c:/pslroot/jars"/>
+
+  <path id="compile.classpath">
+    <pathelement location="${BUILD}"/>
+
+    <!--fileset dir="${LIB}">
+    <include name="siena-1.4.3.jar"/>
+    </fileset-->
+  </path>
+
+  <target name="prepare">
+    <mkdir dir="${BUILD}"/>
+  </target>
+
+  <target name="compile" depends="prepare">
+    <javac srcdir="${SRC}" destdir="${BUILD}" classpathref="compile.classpath" includes="psl/ai2tv/ai2tv_data/LogParser.java" />
+  </target>
+
+  <target name="runWF">
+    <java classname="LogParser" classpathref="compile.classpath" fork="yes">
+      <arg value="goodness_logs/WF" />
+    </java>
+  </target>
+
+  <target name="runNoWF">
+    <java classname="LogParser" classpathref="compile.classpath" fork="yes">
+      <arg value="goodness_logs/noWF" />
+    </java>
+  </target>
+
+  <target name="clean">
+    <delete dir="${BUILD}"/>
+  </target>
+
+</project>
