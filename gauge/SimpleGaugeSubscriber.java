@@ -27,7 +27,6 @@ public abstract class SimpleGaugeSubscriber implements GaugeSubscriber {
 	siena = new ThinClient(server);
 	//logger.debug("Connnected to server at " + ((ThinClient)siena).getServer());
       } else {
-	// this won't work.  we need to lookup what a ThinClient
 	// siena = new HierarchicalDispatcher();
 	// ((HierarchicalDispatcher) siena).setReceiver(new KAPacketReceiver(sienaPort));
 	logger.debug ("Siena Server Up: " + new String(((HierarchicalDispatcher) siena).getReceiver().address()));
