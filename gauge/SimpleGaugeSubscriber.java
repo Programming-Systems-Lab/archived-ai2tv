@@ -24,11 +24,12 @@ public abstract class SimpleGaugeSubscriber implements GaugeSubscriber {
     if (mainSiena == null){
       String server = System.getProperty("ai2tv.server");
       if (server != null) {
-	mainSiena = new ThinClient(server);      
+	mainSiena = new ThinClient(server);
 	//logger.debug("Connnected to server at " + ((ThinClient)mainSiena).getServer());
       } else {
-	mainSiena = new HierarchicalDispatcher();
-	((HierarchicalDispatcher) mainSiena).setReceiver(new KAPacketReceiver(sienaPort));
+	// this won't work.  we need to lookup what a ThinClient
+	// mainSiena = new HierarchicalDispatcher();
+	// ((HierarchicalDispatcher) mainSiena).setReceiver(new KAPacketReceiver(sienaPort));
 	logger.debug ("Siena Server Up: " + new String(((HierarchicalDispatcher) mainSiena).getReceiver().address()));
       }
     }
@@ -52,10 +53,17 @@ public abstract class SimpleGaugeSubscriber implements GaugeSubscriber {
     filter.addConstraint(SienaConstants.AI2TV_WF_REG, Op.ANY, "ANY");
     mainSiena.subscribe(filter, this);
 
-    // listen for client reports coming back
+
+    // listen for client's actions
     filter = new Filter();
     filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, Op.ANY, "ANY");
     mainSiena.subscribe(filter, this);
+
+    // listen for client status updates coming back
+    filter = new Filter();
+    filter.addConstraint(SienaConstants.AI2TV_WF_UPDATE_REPLY, Op.ANY, "ANY");
+    mainSiena.subscribe(filter, this);
+
   }
 
   public void notify(Notification s[]) {
