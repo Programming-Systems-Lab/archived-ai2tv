@@ -143,7 +143,7 @@ highlighted the lack of support for collaborative tools available for
 student groups.  In addition, the introduction of lecture videos into
 the online curriculum has draw attention to the disparity in the
 network resources used by the students.  We present an architecture
-and adaptation model called ai2tv, a system that allows participants
+and adaptation model called $\mathrm{AI}^2$TV, a system that allows participants
 that are disadvantaged in network resources and geographically
 dispersed to collaboratively view a video in synchrony.  We uphold the
 invariant that each participant will view semantically equivalent
@@ -238,7 +238,7 @@ dynamically take into account variations in those resources.  For our
 purposes, the optimization is achieved through providing a higher
 frame rate.
 
-% - briefly discuss ai2tv design and imp
+% - briefly discuss $\mathrm{AI}^2$TV design and imp
 In this paper we present a system to address both of the above
 problems for collaborative video viewing.  Our approach employs a time
 based synchronization scheme with an autonomic controller entity.  The
@@ -256,7 +256,7 @@ while ensuring an high video quality to each of the the clients.
 In the rest of this paper, we present the motivating problem and
 introduce background research that supports this work.  Next, we
 explain in detail the architecture and the approach taken in our
-solution within the ai2tv project.  We then present the criteria used
+solution within the $\mathrm{AI}^2$TV project.  We then present the criteria used
 to evaluate the effectiveness of the approach, together with the
 corresponding results, and we finish with related work and a summary
 of our contributions.
@@ -289,20 +289,20 @@ implemented \cite{WALTER}.
 
 
 % - ai2tv project goals
-The work presented in this paper is a part of the ai2tv project, a
+The work presented in this paper is a part of the $\mathrm{AI}^2$TV project, a
 multi-group effort aimed at developing a collaborative virtual
-environment for distributed team study.  ai2tv differs from many
+environment for distributed team study.  $\mathrm{AI}^2$TV differs from many
 existing approaches that provide educational content in a networked
 context because of its explicit focus on the teamwork aspects of
 on-line education, and hence on synchronous collaboration.  Within
-ai2tv, an important goal is to provide support for the collaborative
+$\mathrm{AI}^2$TV, an important goal is to provide support for the collaborative
 use of multimedia content relevant to the work carried out by a team
 of users involved in the same project, such as audio/video recordings
 of lectures, meetings, workshops and other informational and
 educational events.
 
 % VECTORS (sys 1) and CHIME are mentioned in related work.
-One of the requirements of the multimedia support within the ai2tv
+One of the requirements of the multimedia support within the $\mathrm{AI}^2$TV
 virtual environment is the synchronized viewing of streaming video by
 all members of a geographically distributed team.  To enforce the
 metaphor of synchronous collaboration in a virtual environment and for
@@ -339,7 +339,7 @@ different encodings or frame rates for that video.
 
 % - describe overview of semantic compression tool used
 Either fixed rate or variable rate schemes can be equally employed. In
-ai2tv, we take advantage of a semantic summarization package - also
+$\mathrm{AI}^2$TV, we take advantage of a semantic summarization package - also
 developed at Columbia University by Liu and Kender \cite{TIECHENG} -
 which reduces a video to a set of semantically significant key frames.
 That tool operates on MPEG format videos and outputs sequences of JPG
@@ -360,7 +360,7 @@ demand a higher frame rate.  The variable frame rate video adds
 complexity to the bandwidth demands of the client yet its semantic
 focus ensures that relevant content is unlikely to get lost, which is
 a significant property in the context of an educational application.
-Through the use of the ai2tv video, we can provide semantically
+Through the use of the $\mathrm{AI}^2$TV video, we can provide semantically
 equivalent content to several clients with diverse resources by
 adjusting the compression level assigned to each client while the user
 is watching the video.  Thus for our purposes, synchronization of
@@ -375,7 +375,7 @@ to support group video synchronization and other multimedia
 applications.
 
 The autonomic controller remains conceptually separate from the
-controlled ai2tv video system and employs a software based workflow
+controlled $\mathrm{AI}^2$TV video system and employs a software based workflow
 engine, named Workflakes \cite{PEPPO}.  Note that the workflow used
 here is software based as opposed to human based workflow systems.
 The use of software based workflow for the specification and enactment
@@ -386,9 +386,9 @@ which it orchestrates the work of software entities to achieve the
 fully automated dynamic adaptation of distributed applications.  The
 design of the autonomic controller is a part of an externalized
 autonomic computing platform proposed by Kaiser \cite{REFARCH}.  In
-the context of ai2tv, Workflakes coordinates the adjustment of the
+the context of $\mathrm{AI}^2$TV, Workflakes coordinates the adjustment of the
 compression level assigned to each client along the hierarchy of the
-ai2tv video.
+$\mathrm{AI}^2$TV video.
 
 \begin{figure}
   \centering
@@ -417,7 +417,7 @@ communications infrastructure.
 %(FIGURE: ai2tv synchronization arch)
 % video server
 The video server provides the educational video content to the clients
-for viewing.  The provided content has the form of an ai2tv video,
+for viewing.  The provided content has the form of an $\mathrm{AI}^2$TV video,
 i.e., a hierarchy of video versions produced by running the tool
 multiple times with settings for different compression levels, which
 produces several sets of JPG frames that are indexed by a frame index
@@ -503,13 +503,13 @@ the end hosts by hooks provided to the actuators by the end systems.
 
 % communications 
 The infrastructure used for the communications among the video
-clients, as well as between the ai2tv system and the autonomic
+clients, as well as between the $\mathrm{AI}^2$TV system and the autonomic
 controller is provided by an event bus based on the publish/subscribe
 paradigm.  The reason for choosing this communication model is that it
 inherently decouples the physical location of the communicating
 entities.  Events transmitted onto that event bus are of three kinds:
 video player actions, sensor reports and adaptation directives.  Video
-player actions pertain to the functionality of the ai2tv system, since
+player actions pertain to the functionality of the $\mathrm{AI}^2$TV system, since
 they represent commands issued on a video client, such as pause, play
 or stop, which need to be propagated to all clients in the group to
 enforce the same behavior.  All video player actions are time stamped
@@ -533,7 +533,7 @@ issuing of adaptation directives (\texttt{AdaptClient}) is carried out
 as a set of the parallel steps.  Also note that the multiplicity of
 those parallel steps is dynamically determined via the number of
 entries in the \texttt{client} variable, which maps to a collection of
-ai2tv clients.
+$\mathrm{AI}^2$TV clients.
 
 %
 %add Figure with AI2TV workflow diagram here
@@ -615,7 +615,7 @@ adaptation of the clients' behavior on the part of the autonomic
 controller and the behavior of the baseline client, with respect to
 synchrony and quality of service (frame rate).
 
-%% To evalute our system, we produced an ai2tv video that had 5 quality
+%% To evalute our system, we produced an $\mathrm{AI}^2$TV video that had 5 quality
 %% levels.  For a 17 minute video and five different window lengths, the
 %% total number of frames are 165, 71, 39, 21, and 13.  Our choice of the
 %% relatively low frame rate quality levels was influenced by the goal of
@@ -664,15 +664,16 @@ provider, but she may actually be receiving a significantly lower
 rate.  We ran experiments first without the aid of the autonomic
 controller and then with it. In the former case, clients with
 insufficient bandwidth were stuck at the compression level originally
-selected, and thus only displayed an average of 37\% of the needed
-frames.  In the latter case, the same clients received 65\% of the
-needed frames.  These results provide evidence of the benefits of the
+selected, and thus missed an average of 63\% of the needed frames.  In
+the latter case, the same clients only missed 35\% of the needed
+frames.  These results provide evidence of the benefits of the
 adaptive scheme implemented by the autonomic controller.
 
-%% selected, and thus missed an average of 63\% of the needed frames.  In
-%% the latter case, the same clients only missed 35\% of the needed
-%% frames.  These results provide evidence of the benefits of the
+%% selected, and thus only displayed an average of 37\% of the needed
+%% frames.  In the latter case, the same clients received 65\% of the
+%% needed frames.  These results provide evidence of the benefits of the
 %% adaptive scheme implemented by the autonomic controller.
+
 
 %% \begin{figure} 
 %%   \centering
@@ -682,7 +683,7 @@ adaptive scheme implemented by the autonomic controller.
 %%   \label{scores}
 %% \end{figure}
 
-\textit{Evaluating Quality of Service} \\ A primary goal of the ai2tv
+\textit{Evaluating Quality of Service} \\ A primary goal of the $\mathrm{AI}^2$TV
 system is to increase the video quality for the clients.  With respect
 to the evaluation of video quality of services, Liu et. al describes
 several local metrics such as frame rate, loss rate, delay jitter,
@@ -753,7 +754,7 @@ relatively low.
 %                                                then the baseline client
 
 \section{Discussion} \label{discussion}
-The primary goals of ai2tv are distributed client video synchrony
+The primary goals of $\mathrm{AI}^2$TV are distributed client video synchrony
 while providing quality video.  We induced the latency delays by a per
 client throttling of bandwidth at the server.  We show in our
 evaluation of synchrony that, if the client chooses a quality level
@@ -855,7 +856,7 @@ With respect to the software architecture, our approach most resembles
 the Lancaster Orchestration Service \cite{Lancaster} since it is based
 on a central controller that coordinates the behavior of remote
 controlled units placed within the clients via appropriate directives.
-(i.e., the ai2tv video buffer and manager).  Their approach employs
+(i.e., the $\mathrm{AI}^2$TV video buffer and manager).  Their approach employs
 the adaptive delay-based scheme described above, hence the playback of
 video focuses on adapting to the lowest bandwidth client.  That
 approach would degrade the playback experience of the other
@@ -915,8 +916,7 @@ and by Microsoft Research.
 % The following two commands are all you need in the
 % initial runs of your .tex file to
 % produce the bibliography for the citations in your paper.
-\bibliographystyle{abbrv}
-\bibliography{ai2tv}
+\bibliographystyle{abbrv} \bibliography{ai2tv}
 % You must have a proper ".bib" file
 %  and remember to run:
 % latex bibtex latex latex
