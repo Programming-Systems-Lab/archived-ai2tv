@@ -90,17 +90,18 @@
       <arg line="-I${JAVADIR}/include -I${JAVADIR}/include/win32"/>
        <arg line="-MD ${JNIPREFIX}CPP.cpp ${JAVADIR}/lib/jvm.lib" />
     </exec-->
-
   </target>
 
   <!-- this command wasn't found in the ant tasks list.-->
-  <target name="javap" description="create the correct method call of a all java methods for use in CPP code.">
+<!--   description="create the correct method call of a all java methods for use in CPP code." -->
+  <target name="javap">
     <exec executable="javap">
       <arg line="-classpath ${BUILD} -s -p psl.ai2tv.client.${JNIPREFIX}Java"/>
     </exec>
   </target>
 
-  <target name="run-jni" description="this is to run the jni executable (if it's not already hooked onto another main)">
+  <!-- description="this is to run the jni executable (if it's not already hooked onto another main)" -->
+  <target name="run-jni">
     <java classname="${JNIPREFIX}Java" classpath="." />
   </target>
 
