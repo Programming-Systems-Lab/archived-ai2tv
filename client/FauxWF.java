@@ -109,6 +109,9 @@ class FauxWF extends Thread implements Notifiable {
 
       sendEcho(clientID);
 
+    } else if (name.equals(SienaConstants.AI2TV_VIDEO_PREFETCH)){
+      
+
     } else if (name.equals(SienaConstants.AI2TV_WF_ECHO_REPLY)){
       clientID = event.getAttribute(SienaConstants.CLIENT_ID).longValue();
       /*
@@ -153,6 +156,7 @@ class FauxWF extends Thread implements Notifiable {
   private void setupFilter() throws siena.SienaException {
     filter = new Filter();
     filter.addConstraint(SienaConstants.AI2TV_FRAME, "");
+    filter.addConstraint(SienaConstants.AI2TV_VIDEO_PREFETCH, "");
     _mySiena.subscribe(filter, this);
   }
 

@@ -46,7 +46,7 @@ class ClientProbe {
 
   // for speed, i'm going to try using an array first
   // private Vector _probes; //
-  private long[] _probeTimes;
+  private double[] _probeTimes;
 
     /**
    * create a ClientProbe
@@ -112,7 +112,7 @@ class ClientProbe {
       _frameEvent.putAttribute(SienaConstants.LEVEL, fd.getLevel());
       _frameEvent.putAttribute(SienaConstants.SIZE, fd.getSize());
       // 000
-      _frameEvent.putAttribute(SienaConstants.PROBE_TIME, fd.currentTime());
+      // _frameEvent.putAttribute(SienaConstants.PROBE_TIME, fd.currentTime());
     }
   }
 
@@ -122,7 +122,7 @@ class ClientProbe {
    * @param ID: the ID of the probe
    * @return the time associated with given ID
    */
-  long getTimeProbe(int ID){
+  double getTimeProbe(int ID){
     if (ID >= 0 && ID < _probeTimes.length)
       return _probeTimes[ID];
     return -1;
@@ -153,6 +153,7 @@ class ClientProbe {
       Client.probeOutput.println("sending an update: time diff: " + (time - _probeTimes[ID]));
       // this is where TIME_SHOWN is put in
       _frameEvent.putAttribute(natureOfMessage, (time - _probeTimes[ID]));
+      _frameEvent.putAttribute(SienaConstants.PROBE_TIME, (time - _probeTimes[ID]));
 
       if (natureOfMessage.equals(SienaConstants.TIME_SHOWN))
 	addFrameInfo();
