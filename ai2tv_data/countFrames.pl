@@ -4,11 +4,23 @@
 # little script I hacked up to get the proportional
 # difference between the wf frames and the nowf frames
 
-# should be ran in the directory:
-# c:/pslroot/psl/ai2tv/ai2tv_data/goodness_logs/optimal_start/
+# should be ran like this: 
+# perl countFrame.pl ~pslroot/psl/ai2tv/ai2tv_data/goodness_logs/optimal_start/
 
-$wfLogDir = "WF";
-$nowfLogDir = "noWF";
+# ------------------------------------------------------------------
+if ($#ARGV != 0){
+    print " Author: Dan Phung (phung@cs.columbia.edu)\n";
+    print "\n USAGE: perl countFrames.pl <dir>\n";
+    print " <dir> directory holding WF and noWF files\n\n";
+    print " EXAMPLE: perl countFrames.pl goodness_logs/optimal_start\n";
+    exit;
+}
+
+$startDir = $ARGV[0];
+# ------------------------------------------------------------------
+
+$wfLogDir = "$startDir/WF";
+$nowfLogDir = "$startDir/noWF";
 opendir(DIR, $wfLogDir) or die "error, could not open dir: $wfLogDir\n";
  @wfFiles = grep(/\.log$/,readdir(DIR));
 closedir(DIR);
@@ -16,7 +28,6 @@ closedir(DIR);
 opendir(DIR, "$nowfLogDir") or die "error, could not open dir: $nowfLogDir\n";;
  @nowfFiles = grep(/\.log$/,readdir(DIR));
 closedir(DIR);
-
 
 # -------------------
 # for stdev calculation for intertrial average
@@ -49,7 +60,6 @@ foreach $wfFile (@wfFiles) {
 # $propDiff = ($wfTotalFrames - $nowfTotalFrames) / $nowfTotalFrames;
 # print "WF: $wfTotalFrames noWF: $nowfTotalFrames = $propDiff\n";
 
-
 # -----------------------------------------------------------------
 # intertrial
 
@@ -58,6 +68,7 @@ $avgSquared = $sumSquaredPropDiff / $count;
 $variance = ($avgSquared - (($avg *$avg)/$count)) / ($count- 1);
 $stdev = sqrt $variance;
 print "intertrial average: $avg +\/- $stdev\n";
+print "total noWF vs WF frames: $nowfTotalFrames vs $wfTotalFrames\n";
 
 exit;
 # -----------------------------------------------------------------
