@@ -130,7 +130,7 @@ class FauxWF extends Thread implements Notifiable {
     Notification event = new Notification();
     event.putAttribute(SienaConstants.AI2TV_WF_ECHO, "");
     event.putAttribute(SienaConstants.CLIENT_ID, clientID);
-    event.putAttribute(SienaConstants.SENT_TIME, System.currentTimeMillis());
+    event.putAttribute(SienaConstants.AI2TV_WF_ECHO_SENT_TIME, System.currentTimeMillis());
     publishNotification(event);    
   }
 
