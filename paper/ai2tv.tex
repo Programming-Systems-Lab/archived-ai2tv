@@ -78,7 +78,7 @@
 
 % \title{Optimizing Quality for Video Sharing in Synchronous Collaboration}
 \title{Optimizing Quality for Collaborative Video Viewing}
-%
+% 
 % You need the command \numberofauthors to handle the "boxing"
 % and alignment of the authors under the title, and to add
 % a section for authors number 4 through n.
@@ -165,50 +165,6 @@ the quality level for each participant.
 \terms{ALGORITHMS, MEASUREMENT, PERFORMANCE, EXPERIMENTATION}
 
 \keywords{Synchronized Collaborative Video, Autonomic Controller}
-
-% -------------------------------------------------- %
-% FIGURES AT THE FRONT
-% -------------------------------------------------- %
-%% \begin{figure}
-%%   \centering
-%%   \epsfig{file=vidframes.eps, width=8cm}
-%%   \caption{Semantic video compression hierarchy.}
-%%   \label{vidframes}
-%% \end{figure} 
-
-%% \begin{figure}
-%%   \centering
-%%   \epsfig{file=vidframes.eps, width=8cm}
-%%   \caption{Semantic video compression hierarchy.}
-%%   \label{vidframes}
-%% \end{figure} 
-
-%% \begin{figure}
-%%   \centering
-%%   \epsfig{file=ai2tvarch.eps, width=8cm}
-%%   \caption{ai2tv Architecture}
-%%   \label{ai2tv_arch}
-%% \end{figure}
-
-
-%% \begin{figure}
-%%  \centering
-%%  \epsfig{file=refarch.eps, width=8cm}
-%%   \label{refarch}
-%%  \caption{Conceptual Reference Architecture}
-%% \end{figure}
-
-
-%% \begin{figure} 
-%%   \centering
-%%   \hspace*{-5mm}
-%%   \epsfig{file=ljil.eps, width=8cm}
-%%   \caption{Workflow diagram }
-%%   \label{ljil}
-%% \end{figure}
-
-
-% -------------------------------------------------- %
 
 % tech report number CUCS-009-04
 \section{Introduction}
@@ -346,7 +302,7 @@ Today's equivalent of correspondence courses are often offered online
 through a Web portal interface, with some for-profit schools like
 University of Phoenix \cite{UPhoenix} and Capella University
 \cite{Capella} primarily online.  Tools such as instant messaging,
-application and desktop sharing \cite{WEBEX, VNC}, and co-browsing
+application and desktop sharing \cite{VNC, WebEx}, and co-browsing
 \cite{CAPPS, LIEBERMAN, SIDLER} facilitate the communicative aspects
 of synchronous collaboration but are not designed specifically for
 educational purposes.  Support for synchronous collaboration remains a
@@ -386,12 +342,12 @@ the video.
 
 One solution to the problem of balancing the group synchronization
 requirement with the optimization of individual viewing experiences is
-to use videos with cumulative layering \cite{MCCANNE}, also known as
-scalable coding \cite{LI}.  In this approach, the client video player
-selects a quality level appropriate for that client's resources from a
-hierarchy of several different encodings for that video. Thus a client
-could receive an appropriate quality of video content while staying in
-sync with the other members of the group.
+to use videos with cumulative layering \cite{mccanne96receiverdriven},
+also known as scalable coding \cite{LI}.  In this approach, the client
+video player selects a quality level appropriate for that client's
+resources from a hierarchy of several different encodings for that
+video. Thus a client could receive an appropriate quality of video
+content while staying in sync with the other members of the group.
 
 % so why isn't the above approach good enough, do we do better?
 
@@ -522,7 +478,7 @@ The video display renders the JPEG frames at the correct time into a
 window and provides a user interface for play, pause, goto and stop.
 When any participant initiates such an action, all other group members
 receive the same command, thus all the video actions are synchronized.
-Video actions are timestamped so that clients can respond to those
+Video actions are time stamped so that clients can respond to those
 commands in reference to the common time base.  The video display
 knows which frame to display by using the current (or goto) video time
 and display quality level to index into the frame index for the
@@ -575,7 +531,7 @@ buffer reserve frames, and the current bandwidth.  Gauges are embedded
 together with the controller for expediency in design and to minimize
 communication latency.  They receive the sensor reports from
 individual clients, collect them in buckets, similar to the approach
-in \cite{MIMAZE}, and pass the bucket data structure to the
+in \cite{gautier98design}, and pass the bucket data structure to the
 controller's coordination engine.  A set of helper functions tailored
 specifically for this application operate on this data structure and
 produce triggers for the coordinator.  When a trigger is raised, the
@@ -791,12 +747,13 @@ Our experiments show that baseline clients scored a group score of 1
 score of 1.25.  The one-tailed t-score of this difference is 3.01,
 which is significant for an $\alpha$ value of .005 (N=17).  This
 result demonstrates that using the autonomic controller enabled our
-system to achieve a significant positive difference in QoS.  Note that
-the t-score does not measure the degree of the positive difference: To
-demonstrate the degree of benefit, we measure the proportion of
-additional frames that each client is able to enjoy.  We found that,
-overall, those clients received 20.4\% ($\pm$ 9.7, N=17) more frames
-than clients operating at a baseline rate.
+system to achieve a significant positive difference in received frame
+rate, or quality of services (QoS).  Note that the t-score does not
+measure the degree of the positive difference: To demonstrate the
+degree of benefit, we measure the proportion of additional frames that
+each client is able to enjoy.  We found that, overall, those clients
+received 20.4\% ($\pm$ 9.7, N=17) more frames than clients operating
+at a baseline rate.
 
 % risk assessment
 
@@ -852,7 +809,7 @@ a network from a single streaming source to one or more delivery sinks.
 Most intra-stream synchronization schemes are based on data buffering
 at the sink(s) and on the introduction of a delay before the play-out
 of buffered data packets (i.e., frames).  Those synchronization
-schemes can be rigid or adaptive \cite{Clark92}.  In rigid schemes,
+schemes can be rigid or adaptive \cite{clark92supporting}.  In rigid schemes,
 such as \cite{Ferrari}, the play-out delay is chosen {\it a priori} in
 such a way that it accounts for the maximum network transfer delay
 that can likely occur across the sinks.  Rigid schemes work under a
@@ -877,7 +834,7 @@ adaptive scheme that employs a global clock and operates in a
 proactive way.  The most significant difference compared to other
 approaches, such as the Adaptive Synchronization Protocol \cite{ASP},
 the work of Gonzalez and Adbel-Wahab \cite{GONZALEZ}, or that of Liu
-and El Zarki\cite{LIU} (which can all be used equally for inter- and
+and El Zarki\cite{LIUSYNC} (which can all be used equally for inter- and
 intra-stream applications), is that our approach is not based on the
 idea of play-out delay.  Instead, we take advantage of layered
 semantic compression coupled with buffering to ``buy more time'' for
@@ -888,31 +845,30 @@ To ensure stream synchronization across a group of clients, it is
 usually necessary to implement some form of tradeoff impacting the
 quality of service of some of the clients.  Many schemes trade off
 synchronization for longer delays, while some other approaches, like
-the Concord local synchronization algorithm \cite{Concord}, allow a
-choice among other quality parameters besides delay, such as packet
-loss rate.  Our approach sacrifices frame rates to achieve
-synchronization when resources are low.
-
-% which authors below, Liu et al. or us???
+the Concord local synchronization algorithm
+\cite{shivakumar95concord}, allow a choice among other quality
+parameters besides delay, such as packet loss rate.  Our approach
+sacrifices frame rates to achieve synchronization when resources are
+low.
 
 Liu {\it et al.} provide a comprehensive summary of the mechanisms
 used in video multicast for quality and fairness adaptation as well as
-network and coding requirements \cite{LIU}.  To frame our work in that
-context, our current design and implementation models a single-rate
-server adaptation scheme to each of the clients because the video
-quality we provide is tailored specifically to that client's network
-resources.  The focus in our work is directed towards the client-side
-end-user perceived quality and synchrony, so we did not utilize the
-most efficient server model.  The authors believe that it would be
-trivial to substitute in a simulcast server adaptation model
-\cite{CHEUNG,LI}.  Our design also fits into the category of layered
-adaptation.  Such an adaptation model defines a base quality level
-that users must achieve.  Once users have acquired that level, the
-algorithm attempts to incrementally acquire more frames to present a
-higher quality video.  In the work presented here, the definition of
-quality translates to a higher frame rate.  Liu's discussion of
-bandwidth fairness, coding techniques and network transport
-perspectives lie out of the scope of this paper.
+network and coding requirements \cite{LIU2003}.  To frame our work in
+that context, our current design and implementation models a
+single-rate server adaptation scheme to each of the clients because
+the video quality we provide is tailored specifically to that client's
+network resources.  The focus in our work is directed towards the
+client-side end-user perceived quality and synchrony, so we did not
+utilize the most efficient server model.  The authors believe that it
+would be trivial to substitute in a simulcast server adaptation model
+\cite{cheung96use,li99video}.  Our design also fits into the category
+of layered adaptation.  Such an adaptation model defines a base
+quality level that users must achieve.  Once users have acquired that
+level, the algorithm attempts to incrementally acquire more frames to
+present a higher quality video.  In the work presented here, the
+definition of quality translates to a higher frame rate.  Liu's
+discussion of bandwidth fairness, coding techniques and network
+transport perspectives lie out of the scope of this paper.
 
 With respect to the software architecture, our approach most resembles
 the Lancaster Orchestration Service \cite{Lancaster}, since it is
@@ -965,8 +921,8 @@ compression levels) of the video to clients, automatically adjusted
 according to their current and fluctuating bandwidth resources.  We
 have demonstrated the advantages of this approach through experimental
 trials using bandwidth throttling.  Our approach is admittedly fixated
-on users with dialup level bandwidths, who still constitute a
-significant portion of the Internet user community \cite{dialup}, and
+on users with dial-up level bandwidths, who still constitute a
+significant portion of the Internet user community \cite{DIALUP}, and
 does not directly address either synchronization or quality of service
 for broadband users.
 
@@ -989,6 +945,7 @@ and by Microsoft Research.
 % The following two commands are all you need in the
 % initial runs of your .tex file to
 % produce the bibliography for the citations in your paper.
+\small
 \bibliographystyle{abbrv} \bibliography{ai2tv}
 % You must have a proper ".bib" file
 %  and remember to run:
