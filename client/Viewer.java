@@ -29,9 +29,9 @@ import javax.swing.event.*;
  * wraps around and starts using the same indices.
  *
  * WF related probes:
- * 1) 
+ * 0) 
  *
- * @version	$$
+ * @version	$Revision$
  * @author	Dan Phung (dp2041@cs.columbia.edu)
  */
 class Viewer extends JFrame {
@@ -124,11 +124,13 @@ class Viewer extends JFrame {
    * @param g: graphics object to paint to
    */
   void paintFrame(Graphics g){
-    long foo = _client.currentTime();
+    // foo and bar measure the time that it takes to check if the
+    // image is loaded.
+    // long foo = _client.currentTime();
     if (_mediaTracker.statusID(_viewIndex, false) == MediaTracker.COMPLETE){
-      long bar = _client.currentTime();
-      if (bar - foo != 0) 
-	Client.out.println("then: " + foo + " now: " + bar + ": " + (bar - foo));
+      // long bar = _client.currentTime();
+      // if (bar - foo != 0) 
+      // Client.out.println("then: " + foo + " now: " + bar + ": " + (bar - foo));
       
       setTitle(_filename);
       _lastImage = _filename;
@@ -136,7 +138,8 @@ class Viewer extends JFrame {
     }
       
     if (_newFrame){
-      _client.imageShown();
+      if (Client.probe.getTimeProbe(0) >= 0)
+	Client.probe.endTimeProbe(0, _client.currentTime(), "timeShown");
       _newFrame = false;
       // don't know when I should do the following
       // _mediaTracker.removeImage(_image);  
@@ -145,7 +148,7 @@ class Viewer extends JFrame {
   
 
   /**
-   * main paint thread that refreshes the Viewer display.
+   * paint thread that refreshes the Viewer display.
    *
    * @return the created canvas
    */
@@ -165,7 +168,7 @@ class Viewer extends JFrame {
 	    String seconds = (time%60 > 9) ? ""+time%60 : "0" + time%60;
 	    _time.setText(minutes + ":" + seconds);
 
-	    // only update the slider every 10 seconds.
+	    // only update the slider every 3 seconds.
 	    if (time%3 == 0){
 	      _slider.setValue(time);
 	    }
