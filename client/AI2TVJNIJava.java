@@ -100,7 +100,7 @@ class AI2TVJNIJava{
    * @param info: login information
    */
   void setLoginInfo(String info){
-    _client.setLoginInfo(info);
+    ; // _client.setLoginInfo(info);
   }
 
   /**
@@ -111,6 +111,14 @@ class AI2TVJNIJava{
    */
   void loadVideo(String name, String date){
     _client.loadVideo(name, date);
+  }
+
+
+  /**
+   * initialize the AI2TV component 
+   */
+  void initialize(){
+    _client.initialize();
   }
 
   /**

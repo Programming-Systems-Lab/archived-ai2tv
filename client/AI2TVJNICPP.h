@@ -50,6 +50,7 @@ class AI2TVJNICPP
   void setCacheDir(char* dir);
   void setLoginInfo(char* info);
   void loadVideo(char* name, char* date);
+  void initialize();
   void getAvailableVideos(char videoList[3][10]);
   // char[][] getAvailableVideos();
 

@@ -256,6 +256,16 @@ void AI2TVJNICPP::loadVideo(char* name, char* date){
 }
 
 /**
+ * initialize the AI2TV component 
+ */
+
+void AI2TVJNICPP::initialize(){
+  jmethodID mid;
+  mid = _env->GetMethodID(_class, "initialize","()V");
+  _env->CallVoidMethod(_obj, mid);
+}
+
+/**
  * gets the available videos from the server
  * @param videoList: pre-initialized double-array of video names
  */
