@@ -13,7 +13,12 @@ done - integrate and compile the MyAI2TVClient.cpp class
 java:
 -----
 
+- need to check that the change levels, etc WF commands are sent to the 
+  right client.
+
 - add WF
+- NTP
+- Calendar
 
 done - ff
 done - rw

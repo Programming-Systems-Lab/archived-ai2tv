@@ -28,7 +28,7 @@ import siena.*;
  * @author	Dan Phung (dp2041@cs.columbia.edu)
  */
 
-class CommController implements Notifiable, Runnable{
+class CommController implements Notifiable{
   /** interval between probe events in ms.' */
   private long probeDelay;
   private boolean loopAlways = true;
@@ -58,8 +58,6 @@ class CommController implements Notifiable, Runnable{
     _mySiena = null;
     setupSienaListener();
     _mySienaServer = sienaServer;
-    Thread mainThread = new Thread(this);
-    mainThread.start();
   }
 
   // dp2041: is there a better way to do this?
@@ -87,6 +85,19 @@ class CommController implements Notifiable, Runnable{
     filter = new Filter();
     filter.addConstraint("AI2TV_VIDEO_ACTION", "GOTO");
     _mySiena.subscribe(filter, this);
+
+    // WF related actions
+    filter = new Filter();
+    filter.addConstraint("WF_FRAME_CHANGELEVEL", "UP");
+    _mySiena.subscribe(filter, this);
+
+    filter = new Filter();
+    filter.addConstraint("WF_FRAME_CHANGELEVEL", "DOWN");
+    _mySiena.subscribe(filter, this);
+
+    filter = new Filter();
+    filter.addConstraint("WF_FRAME_GOTO", Op.GT, 0);
+    _mySiena.subscribe(filter, this);
   }
 
   private void setupSienaListener(){
@@ -107,59 +118,6 @@ class CommController implements Notifiable, Runnable{
       loopAlways = false;
       _isActive = false;
       // e.printStackTrace();
-    }
-
-    // trying to optimize by calling constructors for events only once
-    frameEvent = new Notification();
-    frameEvent.putAttribute("FRAME", "frame_ready");
-    frameEvent.putAttribute("ClientID", clientID);
-    frameEvent.putAttribute("leftbound", 0);	
-    frameEvent.putAttribute("rightbound", 0);
-    frameEvent.putAttribute("moment", 0);
-    frameEvent.putAttribute("level", -1); 
-    frameEvent.putAttribute("probeTime", 0);
-  }
-
-  public void run(){
-    // loopAlways = true;
-    // _isActive = true;
-    // try {
-    // _mySiena.subscribe(filter, this);
-      // while(_isActive){
-	try {
-	  // Thread.sleep(300000);	// sleeps for five minutes
-	  Thread.currentThread().sleep(probeDelay);
-	} catch (java.lang.InterruptedException e) {
-	  System.out.println("interrupted: " + e); 
-	}
-	// }
-	//     } catch (SienaException ex) {
-	// System.err.println("Siena error:" + ex.toString());
-	//     }
-      //send probe message
-      // sendUpdate(cache.currFrame);
-  }
-	
-  /**
-   * sends updates
-   *
-   * @param fd: 
-   */
-  private void sendUpdate (FrameDesc fd) {
-    if (fd != null) {
-      //System.out.println ("Sending Frame info");
-      //update only necessary fields
-      frameEvent.putAttribute("leftbound", fd.getStart());
-      frameEvent.putAttribute("rightbound", fd.getEnd());
-      frameEvent.putAttribute("moment", fd.getNum());
-      frameEvent.putAttribute("level", fd.getLevel());
-      frameEvent.putAttribute("probeTime", System.currentTimeMillis());
-      try { 
-	// mySiena.publish(frameEvent);
-	_mySiena.publish(frameEvent);
-      } catch (SienaException se) {
-	se.printStackTrace();	
-      }
     }
   }
 
@@ -184,15 +142,28 @@ class CommController implements Notifiable, Runnable{
   private void handleNotification(Notification event){
     System.out.println("handleNotification(): I just got this event:" + event + ": at : " 
 		       + Calendar.getInstance().getTime());
-    AttributeValue attrib = event.getAttribute("AI2TV_VIDEO_ACTION");
-    if (attrib.toString().equals("\"PLAY\"")){
-      _client.commPlay(); 
-    } else if (attrib.toString().equals("\"STOP\"")){
-      _client.commStop(); 
-    } else if (attrib.toString().equals("\"PAUSE\"")){
-      _client.commPause(); 
-    } else if (attrib.toString().startsWith("\"GOTO")){
-      _client.commGoto(event.getAttribute("NEWTIME").intValue());
+    
+    String name = event.toString().substring(7).split("=")[0];
+    AttributeValue attrib = event.getAttribute(name);
+    System.out.println("handle notification: name: " + name);
+    System.out.println("handle notification: attrib: " + attrib);
+    if (name.equals("AI2TV_VIDEO_ACTION")){
+      if (attrib.toString().equals("\"PLAY\"")){
+	_client.commPlay(); 
+      } else if (attrib.toString().equals("\"STOP\"")){
+	_client.commStop(); 
+      } else if (attrib.toString().equals("\"PAUSE\"")){
+	_client.commPause(); 
+      } else if (attrib.toString().startsWith("\"GOTO")){
+	_client.commGoto(event.getAttribute("NEWTIME").intValue());
+      } else {
+	System.err.println("Notification Error, received unknown attribute: " + attrib);
+      }
+
+    } else if (name.equals("WF_FRAME_CHANGELEVEL")){
+      _client.changeHierarchy(attrib.toString());
+    } else if (name.equals("WF_FRAME_GOTO")){
+      _client.setNextFrame(attrib.intValue());
     } else {
       System.err.println("Notification Error, received unknown attribute: " + attrib);
     }

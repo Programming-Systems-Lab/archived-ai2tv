@@ -57,6 +57,8 @@ class Client {
   private CacheController _cache;
   private CommController _comm;
   private Viewer _viewer;
+  private ClientProbe _probe;
+  private Thread _probeThread;
 
   private long _startTime;
   private long _pausedTime;
@@ -66,32 +68,42 @@ class Client {
   private boolean _isActive;
   private FrameIndexParser _framesInfo;
   private FrameDesc[][] _framesData;
-  private int _lastShowed;
-  
+  private FrameDesc _currFrame;
+
+  private int _missedFrames; // client id number for server identification
+  private long _id; // client id number for server identification
+
   // we should have these in a config file
   String cacheDir = "cache/";
-  String framesURL = "http://www1.cs.columbia.edu/~suhit/ai2tv/1/";
+  String baseURL = "http://www1.cs.columbia.edu/~suhit/ai2tv/1/";
   String sienaServer = "ka:localhost:4444";
-  String frameFileURL = "http://www.cs.columbia.edu/~suhit/1/frame_index.txt";
   String frameFile = "frame_index.txt";
   public static final int FRAMERATE = 30; // 30 frames / second
   public static final int CHECK_FOR_CHANGE = 2000; // check for frame changes this often (ms)
   
   /** */
   Client(){
-    _startTime = 0; //Calendar.getInstance().getTimeInMillis();
+    // what is the prob that two clients start at the exact same time? ...pretty low
+    _id = Calendar.getInstance().getTimeInMillis(); 
+    _startTime = 0;
     _pausedTime = _pausedStartTime = 0;
     _pausePressed = false;
 
-    _cache = new CacheController(this, frameFile, FRAMERATE);
+    _cache = new CacheController(this, frameFile, FRAMERATE, baseURL);
     _cache.start(); // start the thread to download frames
 
     _framesInfo = _cache.getFramesInfo();
     _framesData = _framesInfo.frameData();
+    _currFrame = null;
 
     _viewer = new Viewer(this);
 
-    _comm = new CommController(this, "AI2TV", sienaServer);
+    _comm = new CommController(this, null, sienaServer);
+
+    _probe = new ClientProbe(this);
+    // maybe I should start the client probe later on in the commPlay method() instead
+    _probeThread = new Thread(_probe);
+    _probeThread.start();
   }
 
   private FrameDesc getFrame(int level, long now){
@@ -116,8 +128,26 @@ class Client {
   }
   
   void shutdown(){
+    _probe.shutdown();
     _isActive = false;
   }
+
+  long getID(){
+    return _id;
+  }
+
+  double getBandwidth(){
+    return _cache.getBandwidth();
+  }
+
+  FrameDesc getCurrFrame(){
+    return _currFrame;
+  }
+
+  int getMissedFrames(){
+    return _missedFrames;
+  }
+
 
   // --------- Comm initiated actions ---------- //
   /**
@@ -127,7 +157,9 @@ class Client {
    */
   public void commPlay(){
     System.out.println("commPlay received");
-
+    _probe.setActive(true);
+    _probe.setProbingFrequency (10000);
+    
     // have we started, if not, this is it!
     if (_startTime == 0){
       System.out.println("starting time");
@@ -151,11 +183,15 @@ class Client {
 	    } 
 	    // check whether it's downloaded
 	    // System.out.println("next frame to display: " + nextFrame.getNum());
-	    if (_cache.isDownloaded(nextFrame.getNum() + ".jpg") &&
-		_lastShowed != nextFrame.getNum()){
-	      // then show it.
-	      _viewer.displayImage(cacheDir + nextFrame.getNum() + ".jpg");
-	      _lastShowed = nextFrame.getNum();
+	    if (_currFrame == null || _currFrame.getNum() != nextFrame.getNum()){
+	      if (_cache.isDownloaded(nextFrame.getNum() + ".jpg")){
+		// then show it.
+		_viewer.displayImage(cacheDir + nextFrame.getNum() + ".jpg");
+		_currFrame = nextFrame;
+	      } else {
+		// we missed a frame
+		_missedFrames++;
+	      }
 	    }
 	  }
 	  
@@ -171,7 +207,6 @@ class Client {
     }.start();
   }
 
-  // ???
   public void commStop(){
     System.out.println("commStop received");
     _isActive = false;    
@@ -200,6 +235,19 @@ class Client {
     //     and in the meanwhile, download the file
     //     when the file is here, show it.
     _startTime = Calendar.getInstance().getTimeInMillis() - newTime*1000;
+  }
+
+  public void setNextFrame(int newFrame){
+    System.out.println("Client setting next frame: " + newFrame);    
+    _cache.setNextFrame("" + newFrame);
+  }
+
+  public void changeHierarchy(String change){
+    System.out.println("Client setting new hierarchy: " + change);
+    if (change.equals("UP"))
+      _cache.hierarchyUp(currentTime());
+    else 
+      _cache.hierarchyDown(currentTime());
   }
 
   // ------- END: Comm initiated actions ------- //

@@ -30,6 +30,8 @@ import psl.ai2tv.gauge.FrameIndexParser;
  * Note: the bandwidth window can be adjusted to buffer
  * the accuracy of the current bandwidth calculation.
  *
+ * Note: isDownloaded checks physically if the file is there.
+ *
  *
  * TODO:
  * - must take care of the case where, if we skip a couple frames
@@ -47,9 +49,7 @@ public class CacheController extends Thread {
   protected FrameDesc currFrame;
   protected int numLevels;
   String cacheDir = "cache";
-
-  // we should get this from the config file.
-  String baseURL = "http://www1.cs.columbia.edu/~suhit/ai2tv/1/";
+  protected String _baseURL;
 
   protected Client _client;
   private int _bandwidthWindowMax;
@@ -58,18 +58,20 @@ public class CacheController extends Thread {
   private long _totalTime;
 
   private boolean _isActive;
+  
+  private String _nextFrame; // set next frame to download
 
-  public CacheController(Client c, String name, double rate) {
+  public CacheController(Client c, String name, double rate, String baseURL) {
     _client = c;
     frameFileName = name;
-    //currLevel = 0;
-   currLevel = 4;
+    currLevel = 0;
     currFrame = null;
 
     _bandwidthWindow = 0;
     _bandwidthWindowMax = 5;  // number of downloads to average against
     _totalBytes = 0;
     _totalTime = 0;
+    _baseURL = baseURL;
     
     framesInfo = new FrameIndexParser(frameFileName);
     numLevels = framesInfo.levels();
@@ -98,6 +100,11 @@ public class CacheController extends Thread {
     return nextFrame();
   }
 	
+  public void setNextFrame(String frame){
+    long nextframe = Long.parseLong(frame);
+    progress[currLevel] = nextFrameInLevel(currLevel, nextframe);
+  }
+
   public void hierarchyDown(long now) {
     if (currLevel  < numLevels -1 ) { 
       currLevel++;
@@ -106,6 +113,7 @@ public class CacheController extends Thread {
     }
   }
   
+
   public void hierarchyUp(long now) {
     if (currLevel > 0)	{
       currLevel --;
@@ -124,11 +132,11 @@ public class CacheController extends Thread {
 	/*
 	System.out.println("level <" + currLevel + 
 			   "> index <" + index + 
-			   "> bandwidth <" + calcBandwidth() + ">");
-	System.out.println("CacheController downloading file: " + baseURL + curr[index].getNum() + ".jpg");
+			   "> bandwidth <" + getBandwidth() + ">");
+	System.out.println("CacheController downloading file: " + _baseURL + curr[index].getNum() + ".jpg");
 	*/
 
-	if (downloadFile(baseURL + curr[index].getNum() + ".jpg"))
+	if (downloadFile(_baseURL + curr[index].getNum() + ".jpg"))
 	  curr[index].setDownloaded(true);
       }
       progress[currLevel] = index + 1;
@@ -238,7 +246,7 @@ public class CacheController extends Thread {
     return true;
   }
 
-  private double calcBandwidth() {
+  double getBandwidth() {
     if (_totalTime == 0)
       return 0;
     else 
@@ -285,20 +293,27 @@ public class CacheController extends Thread {
     return framesInfo;
   }
 
+  /**
+   * main is used as a point of access for testing
+   */
   public static void main(String[] args){
     // dp2041: testing possibility of threading this class
     // conclusion = yes!
 
-    CacheController cc = new CacheController(null, "frame_index.txt", 1);
+    CacheController cc = new CacheController(null, "frame_index.txt", 1,
+					     "http://www1.cs.columbia.edu/~suhit/ai2tv/1/");
 
     FrameDesc[] fd = new FrameDesc[166];
     FrameDesc newFrame;
     int i=0;
-    do{
-      newFrame = cc.getNextFrame();
-      fd[i++] = newFrame;
-      cc.hierarchyDown(Calendar.getInstance().getTimeInMillis());
-    } while(newFrame != null);
-
+    // for (; i<6; i++){
+      do{
+	newFrame = cc.getNextFrame();
+	System.out.println("got frame: " + newFrame);
+	// fd[i++] = newFrame;
+	// cc.hierarchyDown(Calendar.getInstance().getTimeInMillis());
+      } while(newFrame != null);
+      // }
+      // cc.hierarchyDown(Calendar.getInstance().getTimeInMillis());
   }
 }
