@@ -3,9 +3,7 @@ package psl.ai2tv.workflow;
 import psl.ai2tv.workflow.assets.ClientAsset;
 import psl.ai2tv.workflow.assets.PropertyGroupFactory;
 import psl.ai2tv.workflow.assets.ReportAsset;
-import psl.workflakes.littlejil.ExecutableTask;
-import psl.workflakes.littlejil.LittleJILResourceTable;
-import psl.workflakes.littlejil.TaskExpanderPlugin;
+import psl.workflakes.littlejil.*;
 import psl.workflakes.littlejil.assets.ExecClassAgentAsset;
 import psl.workflakes.littlejil.assets.NewExecutorPG;
 import psl.workflakes.littlejil.assets.NewClassPG;
@@ -71,6 +69,9 @@ public class AI2TVPlugin extends ComponentPlugin {
 
         logger.info("Loaded ai2tv diagram");
 
+        // now register TaskExpanderPlugin listener
+        TaskExpanderPlugin.addListener(new TaskExpanderListener());
+
     }
 
     /**
@@ -125,6 +126,7 @@ public class AI2TVPlugin extends ComponentPlugin {
             ReportAsset reportAsset = (ReportAsset) reports.nextElement();
 
             logger.info("got new ReportAsset");
+            PluginUtil.Timing.addTimestamp("got report");
 
             // instantiate a new ai2tv LittleJIL diagram
             ObjectInputStream objIn = null;
@@ -160,6 +162,27 @@ public class AI2TVPlugin extends ComponentPlugin {
 
         }
 
+    }
+
+    class TaskExpanderListener extends TaskExpanderPlugin.Listener {
+
+        public void taskPublished(String taskName) {
+            logger.debug(taskName + " published, adding timestamp");
+            PluginUtil.Timing.addTimestamp(taskName + " start");
+        }
+
+        public void leafTaskPublished(String taskName) {
+
+        }
+
+        public void taskFinished(String taskName) {
+            logger.debug(taskName + " finished, adding timestamp");
+            PluginUtil.Timing.addTimestamp(taskName + " end");
+
+            if (taskName.equals("ROOT")) {
+                PluginUtil.Timing.newRow();
+            }
+        }
     }
 
     public static class DummyExecutableTask implements ExecutableTask {
