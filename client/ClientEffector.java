@@ -62,7 +62,9 @@ class ClientEffector implements Notifiable {
   private void setupSiena() {
     try {
       _mySiena = new ThinClient(_sienaServer);
-    } catch (InvalidSenderException ise) {
+      setupFilter();
+    } catch (SienaException ise) {
+      // } catch (InvalidSenderException ise) {
       Client.out.println ("Cannot connect to Siena bus");
       _mySiena = null;
       ise.printStackTrace();	
@@ -71,13 +73,13 @@ class ClientEffector implements Notifiable {
 
     // ask peppo if it really makes a difference if we add these now...
     /*
-    _frameEvent.putAttribute("AI2TV_FRAME", "frame_ready");
-    _frameEvent.putAttribute("CLIENT_ID", _client.getID());
-    _frameEvent.putAttribute("leftbound", 0);	
-    _frameEvent.putAttribute("rightbound", 0);
-    _frameEvent.putAttribute("moment", 0);
-    _frameEvent.putAttribute("level", -1); 
-    _frameEvent.putAttribute("probeTime", 0);
+      _frameEvent.putAttribute("AI2TV_FRAME", "frame_ready");
+      _frameEvent.putAttribute("CLIENT_ID", _client.getID());
+      _frameEvent.putAttribute("leftbound", 0);	
+      _frameEvent.putAttribute("rightbound", 0);
+      _frameEvent.putAttribute("moment", 0);
+      _frameEvent.putAttribute("level", -1); 
+      _frameEvent.putAttribute("probeTime", 0);
     */
   }
 
@@ -107,22 +109,20 @@ class ClientEffector implements Notifiable {
    */
   private void handleNotification(Notification event){
     Client.out.println("ClientEffector handleNotification(): I just got this event:" + event);
-
-    
     String name = event.toString().substring(7).split("=")[0];
     AttributeValue attrib = event.getAttribute(name);
     Client.out.println("ClientEffector handle notification: name: " + name);
     Client.out.println("ClientEffector handle notification: attrib: " + attrib);
     if (name.equals("AI2TV_FRAME_UPDATE") && 
-	       event.getAttribute("CLIENT_ID").longValue() == _client.getID()){
+	event.getAttribute("CLIENT_ID").longValue() == _client.getID()){
       Client.out.println("found a WF commmand to do something, directed to ME!");
       Client.out.println("");
       if (event.getAttribute("CHANGE_LEVEL") != null){
-	Client.probeOutput.println("ClientEffector found command to change levels: " + event.getAttribute("CHANGE_LEVEL").toString());
-	; // _client.changeLevel(event.getAttribute("CHANGE_LEVEL").toString());
+	Client.out.println("ClientEffector found command to change levels: " + event.getAttribute("CHANGE_LEVEL").toString());
+	_client.changeLevel(event.getAttribute("CHANGE_LEVEL").toString());
       } else if (event.getAttribute("GOTO_FRAME") != null){
-	Client.probeOutput.println("ClientEffector found command to goto frame: " + event.getAttribute("GOTO_FRAME").intValue());
-	; // _client.setNextFrame(event.getAttribute("GOTO_FRAME").intValue());
+	Client.out.println("ClientEffector found command to goto frame: " + event.getAttribute("GOTO_FRAME").intValue());
+	_client.setNextFrame(event.getAttribute("GOTO_FRAME").intValue());
       } else {
 	Client.err.println("AI2TV_FRAME_UDPATE: Notification Error, received unknown attribute: " + attrib);
       }
@@ -145,4 +145,3 @@ class ClientEffector implements Notifiable {
 
   }
 }
-

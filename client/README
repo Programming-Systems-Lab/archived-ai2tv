@@ -1,4 +1,5 @@
 to run the client:
+
 > make client
  or 
 > javac Client.java CommController.java CacheController.java Viewer.java ClientProbe.java
@@ -6,4 +7,4 @@ to run the client:
 > java psl.ai2tv.client.Client
 
 note that this client is currently hard-coded (I know, bad bad bad) to communicate
-with a Siena server running on franken.psl.cs.columbia.edu.  
+with a Siena server running on franken.psl.cs.columbia.edu.
