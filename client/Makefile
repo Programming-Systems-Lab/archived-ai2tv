@@ -17,6 +17,7 @@ jar:
 run:
 	rm -rf cache/*.jpg
 	java -Dai2tv.server=ka:${SIENA_HOST}:4444 psl.ai2tv.client.Client 2> errors
+
 #	java -classpath . ${NAME}Java
 
 mid:

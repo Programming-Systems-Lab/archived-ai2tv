@@ -277,16 +277,19 @@ class Viewer extends JFrame {
    * 
    * @param filename: image file to display
    */
-  void displayImage(String filename) {
+  boolean displayImage(String filename) {
     // Client.out.println("displayImage called: " + _client.currentTime());
     ImageIndexPair pair = (ImageIndexPair) _images.get(filename);
+    // Client.debug.println("Viewer trying to display: " + filename + " pair: " + pair);
     if (pair != null){
       _image = pair.image;
       _viewIndex = pair.id;
       _filename = filename;
-      // Client.out.println("Viewer displaying: " + filename);
+      // Client.debug.println("Viewer displaying: " + filename);
+      return true;
     } else {
       Client.err.println("Error in Viewer.displayImage: " + filename + " not valid.");
+      return false;
     }
   }
 
