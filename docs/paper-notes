@@ -9,7 +9,7 @@ we could have
 1) invansive probe: probe calls would be littered throughout the 
 code and would assume users would have access to source code.
 
-1) non-invansive probe: would have to have the client already sending
+2) non-invansive probe: would have to have the client already sending
 enough information and provide adapting accessor functions, a somewhat
 unrealistic situation.
 
@@ -19,6 +19,32 @@ between when the call to show the frame is made and when the
 frame is actually shown), we will proceed with the invasive 
 approach, carefully labelling each specific location and
 type of probing being used.
+
+
+A) EVENT based probes, where the client sends out
+Notifications only when events happen. 
+
+B) PERIODIC (client based): where the client sends out
+periodic status reports (Notifications).
+
+C) PERIODIC (WF based): where the WF(server) sends out periodic status
+requests (Notifications).
+
+choice A:
+- adv: low network usage
+- disadv: not enough information, and some information
+like WF to client delay can not be measured.
+
+choice B:
+- adv: more information received
+- disadv: high network usage
+- disadv: could slow down the client
+
+choice C:
+- adv: more information received
+- disadv: high network usage
+- disadv: could slow down the client
+
 
 
 ----------------------
@@ -53,3 +79,5 @@ NTP Research
 ------------
 
 NTP is an internet standard.  see the checked in paper: ntp_review.pdf
+time synchronization is a problem: see complexity book.
+
