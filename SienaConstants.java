@@ -19,7 +19,10 @@ public class SienaConstants {
   public static final String RIGHTBOUND = "rightbound";
   public static final String MOMENT = "moment";
   public static final String LEVEL = "level";
+  public static final String CACHE_LEVEL = "cacheLevel";
   public static final String SIZE = "size";
+  public static final String CLIENT_RESERVE_FRAMES = "clientReserveFrames";  
+  public static final String PREFETCHED_FRAMES = "prefetchedFrames";  
   public static final String TIME_SHOWN = "timeShown";
   public static final String TIME_OFFSET = "timeOffset";
   public static final String TIME_DOWNLOADED = "timeDownloaded";
@@ -36,9 +39,10 @@ public class SienaConstants {
 
   // these are from the WF to adjust certain clients
   public static final String AI2TV_CLIENT_ADJUST = "AI2TVClientAdjust";
-  public static final String CHANGE_LEVEL = "changeLevel";
-  public static final String CHANGE_LEVEL_UP = "up";
-  public static final String CHANGE_LEVEL_DOWN = "down";
+  public static final String CHANGE_CLIENT_LEVEL_UP = "changeClientUp";
+  public static final String CHANGE_CLIENT_LEVEL_DOWN = "changeClientDown";
+  public static final String CHANGE_CACHE_LEVEL_UP = "changeCacheUp";
+  public static final String CHANGE_CACHE_LEVEL_DOWN = "changeCacheDown";
   public static final String JUMP_TO = "jumpTo";
 
   // these are for the WF to gather certain timing stats
