@@ -1,0 +1,64 @@
+$RCSfile$ $Revision$ $Date$ $Source$ 
+
+AI2TV
+HOWTO for AI2TV users.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+-                          Table Of Contents                        -
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+1. Overview
+2. Viewing a Video
+3. Acknowledgements
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+-                         1. Overview                               -
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+AI2TV is a video viewing application that allows for distributed
+synchronous viewing sessions.
+
+DEPENDENCIES:
+Elvin and the ai2tv client jar file (ai2tvClient.jar)
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+-                         2. Viewing a Video                        -
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+To view a video, invoke the client on the command line, making
+sure you include the ant jar in your classpath: 
+
+> java -classpath ant.jar,ai2tvClient.jar psl.ai2tv.client.Client
+
+The login dialog should then appear.  The workgroups need not be
+created before hand.  Coordinate with your team members and specify a
+workgroup id.  The first person to login can create a video session,
+which the other workgroup members will be able to see after they
+login.  Because this is just an alpha release, it is important that
+the member that is going to schedule the video session first complete
+that scheduling before the other members login.  Otherwise, the other
+members won't be able to see the video session when they login.
+
+After all members of the workgroup login, any member can begin playing
+the video by pressing play.  All video actions are synchronized across
+all the clients and all clients should view semantically similar
+content.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+-                        3. Acknowledgements                        -
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Copyright (c) 2004, Columbia University, Programming Systems Laboratory
+
+We would like to thank John Kender, Tiecheng Liu, and other members of
+the High-Level Vision Lab for their assistance in using their
+lecture-video semantic compression software.  We would also like to
+thank the other members of the Programming Systems Lab, particularly
+Matias Pelenur who implemented PSL's Little-JIL interpreter on top of
+Workflakes/Cougaar.  Little-JIL was developed by Lee Osterweil's LASER
+lab at the University of Massachusetts, Amherst. Cougaar was developed
+by a DARPA-funded consortium; our main Cougaar contact was Nathan
+Combs of BBN.  Siena was developed by the University of Colorado,
+Boulder, in Alex Wolf's SERL lab. PSL is funded in part by National
+Science Foundation grants CCR-0203876, EIA-0202063 and EIA-0071954,
+and by Microsoft Research.
