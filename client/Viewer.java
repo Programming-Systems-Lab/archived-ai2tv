@@ -147,7 +147,6 @@ class Viewer extends JFrame {
     }
   }
   
-
   /**
    * paint thread that refreshes the Viewer display.
    *
@@ -157,6 +156,7 @@ class Viewer extends JFrame {
     Canvas newCanvas = new Canvas() {
 	private Image doubleBuffer = null;
 	public void update(Graphics g) {
+	  // to reduce flickering
 	  int dbw = _mainPanel.getSize().width;
 	  int dbh = _mainPanel.getSize().height;
 	  if (doubleBuffer==null 
