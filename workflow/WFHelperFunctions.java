@@ -338,7 +338,10 @@ public class WFHelperFunctions implements ExecutableTask {
       }
 
       event.putAttribute(SienaConstants.AI2TV_CLIENT_ADJUST, "");
-      event.putAttribute(SienaConstants.CLIENT_ID, clientPG.getId());
+      String[] id = clientPG.getId().split("@");
+      event.putAttribute(SienaConstants.UID, id[0]);
+      event.putAttribute(SienaConstants.GID, id[1]);
+
       logger.debug("sending event: " + event);
 
       try {

@@ -74,7 +74,9 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
   private void getReport(ClientDesc currentClient){
     Notification probe = new Notification();
     probe.putAttribute(SienaConstants.AI2TV_WF_UPDATE_REQUEST, "");
-    probe.putAttribute(SienaConstants.CLIENT_ID, currentClient.getClientID());
+    String[] id = currentClient.getClientID().split("@");
+    probe.putAttribute(SienaConstants.UID, id[0]);
+    probe.putAttribute(SienaConstants.GID, id[1]);
     probe.putAttribute(SienaConstants.ABS_TIME_SENT, System.currentTimeMillis());
     try {
       siena.publish(probe);
@@ -107,7 +109,9 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
       ppd = now - absTimeSent;
     }
 
-    String id = String.valueOf(e.getAttribute(SienaConstants.CLIENT_ID).longValue());
+    String uid = e.getAttribute(SienaConstants.UID).stringValue();
+    String gid = e.getAttribute(SienaConstants.GID).stringValue();
+    String id = uid + "@" + gid;
     Hashtable ht = myGauge.getGroupClients();
     currentClient = (ClientDesc)ht.get(id);
     // this basically registers the client into the hash table, so we don't have to 
@@ -182,9 +186,12 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
 	WFGauge.clock.stopTime();
 
       } else if (action.equals(SienaConstants.GOTO)) {
-	long clientid = e.getAttribute(SienaConstants.CLIENT_ID).longValue();
-	// id of -1 is reserved for the WF
-	if (clientid != _id){
+
+	String clientid = (e.getAttribute(SienaConstants.UID).stringValue() + "@" + 
+			   e.getAttribute(SienaConstants.GID).stringValue());
+
+	// if we didn't send out the goto message
+	if (!clientid.equals("" + _id)){
 	  WFGauge.clock.gotoTime(absTimeSent, e.getAttribute(SienaConstants.NEWTIME).intValue());
 	}
       } else {

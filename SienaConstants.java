@@ -7,9 +7,12 @@ package psl.ai2tv;
 public class SienaConstants {
 
   // these represent the typical client probe frame updates
+  public static final String UID = "UID";
+  public static final String GID = "GID";
+  public static final String PID = "PID";
+
   public static final String AI2TV_FRAME = "AI2TVFrame";
   public static final String AI2TV_FRAME_MISSED = "AI2TVFrameMissed";
-  public static final String CLIENT_ID = "ClientID";
   public static final String BANDWIDTH = "bandwidth";
   public static final String PROBE_TIME = "probeTime";
   public static final String ABS_TIME_SENT = "absoluteTimeSentStamp";

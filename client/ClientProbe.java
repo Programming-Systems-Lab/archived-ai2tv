@@ -96,7 +96,8 @@ class ClientProbe {
     event.putAttribute(SienaConstants.CLIENT_RESERVE_FRAMES, _client.getReserveFrames());
     event.putAttribute(SienaConstants.PREFETCHED_FRAMES, _client.getNumPrefetchedFrames(_client.getCacheLevel()));
 
-    event.putAttribute(SienaConstants.CLIENT_ID, _client.getID());
+    event.putAttribute(SienaConstants.UID, _client.getUID());
+    event.putAttribute(SienaConstants.GID, _client.getGID());
     event.putAttribute(SienaConstants.ABS_TIME_SENT, System.currentTimeMillis());
 
     try {
@@ -204,9 +205,10 @@ class ClientProbe {
   private void sendRegistrationToWF(){
     Notification event = new Notification();
     try{
-      Client.out.println("Registering client: " + _client.getID());
+      Client.out.println("Registering client: " + _client.getUID() + "@" + _client.getGID());
       event.putAttribute(SienaConstants.AI2TV_WF_REG, "");
-      event.putAttribute(SienaConstants.CLIENT_ID, _client.getID());
+      event.putAttribute(SienaConstants.UID, _client.getUID());
+      event.putAttribute(SienaConstants.GID, _client.getGID());
       _siena.publish(event);
     } catch (siena.SienaException e){
       Client.err.println("CommController publishing sienaException: " + e);

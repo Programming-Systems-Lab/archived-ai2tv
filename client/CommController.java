@@ -66,6 +66,7 @@ class CommController implements Notifiable{
     Filter filter = new Filter();
     // the string "FOO" doesn't mean anything (the string is ignored)
     filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, Op.ANY, "FOO");
+    filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, Op.ANY, "FOO");
     _siena.subscribe(filter, this);
   }
 
@@ -237,7 +238,8 @@ class CommController implements Notifiable{
     try{
       Client.out.println("publishing event: " + Calendar.getInstance().getTime());
       event.putAttribute(SienaConstants.ABS_TIME_SENT, System.currentTimeMillis());
-      event.putAttribute(SienaConstants.CLIENT_ID, _client.getID());
+      event.putAttribute(SienaConstants.UID, _client.getUID());
+      event.putAttribute(SienaConstants.GID, _client.getGID());
       _siena.publish(event);
     } catch (siena.SienaException e){
       Client.err.println("CommController publishing sienaException: " + e);

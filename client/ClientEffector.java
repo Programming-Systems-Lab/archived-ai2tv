@@ -126,7 +126,9 @@ class ClientEffector implements Notifiable {
       publishUpdate(ppd);
 
     } else if (name.equals(SienaConstants.AI2TV_CLIENT_ADJUST) && 
-	event.getAttribute(SienaConstants.CLIENT_ID).longValue() == _client.getID()){
+	       event.getAttribute(SienaConstants.UID).stringValue().equals( _client.getUID()) &&
+	       event.getAttribute(SienaConstants.GID).stringValue().equals( _client.getGID())
+	       ){
       if (event.getAttribute(SienaConstants.CHANGE_CLIENT_LEVEL) != null){
 	System.out.println("ClientEffector found command to change client level: " + event.getAttribute(SienaConstants.CHANGE_CLIENT_LEVEL).toString() + " : " + now);
 	_client.changeLevel(event.getAttribute(SienaConstants.CHANGE_CLIENT_LEVEL).intValue());
@@ -175,7 +177,8 @@ class ClientEffector implements Notifiable {
    */
   private void publishNotification(Notification event){
     try{
-      event.putAttribute(SienaConstants.CLIENT_ID, _client.getID());
+      event.putAttribute(SienaConstants.UID, _client.getUID());
+      event.putAttribute(SienaConstants.GID, _client.getGID());
       event.putAttribute(SienaConstants.ABS_TIME_SENT, System.currentTimeMillis());
       
       _siena.publish(event);

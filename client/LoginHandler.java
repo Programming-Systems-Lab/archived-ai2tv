@@ -44,7 +44,7 @@ public class LoginHandler extends JFrame {
   JPanel menuPanel;
 
   private String _uid = null;
-  private int _gid = -1;
+  private String _gid = null;
   private String _passwd = null;
   private String _videoName = null;
   private String _date = null;
@@ -177,7 +177,7 @@ public class LoginHandler extends JFrame {
 	      _passwdField.getPassword().length > 0) {
 	    
 	    _uid = _uidField.getText();
-	    _gid = Integer.parseInt(_gidField.getText());
+	    _gid = _gidField.getText();
 	    _passwd = new String(_passwdField.getPassword());
 	    
 	    _client.setLoginInfo(_uid, _gid, _passwd);

@@ -73,11 +73,11 @@ class FauxWF extends Thread implements Notifiable {
     long receivedTime = System.currentTimeMillis();
     String name = event.toString().substring(7).split("=")[0];
     AttributeValue attrib = event.getAttribute(name);
-    long clientID;
+    long clientID = 0;
 
     // System.out.println("name: " + name + " attrib:" + attrib);
     if (name.equals(SienaConstants.AI2TV_FRAME)){
-      clientID = event.getAttribute(SienaConstants.CLIENT_ID).longValue();
+      // clientID = event.getAttribute(SienaConstants.CLIENT_ID).longValue();
 
       int currFrame = event.getAttribute(SienaConstants.MOMENT).intValue(); // DEBUG
       int leftbound = event.getAttribute(SienaConstants.LEFTBOUND).intValue(); // DEBUG
@@ -119,7 +119,7 @@ class FauxWF extends Thread implements Notifiable {
       
 
     } else if (name.equals(SienaConstants.AI2TV_WF_UPDATE_REPLY)){
-      clientID = event.getAttribute(SienaConstants.CLIENT_ID).longValue();
+      // clientID = event.getAttribute(SienaConstants.CLIENT_ID).longValue();
       /*
       long wf2probe = event.getAttribute("WF2Probe").longValue();
       long probe2wf = event.getAttribute("Probe2WF").longValue();
@@ -138,7 +138,7 @@ class FauxWF extends Thread implements Notifiable {
   private void sendUpdateRequest(long clientID){
     Notification event = new Notification();
     event.putAttribute(SienaConstants.AI2TV_WF_UPDATE_REQUEST, "");
-    event.putAttribute(SienaConstants.CLIENT_ID, clientID);
+    // event.putAttribute(SienaConstants.CLIENT_ID, clientID);
     event.putAttribute(SienaConstants.AI2TV_UPDATE_TIME_SENT, System.currentTimeMillis());
     publishNotification(event);    
   }
@@ -146,7 +146,7 @@ class FauxWF extends Thread implements Notifiable {
   private void gotoFrame(int newFrame, long clientID){
     Notification event = new Notification();
     event.putAttribute(SienaConstants.AI2TV_CLIENT_ADJUST, "");
-    event.putAttribute(SienaConstants.CLIENT_ID, clientID);
+    // event.putAttribute(SienaConstants.CLIENT_ID, clientID);
     event.putAttribute(SienaConstants.GOTO, newFrame);
     publishNotification(event);
   }
@@ -155,7 +155,7 @@ class FauxWF extends Thread implements Notifiable {
     System.out.println("Sending Event, changeLevel: " + dir);
     Notification event = new Notification();
     event.putAttribute(SienaConstants.AI2TV_CLIENT_ADJUST, "");
-    event.putAttribute(SienaConstants.CLIENT_ID, clientID);
+    // event.putAttribute(SienaConstants.CLIENT_ID, clientID);
     event.putAttribute(SienaConstants.CHANGE_CLIENT_LEVEL, dir);
     publishNotification(event);
   }
