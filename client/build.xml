@@ -44,7 +44,12 @@
 
     <target name="clean">
        <delete dir="${BUILD}"/> 
-       <!-- ${BUILD}/${JNIPREFIX}Java.java ${BUILD}/${JNIPREFIX}Java.class ${BUILD}/${JNIPREFIX}CPP.obj ${BUILD}/${JNIPREFIX}CPP.exp ${BUILD}/${JNIPREFIX}CPP.dll ${BUILD}/${JNIPREFIX}CPP.lib ${BUILD}/${JNIPREFIX}CPP.exe ${BUILD}/psl_ai2tv_client_AI2TVJNIJava.h -->
+       <delete file="${JNIPREFIX}CPP.obj" />
+       <delete file="${JNIPREFIX}CPP.exp" />
+       <delete file="${JNIPREFIX}CPP.dll" /> 
+       <delete file="${JNIPREFIX}CPP.lib" /> 
+       <delete file="${JNIPREFIX}CPP.exe" /> 
+       <delete file="psl_ai2tv_client_AI2TVJNIJava.h" /> 
     </target>
 
 
@@ -61,7 +66,7 @@
     <target name="javap">
        <exec command="javap -classpath ../../.. -s -p psl.ai2tv.client.${JNIPREFIX}Java" description="create the correct method call of a all java methods for use in CPP code."/>
     </target>
-o
+
     <target name="run-jni" description="this is to run the jni executable (if it's not already hooked onto another main)">
     	<java classname="${JNIPREFIX}Java" classpath="." />
     </target>
