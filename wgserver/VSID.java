@@ -31,6 +31,8 @@ class VSID{
   private String _gid;
   /** the users viewing this video session */
   private Set _uids;
+  /** the system clock time of when the video started */
+  private long _startTime;
 
   /** create a new video session */
   VSID(String id, String name, String gid, String date){
@@ -42,6 +44,7 @@ class VSID{
     _gid = gid;
     _date = date;
     _uids = new HashSet();
+    _startTime = -1;
   }
   
   /**
@@ -109,7 +112,36 @@ class VSID{
     _uids.remove(uid);
     return true;
   }
+
+  /**
+   * check whether the uid is present in this VSID
+   *
+   * @param uid: uid to check
+   */
+  boolean containsUID(String uid){
+    return _uids.contains(uid);
+  }
   
+  /**
+   * returns the start time of this video, -1 if the video has not yet
+   * started.
+   *
+   * @return start time of this video
+   */
+  long getStartTime(){
+    return _startTime;
+  }
+
+  /**
+   * set the start time for this video
+   *
+   * @param start time of this video
+   */
+  void setStartTime(long time){
+    _startTime = time;
+  }
+
+
   /** 
    * String representation of a VSID
    */

@@ -64,7 +64,7 @@ class CommController implements Notifiable{
       // the string "FOO" doesn't mean anything (the string is ignored)
       filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, Op.ANY, "FOO");
       filter.addConstraint(SienaConstants.GID, Op.EQ, _client.getGID());
-      // filter.addConstraint(SienaConstants.VSID, Op.EQ, _client.getVSID());
+      filter.addConstraint(SienaConstants.VSID, Op.EQ, _client.getVSID());
       _siena.subscribe(filter, this);
     } catch (SienaException e){
       Client.err.println("SienaException caught setting up Siena Filter: " + e);
@@ -135,7 +135,6 @@ class CommController implements Notifiable{
   void joinActiveVSID(String vsid){
     Notification request = new Notification();
     request.putAttribute(SienaConstants.JOIN_ACTIVE_VSID, "FOO");
-    request.putAttribute(SienaConstants.VSID, vsid);
     publishNotification(request);
   }
 
@@ -148,7 +147,6 @@ class CommController implements Notifiable{
     try {
       Notification shutdownEvent = new Notification();
       shutdownEvent.putAttribute(SienaConstants.REMOVE_USER_FROM_VSID, "FOO");
-      shutdownEvent.putAttribute(SienaConstants.VSID, _client.getVSID());
       publishNotification(shutdownEvent);
 
       shutdownEvent = new Notification();
@@ -308,6 +306,10 @@ class CommController implements Notifiable{
       event.putAttribute(SienaConstants.ABS_TIME_SENT, System.currentTimeMillis());
       event.putAttribute(SienaConstants.UID, _client.getUID());
       event.putAttribute(SienaConstants.GID, _client.getGID());
+      if (_client.getVSID() != null)
+	event.putAttribute(SienaConstants.VSID, _client.getVSID());
+      else 
+	Client.debug.println("CommController: found client VSID to be null!");
       _siena.publish(event);
     } catch (siena.SienaException e){
       Client.err.println("CommController publishing sienaException: " + e);

@@ -124,6 +124,10 @@ class WGServer extends Thread  {
     VSID session = (VSID) vsidTable.get(vsid);
     if (session != null){
       session.addUID(uid);
+      long time = session.getStartTime();
+      if (time != -1){
+	_comm.sendPlay(vsid, uid, gid, time);
+      }
       return true;
     } else 
       return false;      
@@ -153,23 +157,28 @@ class WGServer extends Thread  {
   }
   
   /**
-   * thread that keeps the wgserver alive
+   * indicate that the video session has started (play has been pressed) 
+   *
+   * @param vsid: id of the video session
+   * @param uid: user id
+   * @param gid: group id
    */
-  public void run(){
-    _isActive = true;
-    while(_isActive){
-      try {
-	sleep(1000);
-      } catch (InterruptedException e){
-	System.out.println("WGServer error: " + e);
+  void playPressed(String vsid, String uid, String gid, long startTime){
+    Hashtable vsidTable = (Hashtable) _VSIDs.get(gid);
+    if (vsidTable != null){
+      VSID session = (VSID) vsidTable.get(vsid);
+      if (session != null && session.containsUID(uid) &&
+	  session.getStartTime() == -1){
+	session.setStartTime(startTime);
       }
     }
   }
 
+
   /**
    * print out the current WG's contents
    */
-  public void print(){
+public void print(){
     // System.out.println("main Hashtable: " + _VSIDs);
     Set s = _VSIDs.keySet();
     Iterator itr = s.iterator();
@@ -191,6 +200,20 @@ class WGServer extends Thread  {
   }
 
   /**
+   * thread that keeps the wgserver alive
+   */
+  public void run(){
+    _isActive = true;
+    while(_isActive){
+      try {
+	sleep(1000);
+      } catch (InterruptedException e){
+	System.out.println("WGServer error: " + e);
+      }
+    }
+  }
+
+  /**
    * start up the WG server process
    */
   public static void main(String[] args) {
@@ -204,11 +227,13 @@ class WGServer extends Thread  {
 
     System.out.println("- - - joinNewVSID - - -");
     String videoName = "CS4118-10/";
-    String newuid = "goofy";
+    String uid = "goofy";
     String gid = "psl";
     String date = "2003-08-10;08:00:00";
-
-    server.joinNewVSID(videoName, newuid, gid, date);
+    String vsid = server.joinNewVSID(videoName, uid, gid, date);
+    long startTime = System.currentTimeMillis() - 20000; // 1059408886; // 226
+    System.out.println("setting start time: " + startTime);
+    server.playPressed(vsid, uid, gid, startTime);
     server.print();
 
     server.start();

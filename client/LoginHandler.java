@@ -171,7 +171,7 @@ public class LoginHandler extends JFrame {
     menuPanel.add(gidLabel);
 
     _gidField = new JTextField(8);
-    _gidField.setText("101");
+    _gidField.setText("psl");
     menuPanel.add(_gidField);
 
     // ------ passwd ------ //

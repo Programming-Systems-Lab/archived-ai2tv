@@ -54,8 +54,8 @@ class CommController implements Notifiable{
    * receive.
    */
   private void setupFilter() throws siena.SienaException {
+    // these first 4 filters are for WG registration features
     Filter filter = new Filter();
-    // the string "FOO" doesn't mean anything (the string is ignored)
     filter.addConstraint(SienaConstants.GET_ACTIVE_VSIDS, Op.ANY, "FOO");
     _siena.subscribe(filter, this);
 
@@ -69,6 +69,11 @@ class CommController implements Notifiable{
 
     filter = new Filter();
     filter.addConstraint(SienaConstants.REMOVE_USER_FROM_VSID, Op.ANY, "FOO");
+    _siena.subscribe(filter, this);
+
+    // we subscribe to play events in order to synch up late comers
+    filter = new Filter();
+    filter.addConstraint(SienaConstants.PLAY, Op.ANY, "FOO");
     _siena.subscribe(filter, this);
   }
 
@@ -213,6 +218,7 @@ class CommController implements Notifiable{
       String vsid = event.getAttribute(SienaConstants.VSID).stringValue();
       String uid = event.getAttribute(SienaConstants.UID).stringValue();
       String gid = event.getAttribute(SienaConstants.GID).stringValue();
+
       _server.joinActiveVSID(vsid, uid, gid);
 
     } else if (event.getAttribute(SienaConstants.REMOVE_USER_FROM_VSID) != null){
@@ -222,9 +228,36 @@ class CommController implements Notifiable{
       String gid = event.getAttribute(SienaConstants.GID).stringValue();
       _server.removeUserFromVSID(vsid, uid, gid);
       
+    } else if (event.getAttribute(SienaConstants.PLAY) != null){
+      String vsid = event.getAttribute(SienaConstants.VSID).stringValue();
+      String uid = event.getAttribute(SienaConstants.UID).stringValue();
+      String gid = event.getAttribute(SienaConstants.GID).stringValue();
+      long startTime = event.getAttribute(SienaConstants.ABS_TIME_SENT).longValue();
+      _server.playPressed(vsid, uid, gid, startTime);
+      
     } else {
       System.err.println("Notification Error, received unknown event");
     }
+  }
+
+  /**
+   * send out a message to the workgroup to start playing, and to set
+   * the start time back to this time (fast forward the client).
+   *
+   * @param vsid: id of the video session
+   * @param uid: user id
+   * @param gid: group id
+   * @param startTime: absolute system time that the video session had
+   * actualy started
+   */
+  void sendPlay(String vsid, String uid, String gid, long startTime){
+    Notification event = new Notification();
+    event.putAttribute(SienaConstants.AI2TV_VIDEO_ACTION, SienaConstants.PLAY);
+    event.putAttribute(SienaConstants.ABS_TIME_SENT, startTime);
+    event.putAttribute(SienaConstants.UID, uid);
+    event.putAttribute(SienaConstants.GID, gid);
+    event.putAttribute(SienaConstants.VSID, vsid);
+    publishNotification(event);
   }
 
   /**
