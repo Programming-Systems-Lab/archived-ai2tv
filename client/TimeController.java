@@ -46,7 +46,7 @@ public class TimeController{
       _isActive = true;
       _startTime = System.currentTimeMillis();
     } else if (_pauseActive){
-      pause();
+      pauseTime();
     }
   }
 
@@ -70,29 +70,29 @@ public class TimeController{
   /**
    * toggle pause
    */
-  public void pause() {
+  public void pauseTime() {
     if (!_pauseActive) {
       System.out.println("pausing time");
       _pauseActive = true;
-      pauseTime();
+      pause();
     } else {
       System.out.println("unpausing time");
       _pauseActive = false;
-      unpauseTime();
+      unpause();
     }
   }
 
   /**
    * pause the time
    */
-  private void pauseTime() {
+  private void pause() {
     _pausedStartTime = System.currentTimeMillis();
   }
 
   /**
    * unpause the time
    */
-  private void unpauseTime() {
+  private void unpause() {
     _pausedTime += (System.currentTimeMillis() - _pausedStartTime);
   }
   
