@@ -1,12 +1,10 @@
-% to compile this file into a pdf or ps use the following
-% 1) latex whitepaper.tex
-% for ps: 2) dvips -K whitepaper -o
-% for pdf: 2) ps2pdf whitepaper.ps whitepaper.pdf
-\documentclass[12pt]{article}
+% to compile this file use the Makefile included in the source distribution
+\documentclass[10pt]{article}
 \usepackage{fancyheadings}
 \usepackage{doublespace}
 \usepackage{enumerate}
 \usepackage{graphics}
+\usepackage[round,longnamesfirst]{natbib}
 
 % \usepackage{doublespace}
 
@@ -18,25 +16,21 @@
 
 % command used to control between-line spacing
 \renewcommand{\baselinestretch}{1}
+\newcommand{\aiitv}[0]{$\mathrm{AI}^2$TV}
 
 \pagestyle{fancy}
-\cfoot{}
 \lhead{}
-\rhead{\rm\thepage\ of \pageref{'LastPage'}}
-\chead{\emph{Evaluating QoS of Distributed Video Synchrony}}
+\cfoot{\rm\thepage\ of \pageref{'LastPage'}}
+\chead{\emph{Collaborative Client Video Synchronization}}
 
 \title{Using Workflow to Optimize QoS for Collaborative Client Video
 Synchronization}
 
 \author{
- \textbf{Dan B. Phung, Peppo Valetto, Gail Kaiser, Suhit Gupta}\\
-Computer Science Department\\
-Columbia University\\
-\{phung, valetto, kaiser, suhit\}@cs.columbia.edu
-}
-
-\date{
-\parbox[b][0ex]{0em}{\hspace*{-12.5em}\raisebox{37ex}{\fbox{For
+ \textbf{Dan B. Phung, Peppo Valetto, Gail Kaiser, and Suhit Gupta}\\
+Computer Science Department, Columbia University\\
+\{phung, valetto, kaiser, suhit\}@cs.columbia.edu}
+\date{\parbox[b][0ex]{0em}{\hspace*{-12.5em}\raisebox{37ex}{\fbox{For
 submission to \emph{ACM-MM 2004}, due 12:00 AM EDT: April 05, 2004.}}}}
 
 \begin{document}
@@ -45,28 +39,42 @@ submission to \emph{ACM-MM 2004}, due 12:00 AM EDT: April 05, 2004.}}}}
 \maketitle
 \end{singlespace}
 
-% PAPER SYNOPSIS
-% motivation: 
-% - online courses more popular
+% PAPER OUTLINE
+% motivation:
+% - online courses becoming more popular
 % - limited support for distributed collaboration
 % - network resource disparity
 % -> thus, we give you ai2tv
 %
-% background:
+% INTRO
 % - show trend in online courses and current state on collaborative support
-% - video, or any type of distributed collaborative synchronized work
+% - motivate the use of video as distributed collaboration tool
 % - discuss briefly history of two ai2tv designs and imps
 %   1) describe motivations for sys 1 architectural design
 %   2) describe flaws of sys 1
 %   -> segue into ai2tv system 2
-% - describe kender's semantic compression
-% - summarize achievements
+% - present rest of paper and summarize achievements
 % 
-% evaluation methods
-% - explain scoring system
-% - 
+% BACKGROUND
+% - discuss other projects on multiple client synchronization
+% - ai2tv project goals
+% - describe overview of semantic compression tool used
+% - introduce role of process workflow
+% - explain time based synchronization
 % 
-% results
+% DESIGN AND IMPLEMENTATION
+% - design motivations of system 1
+% - discuss flaws in system 1 that lead to system 2: will try as much
+% as possible to downplay role of CHIME and focus on design differences
+% - workflow controller
+% 
+% EVALUATION methods
+% - how to score synchronized state
+% - define quality in terms of better frame rate
+% - explain scoring system: decouple baseline evaluation and 
+% penalties missed frames.
+% 
+% RESULTS
 % - give statistical results of sys 1
 % - showed ai2tv w/ and w/o workflow each compares: 
 %                : one graph for baseline comparison
@@ -74,15 +82,21 @@ submission to \emph{ACM-MM 2004}, due 12:00 AM EDT: April 05, 2004.}}}}
 % 1) synchronization was successful
 % 2) using workflow, QoS could be significantly increased
 % 
-% conclusion
+% RELATED WORK
+% - what are the other available online collaborative tools?
+% - what are other methods for multiple client synchronization
+% 
+% CONCLUSION
 % - our system can be used as an aid to support collaborative
 % video viewing for students groups.  
-% 
 
 % (does this need a name? SYCOVI (SYnchronized COllaborative Video?)
+
+% final read = check for consistent tense
+
 \begin{abstract}\noindent
 The increasing popularity of distance learning and online courses has
-highlights the lack of support for collaborative tools available for
+highlighted the lack of support for collaborative tools available for
 student groups.  Participants in these groups usually have a disparity
 in network resources which can hamper productive dialog.  We design
 and implement a system that allows geographically dispersed
@@ -91,30 +105,37 @@ system includes an autonomic workflow controller that responds to
 client feedback and adjusts the quality of the video according to the
 resources of each client.  Using this system we show that we can
 successfully synchronize video for distributed clients.  We also show
-that by using an autonomic workflow controller momentary increases in
-bandwidth can be exploited to raise the quality of video while
-transitory decreases in bandwidth can be buffered against to retain
-video integrity.
+that video integrity can be retain by adjusting quality of video in
+response to fluctuations in bandwidth through the use of an autonomic
+workflow controller.
 \end{abstract}
+
+%% We also show that by using an autonomic workflow controller momentary
+%% increases in bandwidth can be exploited to raise the quality of video
+%% while transitory decreases in bandwidth can be buffered against to
+%% retain video integrity.
 
 \textbf{keywords:} synchronized collaborative video, autonomic
 workflow,
 
-\section{Introduction} \label{sec:intro}
+% \twocolumn
 
+\section{Introduction} \label{intro}
+
+% - show trend in online courses and current state on collaborative support
 A major shift in educational paradigms is the use of online courses,
-which have become increasingly more popular \cite{beller,doe}.  Due to
+which have become increasingly more popular \citep{BELLER,DOE}.  Due to
 the ease in scheduling alongside a work schedule, one of the common
 type of students of online courses are the non-traditional working
 student that is trying to further her or his career through higher
-certifications \cite{burgess:trends}.  This student population usually
+certifications \citep{BURGESS:TRENDS}.  This student population usually
 varies geographically because online courses allow students from any
 region to enroll.  The dispersed nature of the class prevents students
 from physically holding study sessions, which is a common and
 productive practice.  Support for collaboration is a major concern in
-courses where group work is encouraged \cite{wells:collab} yet there
+courses where group work is encouraged \citep{WELLS:COLLAB} yet there
 are few tools that support distributed collaboration
-\cite{burgess:trends}.
+\citep{BURGESS:TRENDS}.
 
 The area of collaboration that our contributions apply to is
 collaborative video viewing.  In this scenario, students that are
@@ -124,18 +145,19 @@ facilitate group study sessions to review lecture material.  While
 within a video viewing session, participants can play, pause, stop and
 goto certain frames synchronously as a group.
 
+% - motivate the use of video as distributed collaboration tool
 Using video on the internet requires relatively high bandiwdth
 resources.  Network traffic is usually erratic, which can lead to lost
 video content.  The lost content can either be good or bad, depending
 on the redundancy of video material.  To eliminate this uncertainty,
-we use a semantic compression package \cite{tiecheng} developed in
+we use a semantic compression package \citep{TIECHENG} developed in
 another lab to extract the semantically rich material.  Using a
 selected time window, the package summarizes the content over that
 time and extracts semantically rich keyframes.  We discuss this work
 more extensively in section \ref{background}.
 
 Though all our videos are semantically rich, the playback may seem
-unnatural because only keyframes are shown.  Whether the video plays
+unnatural because only keyframes area shown.  Whether the video plays
 more natural depends on the number of keyframes extracted, which is a
 function of the time window length.  In order to provide the best
 quality video to clients, we adjust the semantic compression algoritm
@@ -143,199 +165,549 @@ to create more or less keyframes depending on the current
 bandwidth\footnote{for performance reasons, we actually precompute the
 keyframes for several bandwidth levels}.
 
+% - discuss briefly history of two ai2tv designs and imps
 In this paper we present two designs and implementations.  The first
 approach, which we will call system 1, used a peer to peer
 synchronization scheme that is common in some gaming platforms
-\cite{findme}.  Due to some flaws in this system, it was unable to
+\citep{???}.  Due to some flaws in this system, it was unable to
 synchronize the video consistently, so we redesigned and implemented
 another system (system 2) that took into account the mistakes made in
-system 1.  System 1 uses a common event bus and an autonomic workflow
-controller to respond to feedback from each of the clients and fine
-tune them when possible.
+system 1.  System 2 uses a time based synchronization schem, a common
+event bus and an autonomic workflow controller to respond to feedback
+from each of the clients and fine tune them when possible.  We show
+that using these improvements we were able to synchronize across all
+clients and provide an improved quality of services to each of the the
+clients.
 
-We will compare the two systems and discuss the key features of the
-system that successfully synchronized the video for multiple clients.
-We also show that using the workflow component allows clients to view
-a better quality video.
+% - present rest of paper and summarize achievements
+In the rest of this paper, we present the background of previous
+research that supports our work here.  We then present the design and
+implementations of the two systems and discuss the failure of the
+first system and the key features of the system that successfully
+synchronized the video for multiple clients.  We also discuss the use
+of the workflow component in providing better video quality to
+clients.  Next we present the experimental design and results of the
+evaluation of our system, and then we finish with related work and a
+conclusion.
 
-\subsection{Background} 
+\section{Background} \label{background}
 
-doing the p2p events thing?
-Also, why the keeping of time through sleep methods?  another
-main detractor from the system is that it was run within another
-processor and memory intensive system.  
+% - discuss other projects on multiple client synchronization
+The advent of the internet and the world wide web as a major means of
+communication has presented the educational community with the
+potential for great gains in the realm of accessibility of education.
+Some applications that support online educational collaboration are
+instant message applications, application and desktop sharing (WebEx,
+VNC), cobrowsing \citep{CAPPS, LIEBERMAN, SIDLER}, and XXX.  These
+applications support collaboration through communicative means
+(???need better phrase), but lack support of multiplexing the actual
+material.  (basically I'm trying to say that none of these other apps
+support the sharing of the actual educational medium: the video ).
+Easy Teach and Learn proposes a virtual classroom architecture that
+allows multiuser synchronous participation, but only a simulated
+version of this system has been implemented \citep{WALTER}
 
+% - ai2tv project goals
+The work presented in this paper is a part of a larger project called
+\aiitv (Adaptive Internet Interactive Team Video), which is a
+multi-group collaborative project aimed at developing a collaborative
+virtual environment for distributed team work.  The goal of \aiitv is
+to provide networks of multimedia content relevant to the work carried
+out by team projects, such as audio/video recordings of group
+discussions and decisions, and informational and educational events.
+\aiitv differs from many existing infrastructures that provide
+educational content in a networked context by its explicit focus on
+the teamwork aspects of on-line education.
 
-Background and context
+%% These participants may have varying bandwidth
+%% resources from a 56k modem to broadband DSL (usually 1.5 Mbps download
+%% bandwidth) or cable internet (usually 30 Mbps download bandwidth).
 
-AI2TV stands for "Adaptive Internet Interactive Team Video". AI2TV is
-a project that aims at developing a collaborative virtual environment
-for distributed team work, which includes an infrastructure for the
-provision over geographic networks of multimedia content relevant to
-the work carried out by the team, such as audio/video recordings of
-group discussions and decisions, informational and educational events,
-etc. The application domain of election is that of long-distance
-education, for remotizing attendance and review of class lectures,
-group study, and the various phases of collaborative team assignments,
-such as software development projects. Notice how AI2TV differs from
-many existing infrastructures for providing educational content in a
-networked context because of its explicit focus on supporting the team
-work aspects of on-line education.
+One of the requirements for \aiitv is the support for the synchronized
+viewing of streaming video by all members of a geographically
+distributed team.  For collaboration to be effective, all team members
+must be viewing the same content at all times so that discussion will
+be coherent.  The possible discrepancies in each member's bandwidth
+resources may leave those with lower resources unable to participate
+because frames are being dropped.  To address this issue, we employ a
+semantic summarization tool \citep{TIECHENG} that reduces a video to a
+few semantically rich keyframes.
 
-A number of speculative, design and technological challenges underlie
-the main AI2TV ideas. The issues that are most relevant to the work
-presented in this document lie mainly in the area of
-Computer-Supported Collaborative Work (CSCW), and how dynamic software
-adaptation can aid computerized CSCW tools to meet their goal of
-efficiently and effectively supporting collaborative work practices.
+(???FIGURE: semantic compression )
+(FIGURE: keyframes hierarchy )
 
-One of the most compelling requirements for the content provision
-system of AI2TV is the support for the synchronized watching of some
-streamed video clip by all members of a geographically distributed
-team across their different equipment and networking capabilities,
-including support for video operations like fast forward, rewind,
-seek, etc: imagine a scenario in which the team decides to review
-together a portion of a past lecture, in order to solve some
-difficulty in their project assignment or to clarify some notion.
+% - describe overview of semantic compression tool used
+The semantic summarization algorithm profiles video frames within a
+given time window and selects keyframes that have the most semantic
+information.  By increasing the size of the window, a keyframe will
+represent a larger time slice, which means that a larger window size
+will produce less keyframes as compared to a smaller window size
+setting.  Thus we use windows size as an indicator for the level of
+semantic compression.  Semantic summarization is used to create
+multiple versions of a video by specifying different levels of
+semantic compression.  Note that at each level, even though the number
+of keyframes may differ, no semantic content is lost due to the nature
+of the semantic summarization algorithm.  To prepare a video for
+collaborative viewing, we pre-compute several sets of keyframes for
+different levels.
 
-Given that team members can be dispersed over the Internet, and may
-enjoy very diverse connectivity, ranging for example from 28.8k modem,
-to DSL, to cable, to T1 lines, the multimedia content they must use
-for their review session is to be delivered over heterogeneous
-Internet links to heterogeneous platforms. Moreover, in such a setup
-the communication and computing resources available to each user may
-widely and quickly vary in the course the team work session. In
-contrast with those potential difficulties, the collaboration can be
-effective only in case the fruition of the streamed video clip remains
-well synchronized, so that users, who are enabled by their clients to
-discuss the material among each other as they see it, have a natural
-group experience (like they were co-located in class, or watching a
-tape together sitting in a study room) and do not incur in
-misunderstandings, waste of time, or other serious inconveniences
-during their review session.
+For our purposes, we define an \aiitv video as the compilation of
+keyframes produced from several different levels of semantic
+compression.  We use a keyframe index file to access a certain
+compression level of the \aiitv video.  Through the use of the \aiitv
+video we can provide semantically similar content to several clients
+by reducing the number of keyframes for those clients with lesser
+bandwidth.  To tune the level for each client we use process workflow
+technology to dynamically adapt \aiitv video level in response to each
+client's current bandwidth.
 
-AI2TV addresses this problem on the one hand by providing multimedia
-content in multiple versions, with different levels of semantic
-compression (citation?), and on the other hand by using the process /
-workflow technology made available by Workflakes to dynamically adapt
-its content provision infrastructure. Dynamic adaptation in this case
-is directed at modifying a combination of server and client
+% - introduce role of process workflow
+In addition to adjusting client viewing levels, Workflakes
+\citep{PEPPO}, the process workflow controller, monitors the system of
+clients and video servers and executes workflow plans in accordance
+with system policies.  The dynamic adaptation of the system is
+directed at modifying a combination of server and client
 configurations, data caching strategies and video management schemes,
 to accommodate and harmonize varying latencies, throughputs, client
-processing power, and server work loads. All of that - as will become
-more evident as the implementation of the case study is described
-below - must be completed by Workflakes within narrow time boundaries
-(in the order of seconds or less), given the soft-real time nature of
-the application and the kind of adaptation that must be effected.
+processing power, and server work loads. All of these adjustments must
+be completed by Workflakes within narrow time boundaries (in the order
+of seconds or less), given the soft-real time nature of the
+application and the kind of adaptation that must be effected.  For the
+adjustments of the workflow controller to maintain integrity across
+the distributed nature of servers and clients, a synchronization
+scheme must underly the system.
 
-That first application of process-based dynamic adaptation in the
-AI2TV system is termed the short-term or client synchronization
-workflow, to distinguish it from the other possible applications,
-which are introduced below.
+%% Another context in AI2TV, in which process / workflow technology plays
+%% a significant part is the organization of the work of the team as well
+%% as its individual members, in accord with an agenda containing a
+%% schedule of group events (e.g., virtual study "meetings") and work
+%% deadlines. In AI2TV, a workflow is used to model and guide the
+%% activities of the distributed team along that planned schedule. The
+%% typology of that workflow is in general that of a classic
+%% human-oriented process, whose stakeholders are persons and whose goal
+%% is to facilitate and guide the collaboration among those persons;
+%% furthermore, the workflow is likely to span its activities across a
+%% relatively long term, i.e. in terms of weeks, days, or hours in the
+%% most demanding cases.
 
-Another context in AI2TV, in which process / workflow technology plays
-a significant part is the organization of the work of the team as well
-as its individual members, in accord with an agenda containing a
-schedule of group events (e.g., virtual study "meetings") and work
-deadlines. In AI2TV, a workflow is used to model and guide the
-activities of the distributed team along that planned schedule. The
-typology of that workflow is in general that of a classic
-human-oriented process, whose stakeholders are persons and whose goal
-is to facilitate and guide the collaboration among those persons;
-furthermore, the workflow is likely to span its activities across a
-relatively long term, i.e. in terms of weeks, days, or hours in the
-most demanding cases.
+%% Given those characteristics that kind of workflow should not be
+%% seemingly concerned with any dynamic software adaptation
+%% issues. However, there are peculiarities intrinsic to the presence and
+%% use of multimedia content in the workflow that demand for the
+%% introduction of dynamic adaptation aspects, which become intertwined
+%% with the coordination of team activities.
 
-Given those characteristics that kind of workflow should not be
-seemingly concerned with any dynamic software adaptation
-issues. However, there are peculiarities intrinsic to the presence and
-use of multimedia content in the workflow that demand for the
-introduction of dynamic adaptation aspects, which become intertwined
-with the coordination of team activities.
+%% Another context in AI2TV, in which process / workflow technology plays
+%% a significant part is the organization of the work of the team as well
+%% as its individual members, in accord with an agenda containing a
+%% schedule of group events (e.g., virtual study "meetings") and work
+%% deadlines. In AI2TV, a workflow is used to model and guide the
+%% activities of the distributed team along that planned schedule. The
+%% typology of that workflow is in general that of a classic
+%% human-oriented process, whose stakeholders are persons and whose goal
+%% is to facilitate and guide the collaboration among those persons;
+%% furthermore, the workflow is likely to span its activities across a
+%% relatively long term, i.e. in terms of weeks, days, or hours in the
+%% most demanding cases.
 
-Multimedia content must be treated by the workflow as both a new type
-of artifact and an additional kind of resource, albeit an expensive
-one that must be carefully organized and managed. One thing that this
-workflow must do is to plan and orchestrate the distribution of copies
-of such multimedia artifacts to each individual team member in a
-timely fashion. Ideally, all artifacts would be entirely transferred
-to all clients in advance, before a planned event begins. That ideal
-situation would avoid the need for streaming any information on the
-fly, and would thus largely circumvent the problems that require the
-intervention of the synchronization workflow, at least for
-planned-ahead joint work events (for virtual meetings that are set up
-and initiated with no or little advance notice, the client
-synchronization workflow remains completely relevant).
+%% Given those characteristics that kind of workflow should not be
+%% seemingly concerned with any dynamic software adaptation
+%% issues. However, there are peculiarities intrinsic to the presence and
+%% use of multimedia content in the workflow that demand for the
+%% introduction of dynamic adaptation aspects, which become intertwined
+%% with the coordination of team activities.
 
-In the real world, the typical situation is likely to be somewhere in
-between the two extremes above. Given that, and also in the view of
-the high variability of the factors that may influence or hinder the
-ability to make available in advance the necessary artifacts, such as
-connectivity, servers, memory storage space in the clients, CPU load
-on clients, and more, there is a need for AI2TV to adapt on the fly
-even in the long-term context, in order to overcome connectivity and
-capability idiosyncrasies and maximize the amount of data prefetched
-and immediately available to clients at the beginning of a group
-event. That can be resolved with a combination of content pre-fetching
-and caching techniques that are orchestrated via a pre-fetching
-workflow, which kicks in as part of the long-term scheduling
-workflow. The pre-fetching workflow must also graciously turn control
-over to the synchronization workflow whenever a group event begins,
-for keeping in check and adapting the synchronized delivery and
-presentation of the material across clients.
+%% Multimedia content must be treated by the workflow as both a new type
+%% of artifact and an additional kind of resource, albeit an expensive
+%% one that must be carefully organized and managed. One thing that this
+%% workflow must do is to plan and orchestrate the distribution of copies
+%% of such multimedia artifacts to each individual team member in a
+%% timely fashion. Ideally, all artifacts would be entirely transferred
+%% to all clients in advance, before a planned event begins. That ideal
+%% situation would avoid the need for streaming any information on the
+%% fly, and would thus largely circumvent the problems that require the
+%% intervention of the synchronization workflow, at least for
+%% planned-ahead joint work events (for virtual meetings that are set up
+%% and initiated with no or little advance notice, the client
+%% synchronization workflow remains completely relevant).
 
-Besides the long- and the short- term, there is also a medium-term
-option for dynamically adapting the provision of multimedia content in
-AI2TV. That can occur whenever, during the synchronized fruition of
-some multimedia stream, the group decides to pause or interrupt the
-viewing. That opens a window of opportunity for loading additional
-material in clients' caches. The logic of this opportunistic
-pre-fetching workflow is akin to that of the long-term pre-fetching
-workflow, but it must operate within a time frame that is closer to
-that of the client synchronization workflow.
+%% In the real world, the typical situation is likely to be somewhere in
+%% between the two extremes above. Given that, and also in the view of
+%% the high variability of the factors that may influence or hinder the
+%% ability to make available in advance the necessary artifacts, such as
+%% connectivity, servers, memory storage space in the clients, CPU load
+%% on clients, and more, there is a need for AI2TV to adapt on the fly
+%% even in the long-term context, in order to overcome connectivity and
+%% capability idiosyncrasies and maximize the amount of data prefetched
+%% and immediately available to clients at the beginning of a group
+%% event. That can be resolved with a combination of content pre-fetching
+%% and caching techniques that are orchestrated via a pre-fetching
+%% workflow, which kicks in as part of the long-term scheduling
+%% workflow. The pre-fetching workflow must also graciously turn control
+%% over to the synchronization workflow whenever a group event begins,
+%% for keeping in check and adapting the synchronized delivery and
+%% presentation of the material across clients.
 
+%% Besides the long- and the short- term, there is also a medium-term
+%% option for dynamically adapting the provision of multimedia content in
+%% AI2TV. That can occur whenever, during the synchronized fruition of
+%% some multimedia stream, the group decides to pause or interrupt the
+%% viewing. That opens a window of opportunity for loading additional
+%% material in clients' caches. The logic of this opportunistic
+%% pre-fetching workflow is akin to that of the long-term pre-fetching
+%% workflow, but it must operate within a time frame that is closer to
+%% that of the client synchronization workflow.
 
-\subsection{Design} \label{sec:contrib}
+% - explain time based synchronization
+We employed a global clock based synchronization scheme to keep the
+\aiitv system in sync.  We used NTP (Network Time Protocol) \citep{NTP}
+which can have a standard deviation on the order of tens of
+milliseconds \citep{COX} which is tolerable for our application.  This
+synchronization scheme has proven effective in other applications of
+multimedia applications \citep{KIM} (need to find more).  It should be
+noted that these applications synchronize multiple modalities such as
+video and audio for content presentation on a single client, which
+differs from our application which synchronizes video across multiple
+clients.
 
-\subsection{Implementation} \label{sec:contrib}
+\section{Design} \label{design}
 
-\subsection{Experimental Setup} \label{sec:eval}
+% design of a the system in general 
+\textsc{Overview}
+The basic design of our system involves several components: a video
+server, a video client and a synchronization architecture.  The design
+of system 2 additionally has a workflow server.  The video server and
+client designs for both system were similar while the synchronization
+architecture differed most between systems.
 
-We only focus on network bandwidth as the commodity resource.
+\textit{Common Designs: Video Server}  \\
+The video server provides the content to the clients for viewing.  The
+semantic compression package operates on MPEG format videos and
+outputs JPG frames.  An \aiitv video is produced by running the tool
+with several compression levels which produces a set JPG frames which
+are indexed by a frame index file.  The video server's task then is to
+simply provide remote access to these frames.  Both designs used a web
+server to fill this role.
 
-To evaluate our implementations, we devised a scoring scheme
-to determine the amount of synchronization.  
+\textit{Common Designs: Video Client}  \\
+The video client's task is to acquire the video frames, display them
+at the correct time, and provide basic video functions, specifically
+play, pause, goto, and stop.  Given the simplistic video server model,
+this task could be achieved by keeping a video clock, downloading the
+frames of the video for a given quality level, and displaying a given
+frame at its representative time.  Taking a functional design approch,
+the client employs three controllers for time, video cache, and video
+display.  Both systems employed this design but with drastically
+different implementations.
 
-- define baseline: (bandwidth, framerate)
+\textit{Synchronization}  \\
+The synchronization architecture provides the binding across multiple
+clients that allows client actions and video content to be
+synchronzied.  The architecture provides a mechanism to gauge system
+synchronization and to adjust individual clients relative to each
+client's state.
 
-- explain scoring metric.  
+(FIGURE: system 1 synchronization arch)
 
-- explain missed frames
+\textit{Synchronization: System 1}  \\
+The synchronization architecture for system 1 was motivated by a model
+inspired by modern gaming systems \citep{???}.  This model uses a peer
+to peer synchronization scheme where each client sends its state to
+all of its peers.  Thus each client adapts to every other client's
+state.  The rate of interclient traffic within gaming systems is high
+so it was proposed that the high traffic load from interclient
+synchronization directives would be comparable and feasible for our
+application.  Synchronization and video directives are sent between
+clients and each client executes those directives.
 
-\section{Results} \label{sec:results}
+(FIGURE: system 2 synchronization arch)
 
-We show that system 1 was unsuccesful in synchronizing
-the clients.  This failure stemmed from implementation 
-mistakes such as relying on the sleep method as a quantum
-for keeping time.  In addition, the overhead of the
-peer-to-peer messaging scheme weighed down the system.  The
-possible sources of error in this scheme is depending on
+\textit{Synchronization: System 2}  \\
+Contrastly, system 2 employed a global time based synchronization
+architecture that used a central event bus.  The global clock was
+synchronized across all clients so each client references its own
+clock to synchronize.  The central event bus is used to synchronize
+video actions, such as pause and stop.  These video actions are
+themselves time stamped so when clients respond to these directives,
+they are still in reference to the central time.  In addition to a
+difference in synchronization architecture, system 2 also contained an
+autonomic component that adjusted the clients in response to their
+feedback.
+
+\textit{Workflow: System 2}  \\
+The worklow system of System 2 follows that of a autonomic reference
+architecture proposed by Kaiser \cite{refarch}.  (XXX figure of ref
+arch here).  The flow of events in this architecture is that probes
+collect data from the clients and send that data to a gauge.  The
+gauge collects inputs from many probes and responds by enacting the
+workflow engine to enact a workflow plan.  That plan is executed at
+the client end by effectors.  We use this architecture to gauge the
+resources of the client and adjust them to receive better quality of
+services.
+
+\section{Implementation} \label{implementation}
+
+Though the designs of both systems are not drastically different other
+than the synchronization architecture, the implementations of the two
+systems vary drastically other than the video server, which is simply
+a web server that provides access to the \aiitv video.
+
+\subsection{System 1 - Video Client}
+
+\textit{System 1 Video Client: Video Frame Display}  \\
+During the time of the system 1's implementation, a 3D envirionment
+(CHIME) used by our group provided other useful collaborative tools
+such as an integrated chat utility, ?cobrowsing?, and XXX.  These
+tools would complement the goals of \aiitv, thus the video client was
+built into this architecture.  CHIME is built using the 3D library
+CrystalSpace \cite{crystalspace} hence the video frame display
+component also used that library.  The actual video frame is drawn as
+a 2D texture that is displayed on a wall in the 3D environment.  The
+video frame display controller gets a list of available frames from the
+cache controller.  Note that the display controller has no sense of
+the current \aiitv video quality level; it simply plays the next
+available frame from the cache.
+
+\textit{System 1 Video Client: Cache Controller}  \\
+The quality level of the client video is controlled by the cache
+controller.  The client's cache controller downloads JPG frames from
+the video website and provides the video client with the available
+frames.  If the frame has not been downloaded in time, then it is
+skipped.  The downloading scheme adjusts the quality of the video by
+choosing a different quality level which is provided in the frame
+index file.  The cache controller adjusts this quality level that it
+is downloading according to the reserve number of frames currently in
+the cache.  Notice that, if the cache controller changes levels a few
+times, this scheme will produce one video that is a patchwork of
+different quality levels.  This differs from system 2 (described later
+in this section) in that the cache controller will have overlapping
+bits of different quality videos.
+
+\textit{System 1 Video Client: Time Controller}  \\
+The system 1 time keeping scheme uses the system clock as the base for
+its internal clock and uses a thread sleep function to control the
+time controller thread from hogging the processor, which is the same
+scheme used in system 2.  The only difference with the system 2
+implementation is that system 2 also employed NTP to ensure that the
+system clocks were synchronized.  The lack of a global reference made
+the clients unstable when synchronizing with each other.
+
+\subsection{System 2 - Video Client}
+
+\textit{System 2 Video Client: Video Frame Display}  \\
+After implementing system 1, we ran into many problems with the
+auxilliary 3D environment attached to system 1.  It was monolithic,
+processor and memory intensive, and cumbersome to maintain, which made
+developing the \aiitv specific component difficult.  In response to
+these obstacles, we migrated the \aiitv related components outside of
+CHIME and created an interface that would simply allow the \aiitv
+components to be used within the 3D environment, but in a transparent
+manner.  This allowed system 2 to be developed independent of CHIME,
+which made development and evaluation much easier.  Thus system 2 has
+a separate video display created in Java that simply renders the JPG
+frame in a window.  The video frame display controller gets a list of
+available frames from the cache controller.  A major difference with
+system 1 is that the client has a separate control for quality level,
+which allows the client to play at a certain quality level while the
+cache controller downloads at a different level.  This feature allows
+the workflow controller, described later in this section, to adjust
+the client intelligently in response to current bandwidth resources.
+
+\textit{System 2 Video Client: Cache Controller}  \\
+The cache controller for system 2 is simply a downloading daemon that
+will continue downloading at a certain quality level.  Directives to
+change the quality level and other adjustments to the cache controller
+are decided by the workflow controller.  The cache controller simply
+keeps a hash of the available frames and a count of the current
+reserve frames (frames buffered) for a given quality level.
+
+\textit{System 2 Video Client: Time Controller}  \\
+The time keeping scheme, as noted earlier, is similar to that of
+system 1, though the use of NTP to synchronize across clocks is a
+significant addition.  It greatly simplifies the synchronization
+scheme by providing a global reference.
+
+\textit{System 1 Video Client: Synchronization}  \\
+Recall that the synchronization architecture for system 1 uses a peer
+to peer multicast model.  To implementation this, we use UDP multicast
+to send current client state from each client to all its peers.  This
+is done periodically at a given frequency, each time a video frame
+changes, and for each video action (a client presses play, pause or
+stop).  Thus the client must adjust to many peers and there are many
+states present in this system.  The lack of a global reference made it
+difficult for the system to keep in synchronization.  In addition, the
+CPU and memory hogging of the 3D system exacerbated the situation
+by delaying the processing of synchronization directives.
+
+\textit{System 2 Video Client: Synchronization}  \\
+The synchronization scheme in use for system 2 is very simple.  NTP is
+used to synchronize all the clocks across the system.  Each client
+then plays the video frames at the correct time and since all the
+clients have the same time, then all the clients play in tandem.
+Since the client is simply checking the time and displaying the
+resepective video frame for that time, unless it is misinformed about
+the correct frame to display, it will display the correct video.  All
+video actions and workflow directives are timestamped so the client
+can execute the actions in accordance with that time.  
+
+\textit{System 2 Video Client: Workflow Controller}  \\
+The workflow controller makes decisions on behalf of the clients to
+adjust their video quality levels according to collected statistics .
+For each client, the workflow probes for the video display quality
+level, cache controller quality level, cache controller reserve
+frames, current frame and bandwidth.  The workflow directives can be
+grouped into two categories: rules that adjust the client in response
+to relatively low bandwidth situations and orders that take advantage
+of relatively high bandwidth situations.  The gauge monitors the state
+of the clients using the probe statistics described above and compares
+them to configurable threshold values and mandates decisions
+accordingly.
+
+In the situation where a client has relatively low bandwidth, the
+client may not download a frame in time.  This situation will merit
+that both the client and the cache quality levels are reduced one
+level.  In the case where the client is already at the lowest level,
+the workflow controller will calculate the next possible frame that it
+can successfully complete in time.
+
+To take advantage of relatively high bandwidth situations, the cache
+controller will accumulate a reserve buffer.  Once the buffer reaches
+a threshold value, the workflow controller will direct the cache
+controller to start downloading frames a higher quality level.  Once
+the cache controller has downloaded a sufficient reserve at that
+level, the client is then ordered to display the higher quality level.
+Note that a higher quality level means a better frame rate, not a
+better quality JPG.  If the bandwidth drops before the cache
+controller can accumulate a sufficient buffer, then the cache
+controller is dropped back down to the client level.  This incremental
+increase in quality level prevents the client from entering a cycle
+where it is repeatedly downgraded several levels due to a high
+frequency change in frames.  There are pockets of high frequency
+frames within the \aiitv video that reflects a portion of the original
+video that has a large amount of semantic change.
+
+The workflow controller allows the clients to take advantage or adjust
+to relative deviations in bandwidth that occurs during a video
+session.  Also, due to pockets of high frequency semantic change in
+the video, the client must be carefully monitored during those times
+to ensure that it doesn't drop those important frames.
+
+\section{Evaluation Methods} \label{eval}
+
+(FIGURE: show synchrony of how frames line up)
+
+\textit{Evaluating Synchrony} \\ The purpose of the system is to
+provide synchronous viewing to all clients.  To measure the
+effectiveness of the synchrony, we probe the clients at and peroidic
+time intervals and log the frame currently being displayed.  This
+procedure effectively takes a snapshot of the system, which we can
+evaluate for correctness.  This evaluation proceeds by checking
+whether the frame being displayed at a certain time corresponds to one
+of the valid frames at that time, on any arbitrary level.  (see
+figure).  We allow any arbitrary level because the semantic
+compression algorithm ensures that all frames at a certain time will
+contain the same semantic information (???can we get kender to check
+this, maybe a reference?) if the ``semantic windows'' overlap (???need
+to get the correct term for this from kender).  We score the system by
+summing the number of clients not showing an acceptable frame and
+normalizing over the total number of clients.  A score of 0 indicates
+a synchronized system.  We asses our system's using this evaluation
+method on a selected set of client configurations, specifically, 1, 2,
+3, 5 and 10 clients running a video for 5 minutes.  A two-tailed
+t-test is used to measure the significance of any difference found.
+
+\textit{Evaluating Quality of Service} \\
+% since the semantic compression algorithm ensures that semantic information is preserved.
+A major component of system 2 is the workflow component whose purpose
+is to increase the video quality for the clients.  For our situation,
+a higher video quality means a higher frame rate.  Since we are trying
+to measure how much better or worse the workflow adjusts the clients,
+we must define a baseline client from which to compare.  To define the
+baseline client we will use a value that we identify as the average
+bandwidth per level.  This value is computed by summing the total size
+of the frames for a certain level and dividing by the total video
+time.  This value provides the bandwidth needed on average for the
+cache controller to download the next frame on time.
+
+A baseline client also needs a context in which it is \em{the}
+baseline, so we also use a bandwidth throttling mechanism
+\cite{shaperd} at the server to dictate the bandwidth available to a
+certain client.  A baseline client is thus defined as a client who is
+playing videos at the quality level matching that of its bandwidth,
+which is found by comparing the average bandwidth per level and the
+alloted bandwidth and that level which has a needed bandwidth with a
+minimal positive difference with the alloted bandwidth (the client
+just has enough bandwidth to maitain that level).  
+
+To attain a quantitative measure of the quality of service provided by
+a workflow assisted client, we use a scoring system relative to the
+baseline client's quality level.  We give a score of 1 for each
+quality level above the baseline quality level and -1 for each quality
+level below.  Theoretically, the baseline client should receive a
+score of 0.
+
+The act of running the client close to or at a level higher than the
+average bandwidth needed puts the client at risk for missing more
+frames because the workflow is trying to push the client to the best
+level.  To measure whether the workflow assisted client is exposed to
+a higher risk of missing frames we also count the number of missed
+frames during a video session.  The scoring of the missed frame is a
+simple count of the missed frames.  Note that the scoring of the
+missed frame is kept separate from the measure of the relative quality
+to discriminate between levels of concern, though they both indicate a
+characteristic of quality of service.
+
+To assess the quality of service the workflow confers we evalute the
+log files using this scoring scheme for a selected set of client
+configurations, specifically, 1, 2, 3, 5 and 10 clients running a
+video for 5 minutes.  We run the system once without workflow, and
+then again with the workflow engaged.  Again we sum and normalize the
+score for all clients and use a two-tailed t-test is used to measure
+the significance of any difference found.
+
+%% Sanity checks to measure the correctness of the synchronization was
+%% done through visual checks of the video frames to see if they were
+%% indeed showing the purported frame.
+
+\section{Results} \label{results}
+
+We show that system 1 was unsuccesful in synchronizing the clients.
+This failure stemmed from implementation mistakes such as relying on
+the sleep method as a quantum for keeping time.  In addition, the
+overhead of the peer-to-peer messaging scheme weighed down the system.
+The possible sources of error in this scheme is depending on
 propagation delays to be consistent across all clients.
 
+System 2 was able to overcome these failures by employing a time based
+synchronization scheme which used NTP to synchronize clocks.  The
+sytem clock was then used as the base to which the cilents
+synchronized.  The centralized event bus also reduced network traffic,
+which may have also contributed to the failure of system 1.
 
-System 2 was able to overcome these failures by depending on
-NTP to synchronize clocks.  The sytem clock was then
-used as the base to which the cilents synchronized.  The 
-centralized event bus also reduced network traffic, which 
-may have also contributed to the failure of system 1.
+\section{Discussion} \label{discussion}
 
-\section{Related Work} \label{sec:related}
+\section{Related Work} \label{related}
 
-\section{Future Work} \label{sec:future}
+Other work being done on CSCW schemes?  Other multiclient synchronous 
+systems (MOOs and MUDs), what else?
 
-\section{Conclusion} \label{sec:con}
+\section{Future Work} \label{con}
 
-\section{Acknowledgements} \label{sec:ack}
+Try a push model with the server.  Integrate streaming audio.
+
+\section{Conclusion} \label{con}
+
+
+
+
+\section{Acknowledgements}
+
+Professor Kender and Tiecheng Liu at the High-Level Vision Lab.
+Matias Pelenur also helped.
+
+\bibliographystyle{apalike} % other styles: plain, prsty, abbrv, alpha, unsrt
+\bibliography{ai2tv}
 
 \label{'LastPage'}
+
 \end{document}
