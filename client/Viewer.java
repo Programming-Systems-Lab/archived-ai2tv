@@ -56,7 +56,7 @@ class Viewer extends JFrame {
     _mainCanvasBG = Color.white;
     Container cp = getContentPane();
     setSize(325, 325);
-    setResizable(true);
+    setResizable(false);
     _lastImage = "";
 
     _filename = "ai2tv_ready.jpg";
