@@ -210,7 +210,7 @@ public class Client extends Thread{
   /**
    * initialize the Client's components
    */
-  public void initialize(){
+  private void initialize(){
     _frameRate = 30;
 
     _timeCurrFrameShown = 0;
@@ -434,7 +434,6 @@ public class Client extends Thread{
    * @param dir: the client's directory for holding the frame cache
    */
   void setCacheDir(String dir) {
-    System.out.println("<Java Client> setting cacheDir: " + dir);
     if (!dir.endsWith("/"))
       _cacheDir = dir + "/";
     _cacheDir = dir;

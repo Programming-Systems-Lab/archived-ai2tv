@@ -141,6 +141,7 @@ class AI2TVJNIJava{
    * @param date: date/time to load the video by
    */
   void loadVideo(String name, String date){
+    System.out.println("<Java> loadVideo: " + name + " @ " + date);
     _client.loadVideo(name +";"+ date);
   }
 
@@ -149,7 +150,8 @@ class AI2TVJNIJava{
    * initialize the AI2TV component 
    */
   void initialize(){
-    _client.initialize();
+    // loadVideo calls initialize, so we don't need to do anything here.
+    // _client.initialize();    
   }
 
   /**
@@ -162,11 +164,7 @@ class AI2TVJNIJava{
     if (v != null && v.size() < 1)
       availableVideos = new String[v.size() + 1];
     else {
-      availableVideos = new String[3];
-      availableVideos[0] = "CS4118-10";
-      availableVideos[1] = "CS4118-11";
-      availableVideos[2] = "CS4118-12";
-      return availableVideos;
+      return null;
     }
       
     for (int i=0; i<v.size(); i++)
