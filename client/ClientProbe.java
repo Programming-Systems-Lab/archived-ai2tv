@@ -47,6 +47,7 @@ class ClientProbe {
   // for speed, i'm going to try using an array first
   // private Vector _probes; //
   private double[] _probeTimes;
+  private boolean[] _probeStatus;
 
     /**
    * create a ClientProbe
@@ -63,6 +64,7 @@ class ClientProbe {
 
     _probeIndex = 0;
     _probeTimes = new double[numProbes];
+    _probeStatus = new boolean[numProbes];
     for (int i=0; i<_probeTimes.length; i++)
       _probeTimes[i] = 0;
   }
@@ -135,9 +137,12 @@ class ClientProbe {
    * @param time: start of time associated with this probe
    */
   void startTimeProbe(int ID, double time){
-    if (ID >= 0 && ID < _probeTimes.length)
+    if (ID >= 0 && ID < _probeTimes.length){
       _probeTimes[ID] = time;
+      setProbe(ID);
+    }
   }
+
 
   /**
    * unsetting the probe causes a message to be sent.
@@ -150,6 +155,7 @@ class ClientProbe {
   void endTimeProbe(int ID, double time, String natureOfMessage){
     // long diff = _time - _probeTimes[ID];
     if (ID >= 0 && ID < _probeTimes.length){
+      unsetProbe(ID);
       Client.probeOutput.println("sending an update: time diff: " + (time - _probeTimes[ID]));
       // this is where TIME_SHOWN is put in
       _frameEvent.putAttribute(natureOfMessage, (time - _probeTimes[ID]));
@@ -164,6 +170,26 @@ class ClientProbe {
 				 " late: " + (time - _probeTimes[ID]) + " (ms)");
     }
   }
+
+
+  /**
+   * 
+   *
+   * @param ID: the ID of the probe
+   * @param time: start of time associated with this probe
+   */
+  void setProbe(int ID){
+    _probeStatus[ID] = true;
+  }
+
+  void unsetProbe(int ID){
+    _probeStatus[ID] = false;
+  }
+
+  boolean getProbeStatus(int ID){
+    return _probeStatus[ID];
+  }
+
 
 }
 

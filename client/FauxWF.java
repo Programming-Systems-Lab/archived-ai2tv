@@ -53,8 +53,8 @@ class FauxWF extends Thread implements Notifiable {
     _mySiena = null;
     _sienaServer = sienaServer;
 
-    _earlyThreshold = -1000;  // threshold for max ms of being early
-    _lateThreshold = 1000;  // threshold for min ms of being late
+    _earlyThreshold = 0;  // threshold for max ms of being early
+    _lateThreshold = 2000;  // threshold for min ms of being late
 
     _distanceProbe2WF = new Vector();
     _distanceWF2Probe = new Vector();
@@ -69,6 +69,7 @@ class FauxWF extends Thread implements Notifiable {
   public void notify(Notification [] s) { }
 
   private void handleNotification(Notification event){
+    System.out.println("received notification: " + event);
     long receivedTime = System.currentTimeMillis();
     String name = event.toString().substring(7).split("=")[0];
     AttributeValue attrib = event.getAttribute(name);
@@ -87,12 +88,13 @@ class FauxWF extends Thread implements Notifiable {
       // first we see if the level needs to be changed.
       // Client.debug.println("currFrame: (leftbound) attribute: " + leftbound);
       // Client.debug.println("currFrame: (moment) attribute: " + currFrame);
-      _allTimes.add(new Double(timeShown));
+      // _allTimes.add(new Long(timeShown));
 
       // note that instead of doing three passes, we could just do 
       // one pass for all three stats, but that would remove the 
       // generality from the calcStats method
 
+      /*
       _log.println("- - - stats - - - ");
       _log.print(" earlyTimes: ");
       calcStats(_allTimes, "negative");
@@ -101,14 +103,18 @@ class FauxWF extends Thread implements Notifiable {
       _log.print(" all times: ");
       calcStats(_allTimes, "none");
       _log.println("- - - done: stats - - - ");
-
-      if (timeShown < _earlyThreshold)
+      */      
+      
+      // if (timeShown < _earlyThreshold)
+      if (timeShown < 200)
 	changeLevel("UP", clientID);
-      else if (timeShown < _earlyThreshold)      
+
+      // shouldn't be more than 10 seconds late
+      else if (timeShown > _lateThreshold && timeShown < 15000)
 	changeLevel("DOWN", clientID);
-
+      
       sendEcho(clientID);
-
+      
     } else if (name.equals(SienaConstants.AI2TV_VIDEO_PREFETCH)){
       
 
@@ -146,6 +152,7 @@ class FauxWF extends Thread implements Notifiable {
   }
 
   private void changeLevel(String dir, long clientID){
+    System.out.println("Sending Event, changeLevel: " + dir);
     Notification event = new Notification();
     event.putAttribute(SienaConstants.AI2TV_FRAME_UPDATE, "");
     event.putAttribute(SienaConstants.CLIENT_ID, clientID);
@@ -156,7 +163,7 @@ class FauxWF extends Thread implements Notifiable {
   private void setupFilter() throws siena.SienaException {
     filter = new Filter();
     filter.addConstraint(SienaConstants.AI2TV_FRAME, "");
-    filter.addConstraint(SienaConstants.AI2TV_VIDEO_PREFETCH, "");
+    // filter.addConstraint(SienaConstants.AI2TV_VIDEO_PREFETCH, "");
     _mySiena.subscribe(filter, this);
   }
 
@@ -223,7 +230,7 @@ class FauxWF extends Thread implements Notifiable {
     _isActive = true;
     while(_isActive){
       try {
-	sleep(10000);
+	sleep(5000);
       } catch (InterruptedException e){
 	System.out.println("FauxWF error: " + e);
       }
@@ -239,5 +246,3 @@ class FauxWF extends Thread implements Notifiable {
     wf.start();
   }
 }
-
-
