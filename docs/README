@@ -1,79 +1,76 @@
-FILE:   README for the AI2TV client
-AUTHOR: Dan Phung (dp2041@cs.columbia.edu)
-DATE:   19 March 2003
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+$RCSfile$ $Revision$ $Date$ $Source$ 
 
-- add the c:\java1.4\jre\bin\client\ (directory holding jvm.dll) to
-  your path.  
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+- 1. Description                                                    -
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+This is the VERY alpha version of the AI2TV docs.  Some of the
+documentation is still incomplete.  Please email Dan
+(phung@cs.columbia.edu) for any questions.
 
-- go to the propertes page of the project and add the library
-  (c:\java1.4\lib\jvm.lib) there.
-- add to 
-  >tools>options>projects>vc++ build dirs> 
-  include dir: 
-    add java1.4/include
-        java1.4/include/win32
-        c:\pslroot\psl\chime\client94\jni
-  execute dir: 
-    add java1.4/jre/bin/client
-
-  > environment path 
-    c:\pslroot\psl\ai2tv\client (this is for the java lib dir)
-
-
-  [CommController] <--[*Siena]--> other clients
-        /\
-        |     /-----> [*ClientProbe*] <--[siena]--> FauxWF
-        |    /
-        \/  /
-    [*Client*] <------> [CacheController]
-         /\   
-          \   
-           \
-           \/
-         [Viewer]
+FILENAME		DESCRIPTION
+ai2tv-admin-howto.txt	: documentation for administrators of the AI2TV system
+ai2tv-user-howto.txt	: documentation for users of the AI2TV system
+ai2tv-dev-howto.txt	: documentation for developers for the AI2TV system
 
 
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-to get the picture flowing: 
+- 2. Install                                                        -
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+(quick startup)
 
-1) start up Siena, I used (siena-1.4.3.jar has to be in your classpath):
+- install Cougaar, Elvin, and Ant:
+http://www.cougaar.org, http://elvin.dstc.edu.au, http://ant.apache.org
 
-> java siena.StartServer -ka -err - -log - -port 4444
+- for the sources, set CVSROOT as:  
+CVSROOT=:ext:username@church.psl.cs.columbia.edu:/cvs
+> cvs checkout psl/ai2tv
+> cvs checkout psl/workflakes
 
-2) start the client/video player.  A screen will come up waiting for your 
-commands.  Note that without Siena, this player is useless.
+in psl/workflakes, you'll find the running.zip needed for
+the workflow controller.
 
-> java psl.ai2tv.client.Client
+SERVER SIDE:
+- start up web server (just make sure the directories are all there
+  with the AI2TV videos, email Dan for a prepackaged example)
 
-3) Start the WF.  
+- to make and startup the wgserver, change to the psl/ai2tv/wgserver
+> javac -classpath c:/pslroot/jars/elvin.jar;../../../ *.java
+> java -classpath c:/pslroot/jars/siena-1.4.3.jar;../../../ psl.ai2tv.wgserver.WGServer ka:localhost:4444
 
-> java psl.ai2tv.client.FauxWF ka:localhost:4444
+(where ka:localhost:4444 is the url for the elvin server)
 
-NOTES:
+- unzip running.zip file, configure the build.properties file, then run: 
+> ant makeassets makeassets-ai2tv compile compile-ai2tv
+> ant cougaar-run
 
-- it's bad, in some places, like the client, I have some things hard
-  wired, like the Siena server, web address of the frame files, etc.
+CLIENT SIDE
+- to make the client jar, change to the psl/ai2tv/client
+> ant jar
 
-- you NEED to have my new frame_index.txt file, where there are four
-  rows for each frame file.  The fourth one is the length of the file.
-  You can either check out the file I have in the psl/ai2tv/client dir,
-  or create it with FIP.java.
+- startup the client (with the ai2tvClient.jar file)
+> java -classpath ai2tvClient.jar:c:\pslroot\jars\siena-1.4.3.jar       \
+  -Dai2tv.server=ka:localhost:4444  -Dai2tv.baseURL="http://wall/ai2tv" \
+  -Dai2tv.level=1 psl.ai2tv.client.Client
+
+(where ai2tv.server points to the Elvin server and ai2tv.baseURL points
+ to the HTML-based "video" server.)
 
 
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+- 3. Acknowledgements                                               -
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-exposed probes
+Copyright (c) 2004, Columbia University, Programming Systems Laboratory
 
-Client
-- 
-
-Viewer
-- 
-
-CommController
--
-
-CacheController
--
-
+We would like to thank John Kender, Tiecheng Liu, and other members of
+the High-Level Vision Lab for their assistance in using their
+lecture-video semantic compression software.  We would also like to
+thank the other members of the Programming Systems Lab, particularly
+Matias Pelenur who implemented PSL's Little-JIL interpreter on top of
+Workflakes/Cougaar.  Little-JIL was developed by Lee Osterweil's LASER
+lab at the University of Massachusetts, Amherst. Cougaar was developed
+by a DARPA-funded consortium; our main Cougaar contact was Nathan
+Combs of BBN.  Siena was developed by the University of Colorado,
+Boulder, in Alex Wolf's SERL lab. PSL is funded in part by National
+Science Foundation grants CCR-0203876, EIA-0202063 and EIA-0071954,
+and by Microsoft Research.
