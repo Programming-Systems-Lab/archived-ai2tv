@@ -93,6 +93,33 @@ class AI2TVJNIJava{
   }
 
   /**
+   * get the client's cache directory
+   * 
+   * @return dir: directory used to store frame cache
+   */
+  String getCacheDir(){
+    return _client.getCacheDir();
+  }
+
+  /**
+   * set the client's base URL
+   * 
+   * @param url: URL with the location of the available videos
+   */
+  void setBaseURL(String url){
+    _client.setBaseURL(url);
+  }
+
+  /**
+   * get the client's base URL
+   * 
+   * @return baseURL: URL with the location of the available videos
+   */
+  String getBaseURL(){
+    return _client.getBaseURL();
+  }
+
+  /**
    * Set the user login information in the AI2TV module.
    * 
    * NOTE!!! Need the rest of the login info to add to the param list

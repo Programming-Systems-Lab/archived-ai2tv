@@ -48,6 +48,10 @@ class AI2TVJNICPP
   int videoLength();
 
   void setCacheDir(char* dir);
+  char* getCacheDir();
+  void setBaseURL(char* url);
+  char* getBaseURL();
+
   void setLoginInfo(char* info);
   void loadVideo(char* name, char* date);
   void initialize();
@@ -63,8 +67,7 @@ class AI2TVJNICPP
 
  private:
   const char* JAVACLASS;
-  char* classpath;
-  char* libpath;
+  char *classpath, *libpath,*baseURL, *sienaServer;
   JavaVM* _jvm;
   JNIEnv *_env;
   jobject _obj;   // this should really be a pointer 

@@ -10,7 +10,7 @@
     <property name="CONNECTION_TYPE" value="ka"/>
     <property name="SIENA_HOST" value="localhost"/>
     <property name="SIENA_PORT" value="4444"/>
-    <property name="VIDEO_URL" value="http://franken/ai2tv/"/>
+    <property name="BASE_URL" value="http://franken.psl.cs.columbia.edu/ai2tv/"/>
     <property name="CPP_COMPILER" value="cl"/>
 
     <path id="compile.classpath">
@@ -36,7 +36,7 @@
 	</delete>
 	<java classname="psl.ai2tv.client.Client" classpathref="compile.classpath" fork="yes">
 	      <jvmarg value="-Dai2tv.server=${CONNECTION_TYPE}:${SIENA_HOST}:${SIENA_PORT}" />
-	      <jvmarg value="-Dai2tv.videoURL=${VIDEO_URL}"/>
+	      <jvmarg value="-Dai2tv.baseURL=${BASE_URL}"/>
         </java>
     </target>
 

@@ -31,8 +31,14 @@ AI2TVJNICPP::AI2TVJNICPP(){
 
   // note: don't know why, but setting this libpath here doesn't have any 
   // effect later, meaning that on the Java side, should you print out the 
-  // libpath, the settings set below are now present.
+  // libpath, the settings set below are not present.
   libpath = "-Djava.class.path=c:/pslroot/psl/ai2tv/client;c:/pslroot;.";
+
+  // this is the default base video URL 
+  baseURL = "-Dai2tv.baseURL=http://franken.psl.cs.columbia.edu/ai2tv/";
+
+  // this is the default siena server
+  sienaServer = "-Dai2tv.server=ka:franken.psl.cs.columbia.edu:4444";
 
   _jvm = NULL;
   _env = NULL;
@@ -79,8 +85,10 @@ JNIEnv* AI2TVJNICPP::create_vm(JavaVM* jvm) {
   options[0].optionString = "-Djava.compiler=NONE"; /* disable JIT */
   options[1].optionString = classpath;              /* user classes */
   options[2].optionString = libpath;  /* set native library path */
+  options[3].optionString = baseURL;  /* the base video URL */
+  options[4].optionString = sienaServer; /* the siena comm server */
   args.options = options;
-  args.nOptions = 3;
+  args.nOptions = 5;
   args.ignoreUnrecognized = JNI_TRUE;
 
   if( (JNI_CreateJavaVM(&jvm, (void **)&env, &args)) < 0 )
@@ -227,6 +235,43 @@ void AI2TVJNICPP::setCacheDir(char* dir){
   jmethodID mid;
   mid = _env->GetMethodID(_class, "setCacheDir","(Ljava/lang/String;)V");
   _env->CallVoidMethod(_obj, mid, _env->NewStringUTF(dir));
+}
+
+/**
+ * gets the current directory location of the frame cache storage
+ * 
+ * @return dir: directory location
+ */
+char* AI2TVJNICPP::getCacheDir(){
+  jmethodID mid;
+  mid = _env->GetMethodID(_class, "getCacheDir","()Ljava/lang/String;");
+  jstring dir = (jstring) _env->CallObjectMethod(_obj, mid);
+  
+  return (char*) _env->GetStringUTFChars(dir,0);
+}
+
+/**
+ * set the client's base URL
+ * 
+ * @param url: URL with the location of the available videos
+ */
+void AI2TVJNICPP::setBaseURL(char* url){
+  jmethodID mid;
+  mid = _env->GetMethodID(_class, "setBaseURL","(Ljava/lang/String;)V");
+  _env->CallVoidMethod(_obj, mid, _env->NewStringUTF(url));
+}
+
+/**
+ * get the client's base URL
+ * 
+ * @return baseURL: URL with the location of the available videos
+ */
+char* AI2TVJNICPP::getBaseURL(){
+  jmethodID mid;
+  mid = _env->GetMethodID(_class, "getBaseURL","()Ljava/lang/String;");
+  jstring dir = (jstring) _env->CallObjectMethod(_obj, mid);
+  
+  return (char*) _env->GetStringUTFChars(dir,0);
 }
 
 /**
