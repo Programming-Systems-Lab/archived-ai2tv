@@ -42,8 +42,13 @@ class TimeController{
    * set the start time of the internal clock
    */
   public void startTime() {
-    _isActive = true;
-    _startTime = System.currentTimeMillis();
+    Client.out.println("starting time");
+    if (!_isActive){
+      _isActive = true;
+      _startTime = System.currentTimeMillis();
+    } else if (_pausePressed){
+      pause();
+    }
   }
 
   /**
