@@ -7,8 +7,10 @@
     <property name="JNIPREFIX" value="AI2TVJNI"/>
     <property name="JAVADIR" value="c:/java1.4"/>
     <property name="JAR_PATH" value="c:/pslroot/jars"/>
-    <property name="SIENA_HOST" value="localhost"/>
+    <property name="CONNECTION_TYPE" value="ka"/>
+    <property name="SIENA_HOST" value="houston"/>
     <property name="SIENA_PORT" value="4444"/>
+    <property name="VIDEO_URL" value="http://franken/ai2tv/CS4118-10/"/>
     <property name="CPP_COMPILER" value="cl"/>
 
     <path id="compile.classpath">
@@ -32,9 +34,10 @@
         <delete>
 	  <fileset dir="cache" includes="*.jpg" />
 	</delete>
-	<copy file="236.jpg" todir="cache" />
+	<!-- copy file="236.jpg" todir="cache" /-->
 	<java classname="psl.ai2tv.client.Client" classpathref="compile.classpath" fork="yes">
-	      <jvmarg value="-Dai2tv.server=ka:${SIENA_HOST}:${SIENA_PORT}" />
+	      <jvmarg value="-Dai2tv.server=${CONNECTION_TYPE}:${SIENA_HOST}:${SIENA_PORT}" />
+	      <jvmarg value="-Dai2tv.videoURL=${VIDEO_URL}"/>
         </java>
     </target>
 
@@ -58,8 +61,8 @@
     <target name="jni" depends="prepare">
         <javac srcdir="${SRCDIR}" destdir="${BUILD}" classpathref="compile.classpath" includes="psl/ai2tv/client/*.java, psl/ai2tv/SienaConstants.java, psl/ai2tv/gauge/FrameDesc.java, psl/ai2tv/gauge/FrameIndexParser.java" />
 	<javah classpath="${SRCDIR};${BUILD}" class="psl.ai2tv.client.${JNIPREFIX}Java" destdir="."/>
-        <exec command="cl -I${JAVADIR}/include -I${JAVADIR}/include/win32 -MD ${JNIPREFIX}CPP.cpp ${JAVADIR}/lib/jvm.lib -Fe${JNIPREFIX}CPP.dll" />
-	<exec command="cl -I${JAVADIR}/include -I${JAVADIR}/include/win32 -MD ${JNIPREFIX}CPP.cpp ${JAVADIR}/lib/jvm.lib" />
+        <exec command="${CPP_COMPILER} -I${JAVADIR}/include -I${JAVADIR}/include/win32 -MD ${JNIPREFIX}CPP.cpp ${JAVADIR}/lib/jvm.lib -Fe${JNIPREFIX}CPP.dll" />
+	<exec command="${CPP_COMPILER} -I${JAVADIR}/include -I${JAVADIR}/include/win32 -MD ${JNIPREFIX}CPP.cpp ${JAVADIR}/lib/jvm.lib" />
     </target>
 
     <!-- this command wasn't found in the ant tasks list.-->

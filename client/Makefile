@@ -1,6 +1,7 @@
 NAME=AI2TVJNI
 JAVADIR=c:/java1.4
 SIENA_HOST=localhost
+VIDEO_URL=http://franken/CS4118-10/
 
 all:
 	javac *.java
@@ -14,7 +15,7 @@ jar: client
 
 run:
 	rm -rf cache/*.jpg
-	java -Dai2tv.server=ka:${SIENA_HOST}:4444 psl.ai2tv.client.Client 2> errors
+	java -Dai2tv.videoURL ${VIDEO_URL}="http://franken/CS4118-10/" -Dai2tv.server=ka:${SIENA_HOST}:4444 psl.ai2tv.client.Client 2> errors
 
 # this is to run the jni executable (if it's not already hooked onto another main)
 #	java -classpath . ${NAME}Java
