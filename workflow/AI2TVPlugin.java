@@ -6,6 +6,9 @@ import psl.ai2tv.workflow.assets.ReportAsset;
 import psl.workflakes.littlejil.ExecutableTask;
 import psl.workflakes.littlejil.LittleJILResourceTable;
 import psl.workflakes.littlejil.TaskExpanderPlugin;
+import psl.workflakes.littlejil.assets.ExecClassAgentAsset;
+import psl.workflakes.littlejil.assets.NewExecutorPG;
+import psl.workflakes.littlejil.assets.NewClassPG;
 
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.domain.RootFactory;
@@ -46,7 +49,7 @@ public class AI2TVPlugin extends ComponentPlugin {
 
     private static class ReportAssetPredicate implements UnaryPredicate {
         public boolean execute(Object o) {
-            return (o instanceof ReportAssetPredicate);
+            return (o instanceof ReportAsset);
         }
     }
 
@@ -65,6 +68,8 @@ public class AI2TVPlugin extends ComponentPlugin {
         BufferedInputStream bufIn =  new BufferedInputStream(new FileInputStream(file));
         bufIn.read(diagramByteArray);
         bufIn.close();
+
+        logger.info("Loaded ai2tv diagram");
 
     }
 
@@ -90,6 +95,18 @@ public class AI2TVPlugin extends ComponentPlugin {
         resourceTableSubscription = (IncrementalSubscription) blackboard.subscribe(new ResourceTablePredicate());
         reportAssetSubscription = (IncrementalSubscription) blackboard.subscribe(new ReportAssetPredicate());
 
+        ExecClassAgentAsset asset = (ExecClassAgentAsset) factory.createInstance("ExecClassAgent");
+        NewExecutorPG executorPG = (NewExecutorPG) factory.createPropertyGroup("ExecutorPG");
+        executorPG.setCapabilities("any");
+
+        NewClassPG classPG = (NewClassPG) factory.createPropertyGroup("ClassPG");
+        //classPG.setClassName("psl.workflakes.littlejil.TaskExecutorInternalPlugin$DummyExecutableTask");
+        classPG.setClassName("psl.ai2tv.workflow.AI2TVPlugin$DummyExecutableTask");
+        asset.setExecutorPG(executorPG);
+        asset.setClassPG(classPG);
+
+        blackboard.publishAdd(asset);
+
     }
 
     public void execute() {
@@ -106,6 +123,8 @@ public class AI2TVPlugin extends ComponentPlugin {
         for (Enumeration reports = reportAssetSubscription.getAddedList(); reports.hasMoreElements();) {
 
             ReportAsset reportAsset = (ReportAsset) reports.nextElement();
+
+            logger.info("got new ReportAsset");
 
             // instantiate a new ai2tv LittleJIL diagram
             ObjectInputStream objIn = null;
@@ -125,6 +144,9 @@ public class AI2TVPlugin extends ComponentPlugin {
                 baseClient.setFramePG(factory.createPropertyGroup("FramePG"));
 
                 resourceTable.addResource(diagram, "baseClient", baseClient);
+
+                logger.debug("publishing diagram");
+                blackboard.publishAdd(diagram);
 
             } catch (Exception e) {
                 logger.warn("Could not instantiate new diagram: " + e);

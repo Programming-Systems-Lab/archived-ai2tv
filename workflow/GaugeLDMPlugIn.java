@@ -19,8 +19,7 @@ import java.util.Iterator;
 import java.util.Vector;
 
 /**
-	LDM Plugin for Cougaar. Receives reports from the Gauge and publishes them 
-	in the BB.
+	LDM Plugin for Cougaar. Receives reports from the Gauge and publishes them in the BB.
 */
 public class GaugeLDMPlugIn 
 	extends ComponentPlugin {
