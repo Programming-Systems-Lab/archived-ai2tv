@@ -62,14 +62,15 @@ public class CacheController extends Thread {
   public CacheController(Client c, String name, double rate) {
     _client = c;
     frameFileName = name;
-    currLevel = 0;
+    //currLevel = 0;
+   currLevel = 4;
     currFrame = null;
 
     _bandwidthWindow = 0;
     _bandwidthWindowMax = 5;  // number of downloads to average against
     _totalBytes = 0;
     _totalTime = 0;
-
+    
     framesInfo = new FrameIndexParser(frameFileName);
     numLevels = framesInfo.levels();
     progress = new int[framesInfo.levels()];
@@ -83,6 +84,11 @@ public class CacheController extends Thread {
       System.err.println("Error: " + cacheDir + " had existed, but is not a directory");
       return;
     }
+
+    /* right here we should initialize the "cache" by 
+     * reading all the files currently already downloaded (prefetched) and 
+     * setting each curr[index].setDownloaded(true);
+     */
   }
 	
   public int getLevel() { return currLevel; }
@@ -115,10 +121,12 @@ public class CacheController extends Thread {
       if (! curr[index].isDownloaded()){
 	// try {
 	// Thread.currentThread().sleep(downloadInterval);
+	/*
 	System.out.println("level <" + currLevel + 
 			   "> index <" + index + 
 			   "> bandwidth <" + calcBandwidth() + ">");
 	System.out.println("CacheController downloading file: " + baseURL + curr[index].getNum() + ".jpg");
+	*/
 
 	if (downloadFile(baseURL + curr[index].getNum() + ".jpg"))
 	  curr[index].setDownloaded(true);
@@ -152,12 +160,15 @@ public class CacheController extends Thread {
    * @param fileURL: URL of the file to get.
    */
   private boolean downloadFile(String fileURL) {
+    // System.out.println("CacheController.downloadFile fileURL: " + fileURL);
     String[] tokens = fileURL.split("/");
     String saveFile = cacheDir + "/" + tokens[tokens.length - 1];
+    // if "cache" is "initialized" in the ctro, then we can do this: curr[index].setDownloaded(true);
+    // otherwise, we'll just check the filesystem, which takes longer!
+    
     File newFile = new File (saveFile);
-    long currentTime = 0;
     if (newFile.exists()){
-      System.out.println("file: " + saveFile + " already downloaded");
+      // System.out.println("file: " + saveFile + " already downloaded");
       return true;
     }
 
@@ -175,11 +186,13 @@ public class CacheController extends Thread {
     }
       
 
+    // File newFile = new File (saveFile);
+    long currentTime = 0;    
     try {
       // open the connection
       URLConnection myConnection;
       myConnection=url.openConnection();
-      System.out.println("downloading : " + fileURL);
+      // System.out.println("downloading : " + fileURL);
 		
       // check that the file holds stuff
       if (myConnection.getContentLength()==0) {
@@ -212,7 +225,7 @@ public class CacheController extends Thread {
       return false;
     }
 
-    System.out.println("total bytes: " + newFile.length() + " total time: " + currentTime);
+    // System.out.println("total bytes: " + newFile.length() + " total time: " + currentTime);
     if (_bandwidthWindow++ < _bandwidthWindow){
       _totalBytes += newFile.length();
       _totalTime += currentTime;
@@ -221,7 +234,6 @@ public class CacheController extends Thread {
       _totalTime = currentTime;
       _bandwidthWindow = 0;
     }      
-
 
     return true;
   }
@@ -245,8 +257,32 @@ public class CacheController extends Thread {
     return _isActive;
   }
 
+  /**
+   * shutdown the CacheController thread.
+   */
   void shutdown(){
     _isActive = false;
+  }
+
+
+  /**
+   * check whether a file has been downloaded
+   * @param 
+   * @return whether the specified file is already downloaded.
+   */
+  boolean isDownloaded(String filename){
+    // this is a shitty way of doing it, has to go to the filesystem.  need to 
+    // instead have a hash of the downloaded files to check.
+    File dirFile = new File(cacheDir + "/" + filename);
+
+    if (dirFile.exists())
+      return true;
+    else 
+      return false;
+  }
+
+  FrameIndexParser getFramesInfo(){
+    return framesInfo;
   }
 
   public static void main(String[] args){
