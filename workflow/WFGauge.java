@@ -11,11 +11,6 @@ class WFGauge extends GroupGauge {
   private GaugeLDMPlugIn LDMHandle = null;
   static TimeController clock;
   private long _lastCheckTime;
-
-  /**
-   * used to check if we're in the middle of echoing the client
-   */
-  private boolean _echoingClient;
   
   WFGauge(){
     clock = new TimeController();
@@ -32,8 +27,11 @@ class WFGauge extends GroupGauge {
   protected GaugeComm setupCommunications()
     throws CommunicationException {
     GaugeSubscriber subscriber;
+    Thread subscriberProbeThread;
     try {
       subscriber = new WFSubscriber(this);
+      subscriberProbeThread = new Thread((WFSubscriber) subscriber);
+      subscriberProbeThread.start();
     } catch (Exception e) {
       subscriber = null;
       throw new CommunicationException(e);
