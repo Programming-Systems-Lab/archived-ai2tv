@@ -29,9 +29,7 @@ class AI2TVJNIJava{
    */
   AI2TVJNIJava(){
     System.out.println("Java side <AI2TVJNIJava constructor>");    
-    System.out.println("creating the client");    
     _client = new Client(this);
-    System.out.println("done creating the client");    
   }
 
 
@@ -131,7 +129,7 @@ class AI2TVJNIJava{
    * @param passwd
    */
   void setLoginInfo(String uid, String gid, String passwd){
-    _client.login(uid, gid, passwd);
+    _client.setLoginInfo(uid, gid, passwd);
   }
 
   /**
@@ -160,8 +158,6 @@ class AI2TVJNIJava{
   String[] getAvailableVideos(){
     java.util.Vector v = _client.getAvailableVideos();
 
-    // 999
-    System.out.println("available videos: " + v);
     String[] availableVideos;
     if (v != null && v.size() > 0)
       availableVideos = new String[v.size() + 1];
@@ -192,9 +188,10 @@ class AI2TVJNIJava{
   /**
    * Tell CPP side to load a certain frame into memory
    * 
-   * @param frame: name of the image file to display
+   * @param source: path/name of the image file to display
+   * @param name: texture name to reference the image
    */
-  native void loadImage(String frame);
+  native void loadImage(String source, String name);
 
   /**
    * Tell CPP side to display a certain frame 
@@ -203,12 +200,19 @@ class AI2TVJNIJava{
    */
   native boolean displayImage(String frame);
 
+
+  native void helloWorld();
+
   /**
-   * the static block used to load the appropriate CPP library
+   * the static block used to load the appropriate CPP library/dll
+   * 
+   * The path that is checked is:
+   * System.getProperty("java.library.path");
+   * 
    */
   static {
-    // System.loadLibrary("c:/pslroot/psl/memento/virtual/client/chime/AI2TVJNICPP");
-    System.loadLibrary("AI2TVJNICPP");
+    // System.loadLibrary("AI2TVJNICPP");
+    System.loadLibrary("ai2tvjnicpp");
   }
   // --- END: JNI related functions implemented on the C++ side -- //
 

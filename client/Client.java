@@ -232,7 +232,8 @@ public class Client extends Thread{
 
     // select which video quality to load (this set the client level)
     // only if this wasn't set in the environment
-    
+
+    _level = 2;
     if (_level == -1)
       _level = computeVideoQuality(_dateToView);
     debug.println("Client level: " + _level);
@@ -279,8 +280,13 @@ public class Client extends Thread{
    */
   private void checkFrameFile(String frameFile) {
     File fh = new File(_cacheDir + frameFile);
+
+    // if the file doesn't exists, go get it
     if (fh == null || !fh.exists()) {
+      System.out.println("videoURL: " + _videoURL);
+      System.out.println("frame file not found, going to go download it");
       _cache.downloadFile(_videoURL + frameFile);
+
     }
   }
 
@@ -475,11 +481,8 @@ public class Client extends Thread{
    * @param gid: the client's group id
    * @param passwd: the client's password
    */
-  void login(String uid, String gid, String passwd){
+  void setLoginInfo(String uid, String gid, String passwd){
     // Client.debug.println("<Client> setting login info");
-    // 999
-    System.out.println("<Java side Client> setting login info");
-
     _uid = uid;
     _gid = gid;
     _passwd = passwd;
@@ -642,7 +645,8 @@ public class Client extends Thread{
       waitForWGReply();
       if (_vsid != null){
         initialize();
-        _login.shutdown();
+	if (!_attachedToCHIME)
+	  _login.shutdown();
       }
     }
   }
@@ -825,13 +829,32 @@ public class Client extends Thread{
       _currentFrame.setTimeShown(timeShown);
   }
 
+  private boolean displayImage(){
+    boolean displayFrameSuccessful = false;
+    if (_attachedToCHIME){
+      String textureName = "" + _neededFrame.getNum();
+      displayFrameSuccessful = _jni.displayImage(textureName);
+    } else {
+      displayFrameSuccessful = _viewer.displayImage(_cacheDir + _neededFrame.getNum() + IMAGE_FORMAT);
+    }
+    return displayFrameSuccessful;
+  }
+
   /**
    * load the image in memory in preparation to be shown
    * @param image: image to load
    */
   void loadImage(String image) {
+    System.out.println("<Java> loading Client.loadImage: " + image);
     if (_attachedToCHIME){
-      _jni.loadImage(image);
+      String[] tokens = image.split("/");
+      String imageName = tokens[tokens.length - 1];
+      String name = imageName.substring(0,imageName.indexOf(IMAGE_FORMAT));
+      String source = "cache/" + imageName;
+	
+      System.out.println("<Java> loading Client.loadImage name: " + name + " source: " + source); 
+      _jni.loadImage(name, source);
+
     } else {
       _viewer.loadImage(image);
     }
@@ -914,11 +937,8 @@ public class Client extends Thread{
         // probe.startTimeProbe(0, (double)_neededFrame.getStart() * 1000 / _frameRate);
 
         // _viewer.setNewFrame(true);
-        boolean displayFrameSuccessful = false;
-        if (_attachedToCHIME)
-          displayFrameSuccessful = _jni.displayImage(_cacheDir + _neededFrame.getNum() + IMAGE_FORMAT);
-        else
-          displayFrameSuccessful = _viewer.displayImage(_cacheDir + _neededFrame.getNum() + IMAGE_FORMAT);
+        boolean displayFrameSuccessful = displayImage();
+
 
         if (displayFrameSuccessful){
           _currentFrame = _neededFrame;
@@ -1015,6 +1035,7 @@ public class Client extends Thread{
       _neededFrame = _framesInfo.getFrame(_level, Integer.parseInt(newFrame));
       _cache.jumpTo(newFrame);
       if (_attachedToCHIME){
+	// _cacheDir + newFrame + IMAGE_FORMAT
         _jni.displayImage(_cacheDir + newFrame + IMAGE_FORMAT);
       } else {
         _viewer.displayImage(_cacheDir + newFrame + IMAGE_FORMAT);

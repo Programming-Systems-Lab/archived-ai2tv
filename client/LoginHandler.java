@@ -191,7 +191,7 @@ public class LoginHandler extends JFrame {
           _gid = _gidField.getText();
           _passwd = new String(_passwdField.getPassword());
 
-          _client.login(_uid, _gid, _passwd);
+          _client.setLoginInfo(_uid, _gid, _passwd);
           Client.debug.println("logged in");
           showVideosView();
         } else {
