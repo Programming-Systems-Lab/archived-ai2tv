@@ -14,33 +14,37 @@
  */
 
 package psl.ai2tv.client;
+
 import java.io.*;
 import java.util.*;
 import psl.ai2tv.gauge.*;
 
 /**
- * Main component controlling the others.  commPlay is the main function where the main
- * work happens.  The client only responds after receiving a play command from the Siena
+ * Main component controlling the others.  commPlay is where the main
+ * fun starts.  after receiving a play message, the client will start
+ * the viewing thread.  checkCurrentFrame() is the main function that
+ * checks what time it is, what frame we should be showing, etc.  The
+ * client only responds after receiving a play command from the Siena
  * server, which calls commPlay to start the viewing.
- *
- * right now the "Client" is also impersonating the time controller but this function
- * will be replaced by an NTP server in the future.
- *
- * [CommController] <--siena--> WF
- *       /\
- *       |
- *       |
- *       \/
+ * 
+ *         /---------------------> <--Siena--> --> other clients 
+ *        /
+ * [CommController]        
+ *     /\
+ *     |     /-------> [ ClientProbe ] <--Siena--> WF
+       |    / /------< [ ClientEffector ] <--Siena--> WF
+ *     |   / /
+ *     \/ / \/
  *   [ Client ] <------> [CacheController]
- *        /\   
- *         \  
- *          \ 
- *          \/
- *        [Viewer]
+ *      /\  /\ 
+ *       \   \ 
+ *        \   \-------< [
+ *        \/
+ *      [Viewer]
  * 
  *
  * WF related probes:
- * 1)  
+ * 0) 
  *
  * 
  *
@@ -48,7 +52,6 @@ import psl.ai2tv.gauge.*;
  * @version	$$
  * @author	Dan Phung (dp2041@cs.columbia.edu)
  */
-
 class Client {
   // this private class is declared here temporarily to separate the
   // dependency on the C++ side of things, for testing and development
@@ -56,16 +59,23 @@ class Client {
   private class AI2TVJNIJava{}
 
   // output streams for debugging info
-  public static PrintStream out; 
+  public static PrintStream out;
   public static PrintStream err;
   public static PrintStream debug; 
+  public static PrintStream probeOutput; 
 
   private AI2TVJNIJava _JNIIntf;
   private CacheController _cache;
   private CommController _comm;
   private Viewer _viewer;
 
+  /** current download/viewing hierarchy level */
   private int _level;
+
+  /** the time it takes for the WF to contact us */
+  private int _wfDistance;
+
+  // internal clock, directly related to system clock
   private long _startTime;
   private long _pausedTime;
   private long _pausedStartTime;
@@ -86,10 +96,13 @@ class Client {
 
   // we should have these in a config file
   public static final String _cacheDir = "cache/";
-  public static final String _baseURL = "http://www1.cs.columbia.edu/~suhit/ai2tv/1/";
-  public static final String _sienaServer = "ka:localhost:4444";
+  // public static final String _baseURL = "http://franken.psl.cs.columbia.edu/ai2tv/1/";
+  // public static final String _sienaServer = "ka:franken:4444";
+  public static final String _baseURL = "http://128.59.14.163/ai2tv/1/";
+  public static final String _sienaServer = "ka:128.59.14.163:4444";
+
   public static final String _frameFile = "frame_index.txt";
-  public static final long FRAME_RATE = 30; // 30 frames / second
+  public static final long FRAME_RATE = 30; // frames / second
   public static final long CHECK_RATE = 250; // check if frame is downloaded this often (ms)
 
   /** 
@@ -97,47 +110,80 @@ class Client {
    * delays (lookahead ~ time to process what image to show + 
    * time to load and paint image) in seconds
    */
-  private long _lookahead = 1000;
+  private long _lookahead = 0;
 
+  /**
+   * WF Probe
+   */
   static ClientProbe probe;
+
+  /**
+   * WF Effector
+   */
+  private ClientEffector _effector;
 
   /** 
    * Create an AI2TV Client
    */
   Client(){
-    // out = System.out;
-    // err = System.err;  
-    debug = System.out;  
-
     try {
       out = new PrintStream(new  FileOutputStream(new File("ai2tv_out.log")), true);
       err = new PrintStream(new  FileOutputStream(new File("ai2tv_err.log")), true);
     } catch (FileNotFoundException e){
       e.printStackTrace();
     }
-    
+    debug = System.out;
+    probeOutput = out;
 
     // what is the prob that two clients start at the exact same time? ...pretty low
-    _id = Calendar.getInstance().getTimeInMillis(); 
+    _id = System.currentTimeMillis(); 
     _startTime = 0;
     _pausedTime = _pausedStartTime = 0;
     _pausePressed = false;
-    _level = 2;
+    _level = 0;
     _timeCurrFrameShown = 0;
+    _cache = new CacheController(this, _cacheDir, _baseURL);
 
-    _framesInfo = new FrameIndexParser(_frameFile);
+    checkFrameFile(_frameFile);
+
+    _framesInfo = new FrameIndexParser(_cacheDir + _frameFile);
     _framesData = _framesInfo.frameData();
 
     _viewer = new Viewer(this);
     _comm = new CommController(this, _id, _sienaServer);
+    if (!_comm.isActive()){
+      System.out.println("Error creating CommController");
+      System.exit(1);
+    }
+      
 
-    _cache = new CacheController(this, _cacheDir, _baseURL);
+    _cache.initialize(); // start the thread to download frames
     _cache.start(); // start the thread to download frames
     _currFrame = null;
     _nextFrame = null;
     _neededFrame = null;
 
     probe = new ClientProbe(this, _sienaServer, 10); // we will have 10 probes set
+    _effector = new ClientEffector(this, _sienaServer);
+  }
+
+  /**
+   * check that the frame file is downloaded.  if not, go get it.
+   *
+   * @param frameFile: exact path/filename of the frame index file
+   */
+  private void checkFrameFile(String frameFile){
+    File fh = new File(_cacheDir + frameFile);
+    if (fh == null || !fh.exists()){
+      _cache.downloadFile(_baseURL + frameFile);
+    }
+  }  
+
+  /**
+   * @return initialized FrameIndexParser data structure
+   */
+  FrameIndexParser getFramesInfo(){
+    return _framesInfo;
   }
 
   /**
@@ -145,15 +191,11 @@ class Client {
    *
    * @return initialized FrameIndexParser data structure
    */
-  FrameIndexParser getFramesInfo(){
-    return _framesInfo;
-  }
-
   private FrameDesc getFrame(int level, long now){
     long currentTime = now / 1000;
-    // out.println("getting the next frame for : " + level + ", " + currentTime);
+    // Client.out.println("getting the next frame for : " + level + ", " + currentTime);
     for (int i=0; i<_framesData[level].length; i++){
-      // out.println("< " + (_framesData[level][i].getStart()/30) + " ? " + currentTime + 
+      // Client.out.println("< " + (_framesData[level][i].getStart()/30) + " ? " + currentTime + 
       // " ? " + _framesData[level][i].getEnd()/30 + ">");
       if (_framesData[level][i].getStart()/30 <= currentTime &&
 	  currentTime < _framesData[level][i].getEnd()/30){
@@ -163,11 +205,17 @@ class Client {
     return null;
   }
 
+  /**
+   * get the next frame
+   *
+   *
+   *
+   */
   private FrameDesc getNextFrame(int level, long now){
     long currentTime = now / 1000;
-    // out.println("getting the next frame for : " + level + ", " + currentTime);
+    // Client.out.println("getting the next frame for : " + level + ", " + currentTime);
     for (int i=0; i<_framesData[level].length; i++){
-      // out.println("< " + (_framesData[level][i].getStart()/30) + " ? " + currentTime + 
+      // Client.out.println("< " + (_framesData[level][i].getStart()/30) + " ? " + currentTime + 
       // " ? " + _framesData[level][i].getEnd()/30 + ">");
       if (_framesData[level][i].getStart()/30 <= currentTime &&
 	  currentTime < _framesData[level][i].getEnd()/30)
@@ -178,68 +226,78 @@ class Client {
   }
 
 
+  /**
+   * @return time the video ends at
+   */
   int videoEndTime(){
     return (_framesData[0][_framesData[0].length - 1].getEnd()/ 30 + 1);
   }
 
+  /**
+   * @return whether the client is active
+   */
   boolean isActive(){
     return _isActive;
   }
   
+  /**
+   * shutdown the client
+   */
   void shutdown(){
     _isActive = false;
   }
 
+  /**
+   * @return client's ID, which is the currently time of creation
+   */
   long getID(){
     return _id;
   }
 
+  /**
+   * @return client's current bandwidth
+   */
   double getBandwidth(){
     return _cache.getBandwidth();
   }
 
+  /**
+   * @return time that the current frame was originally shown
+   */
   long getTimeCurrFrameShown(){
     return _timeCurrFrameShown;
   }
 
+  /**
+   * @return current frame showing
+   */
   FrameDesc getCurrFrame(){
     return _currFrame;
   }
 
+  /**
+   * load the image in memory in preparation to be shown
+   * @param image: image to load
+   */
   void loadImage(String image){
     _viewer.loadImage(image);
   }
 
-  void imageShown(){
-    _timeCurrFrameShown = currentTime();
-    if (probe.getTimeProbe(0) > 0)
-      probe.endTimeProbe(0, _timeCurrFrameShown, "timeShown");
-    
-    if (_currFrame != null){
-      long lateness = _timeCurrFrameShown - _currFrame.getStart()*1000/30;
-      debug.println("image: " + _currFrame.getNum() + " shown at: " + _timeCurrFrameShown + 
-		    " late: " + lateness + " (ms)");
-
-      // _comm.sendUpdate();  // send an update to the other clients
-    }
-    // 999
-    // need to send an update to 
-    // _currFrame.getStart() - _timeCurrFrameShown;
-
-  }
-
+  /**
+   * starts the viewer playing thread that checks what the current frame should be
+   */
   private void startViewerThread(){
     _isActive = true;
     new Thread(){
       public void run(){
 
 	while(_isActive){
-	  checkNextFrame();
+	  checkCurrentFrame();
 
 	  try {
 	    sleep(CHECK_RATE);
 	  } catch (InterruptedException e){
-	    err.println("Client play thread error: " + e);
+	    Client.err.println("Client play thread error: " + e);
 	    shutdown();
 	  }
 	}
@@ -247,11 +305,21 @@ class Client {
     }.start();
 }
   
-  private void checkNextFrame(){
+  /**
+   * checks what time it is + some lookahead factor, 
+   * and checks to see if:
+   * 1) we missed a frame, in which case we interrupt the current download. 
+   * The cache controller should then start downloading the next frame that it.
+   * can possible get. 
+   * 2) we haven't yet downloaded the frame that was supposed to be
+   * showing at this time, so we wait some more
+   * 3) we've downloaded the frame, so show it.
+   */
+  private void checkCurrentFrame(){
     _nextFrame = getFrame(_level, currentTime() + _lookahead);
 	    
     if (_nextFrame == null){
-      out.println("Are we at the end of the Video?");
+      Client.out.println("Are we at the end of the Video?");
       _isActive = false;
       return;
     } 
@@ -259,7 +327,7 @@ class Client {
     // if time has changed, and we need to show a new frame
     if (_neededFrame != _nextFrame){
       if (_currFrame != null && _currFrame != _neededFrame){
-	// out.println("missed a frame!: " + _neededFrame);
+	// Client.out.println("missed a frame!: " + _neededFrame);
 	_cache.interruptDownload();
 	// in addition to interrupting the download, it should also
 	// tell it the next frame to download and inform the WF
@@ -269,7 +337,7 @@ class Client {
 
     if (_currFrame == null || _currFrame.getNum() != _neededFrame.getNum()){
 	      
-      // out.println("Time is: " + currentTime() + " trying to show frame: " + _neededFrame.getNum());
+      // Client.out.println("Time is: " + currentTime() + " trying to show frame: " + _neededFrame.getNum());
       if (_cache.isDownloaded(_neededFrame.getNum() + ".jpg")){
 	// then show it.
 	probe.startTimeProbe(0, _neededFrame.getStart()*1000/30);
@@ -299,18 +367,18 @@ class Client {
    * otherwise, we can wait until right up to the second before to check.
    */
   public void commPlay(){
-    out.println("commPlay received");
+    Client.out.println("commPlay received");
     
     // have we started, if not, this is it!
     if (_startTime == 0){
-      out.println("starting time");
+      Client.out.println("starting time");
       startTime();
     }
     startViewerThread();
   }
 
   public void commStop(){
-    out.println("commStop received");
+    Client.out.println("commStop received");
     _isActive = false;    
     _startTime = 0; // start time over.
     _pausedTime = 0; // start time over.
@@ -318,7 +386,7 @@ class Client {
   }
 
   public void commPause(){
-    out.println("commPause received");
+    Client.out.println("commPause received");
     if (!_pausePressed){
       _pausePressed = true;
       pauseTime();
@@ -330,17 +398,17 @@ class Client {
   }
 
   public void commGoto(int newTime){
-    out.println("commGoto received");
+    Client.out.println("commGoto received");
     // check if the file is downloaded
     // yes: display it
     // no: display filler (waiting for file to download)
     //     and in the meanwhile, download the file
     //     when the file is here, show it.
-    _startTime = Calendar.getInstance().getTimeInMillis() - newTime*1000;
+    _startTime = System.currentTimeMillis() - newTime*1000;
   }
 
   public void setNextFrame(int newFrame){
-    out.println("Client setting next frame: " + newFrame);    
+    Client.out.println("Client setting next frame: " + newFrame);    
     _cache.setNextFrame("" + newFrame);
   }
 
@@ -348,9 +416,14 @@ class Client {
     return _level;
   }
 
+  /**
+   * change hierarchy downloading /viewing levels
+   *
+   * @param change: 
+   */
   public void changeLevel(String change){
 
-    debug.println("Client setting new level: " + change);
+    Client.debug.println("Client setting new level: " + change);
     if (change.indexOf("UP") != -1){
       if (_level > 0){
  	_level--;
@@ -366,6 +439,10 @@ class Client {
 
 
   // --------- Viewer initiated actions ---------- //
+  /**
+   * send the communications controller the news that everybody 
+   * needs to start playing
+   */
   void playPressed(){
       // start the pseudoWF thread. 
       // this thread is doing a simple version of what 
@@ -374,53 +451,75 @@ class Client {
       _comm.playPressed();
   }
 
+  /**
+  * send the communications controller the news that everybody 
+   * needs to stop
+   */
   void stopPressed(){
     if (_isActive)
       _comm.stopPressed();
   }
 
+  /**
+   * send the communications controller the news that everybody 
+   * needs to pause
+   */
   void pausePressed(){
     if (_isActive)
       _comm.pausePressed();
   }
 
-  void gotoPressed(int gotoTime){
-      _comm.gotoPressed(gotoTime);
+  /**
+   * send the communications controller the news that everybody 
+   * needs to goto the given time.
+   *
+   * @param time: time to goto
+   */
+  void gotoPressed(int time){
+      _comm.gotoPressed(time);
   }
 
   // --------- END: Viewer initiated actions ---------- //
 
-
-
-
-  // --------- really bad impersonation of a clock ---------- //
-  /** */
+  // --------- internal clock handling: directly tied to the system clock  ---------- //
+  /** 
+   * set the start time of the internal clock
+   */
   public void startTime(){
-    _startTime = Calendar.getInstance().getTimeInMillis();
+    _startTime = System.currentTimeMillis();
   }
 
+  /** 
+   * get the current time as indicated inside the clock
+   */
   public long currentTime(){
     if (_isActive){
       if (_pausePressed){
 	return (_pausedStartTime - _startTime - _pausedTime);
       } else {
-	return (Calendar.getInstance().getTimeInMillis() - _startTime - _pausedTime);
+	return (System.currentTimeMillis() - _startTime - _pausedTime);
       }
     } else {
-      // out.println("current Time is not Active");
+      // Client.out.println("current Time is not Active");
       return 0; // dp2041: this actually needs to be something else, 
     }
     // in case the user has already started and is paused.
   }
 
+  /** 
+   * pause the time
+   */
   public void pauseTime(){
-    _pausedStartTime = Calendar.getInstance().getTimeInMillis();    
+    _pausedStartTime = System.currentTimeMillis();    
   }
 
+  /** 
+   * unpause the time
+   */
   public void unpauseTime(){
-    _pausedTime += (Calendar.getInstance().getTimeInMillis() - _pausedStartTime);
+    _pausedTime += (System.currentTimeMillis() - _pausedStartTime);
   }
-  // --------- END: really bad impersonation of a clock ---------- //
+  // --------- END: internal clock handling ---------- //
 
   public static void main(String[] args){
     Client c = new Client();

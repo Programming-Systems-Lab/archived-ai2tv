@@ -44,14 +44,11 @@ import psl.ai2tv.gauge.FrameIndexParser;
  * @author	Dan Phung (dp2041@cs.columbia.edu)
  */
 public class CacheController extends Thread {
-  // hack to slow down the cache controller, used for testing.
-  private int _slowdown = 0;
-
   // the higher level associated client
   protected Client _client;
 
   // members related to tracking what to download and what is downloaded.
-  protected FrameIndexParser framesInfo;
+  protected FrameIndexParser framesInfo = null;
   protected int progress[];
   protected FrameDesc currFrame;
   protected int numLevels;
@@ -66,7 +63,7 @@ public class CacheController extends Thread {
   protected int _bandwidthWindowMax;
   protected int _bandwidthWindow;
   protected long _totalBytes;
-  protected long _totalTime;
+  protected double _totalTime;
 
 
   /**
@@ -101,7 +98,9 @@ public class CacheController extends Thread {
       Client.err.println("Error: " + _cacheDir + " had existed, but is not a directory");
       return;
     }
+  }
 
+  void initialize(){
     framesInfo = _client.getFramesInfo();
     numLevels = framesInfo.levels();
     progress = new int[framesInfo.levels()];
@@ -183,22 +182,27 @@ public class CacheController extends Thread {
   }
 
   /**
-   * return the current bandwidth value
+   * return the current bandwidth value in kbyte/s
    */
   double getBandwidth() {
     if (_totalTime == 0)
       return 0;
     else 
-      return (_totalBytes / _totalTime);
+      return (_totalBytes / _totalTime / 1000);
   }
 
   /**
    * continually download frames at this levell
    */
   public void run(){
+    if (framesInfo == null)
+      initialize();
+    
     _isActive = true;
+    FrameDesc fd = null;
     while(_isActive){
-      getNextFrame();
+      fd = getNextFrame();
+      if (fd == null) break;
     }
     _isActive = false;
   }
@@ -233,11 +237,11 @@ public class CacheController extends Thread {
    *
    * @param fileURL: URL of the file to get.
    */
-  private boolean downloadFile(String fileURL) {
-    // Client.out.println("CacheController.downloadFile fileURL: " + fileURL);
+  boolean downloadFile(String fileURL) {
+    Client.debug.println("CacheController.downloadFile fileURL: " + fileURL);
     String[] tokens = fileURL.split("/");
     String saveFile = _cacheDir + tokens[tokens.length - 1];
-    // if "cache" is "initialized" in the ctro, then we can do this: curr[index].setDownloaded(true);
+    // if "cache" is "initialized" in the ctor, then we can do this: curr[index].setDownloaded(true);
     // otherwise, we'll just check the filesystem, which takes longer!
     
     URL url = null;
@@ -253,7 +257,7 @@ public class CacheController extends Thread {
       return false;
     }
       
-    long currentTime = 0;    
+    double currentTime = 0;
     try {
       // open the connection
       URLConnection myConnection;
@@ -265,7 +269,6 @@ public class CacheController extends Thread {
 	Client.out.println("Error Zero content.");
 	return false;
       }
-
       long i = myConnection.getContentLength();
       // Client.out.println("downloading file length: " + myConnection.getContentLength());
       if (i==-1) {
@@ -290,37 +293,30 @@ public class CacheController extends Thread {
       newFile.createNewFile();
       BufferedOutputStream downloadFile = new BufferedOutputStream(new FileOutputStream(newFile, append));
       int c;
-      currentTime = Calendar.getInstance().getTimeInMillis();
-      
+      currentTime = System.currentTimeMillis();
       while (((c=input.read())!=-1) && (--i > 0)){
 	if (!append || i < resumeIndex){
 	  if (_interrupt) {
 	    _interrupt = false;
 	    return false;
 	  }
-
-	  // hack to slow down the cach controller a bit, for testing purposes.
-	  if (_slowdown > 0){
-	    try { sleep(_slowdown); }
-	    catch (InterruptedException e){ }
-	  }
-	  
 	  downloadFile.write(c);
+	  downloadFile.flush();
 	}
       }
-      currentTime = Calendar.getInstance().getTimeInMillis() - currentTime;
-
+      currentTime = System.currentTimeMillis() - currentTime;
       input.close();
       downloadFile.close();
-      
+
       // BANDWIDTH related stuff
-      // Client.out.println("total bytes: " + newFile.length() + " total time: " + currentTime);
+      Client.debug.println("total bytes: " + newFile.length() + " total time: " + currentTime);
+      
       if (_bandwidthWindow++ < _bandwidthWindow){
 	_totalBytes += newFile.length();
-	_totalTime += currentTime;
+	_totalTime += (currentTime / 1000);
       } else {
 	_totalBytes = newFile.length();
-	_totalTime = currentTime;
+	_totalTime = (currentTime / 1000);
 	_bandwidthWindow = 0;
       }      
 
@@ -352,11 +348,10 @@ public class CacheController extends Thread {
 	newFrame = cc.getNextFrame();
 	Client.out.println("got frame: " + newFrame);
 	// fd[i++] = newFrame;
-	// cc.hierarchyDown(Calendar.getInstance().getTimeInMillis());
+	// cc.hierarchyDown(System.currentTimeMillis());
       } while(newFrame != null);
       // }
-      // cc.hierarchyDown(Calendar.getInstance().getTimeInMillis());
+      // cc.hierarchyDown(System.currentTimeMillis());
       */
   }
 }
-
