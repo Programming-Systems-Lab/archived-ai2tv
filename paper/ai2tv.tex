@@ -1,0 +1,341 @@
+% to compile this file into a pdf or ps use the following
+% 1) latex whitepaper.tex
+% for ps: 2) dvips -K whitepaper -o
+% for pdf: 2) ps2pdf whitepaper.ps whitepaper.pdf
+\documentclass[12pt]{article}
+\usepackage{fancyheadings}
+\usepackage{doublespace}
+\usepackage{enumerate}
+\usepackage{graphics}
+
+% \usepackage{doublespace}
+
+% commands used to control margins
+\usepackage{geometry}
+\geometry{verbose,letterpaper,lmargin=45mm,rmargin=45mm}
+% \textheight=9.3in
+\topmargin=.2in
+
+% command used to control between-line spacing
+\renewcommand{\baselinestretch}{1}
+
+\pagestyle{fancy}
+\cfoot{}
+\lhead{}
+\rhead{\rm\thepage\ of \pageref{'LastPage'}}
+\chead{\emph{Evaluating QoS of Distributed Video Synchrony}}
+
+\title{Using Workflow to Optimize QoS for Collaborative Client Video
+Synchronization}
+
+\author{
+ \textbf{Dan B. Phung, Peppo Valetto, Gail Kaiser, Suhit Gupta}\\
+Computer Science Department\\
+Columbia University\\
+\{phung, valetto, kaiser, suhit\}@cs.columbia.edu
+}
+
+\date{
+\parbox[b][0ex]{0em}{\hspace*{-12.5em}\raisebox{37ex}{\fbox{For
+submission to \emph{ACM-MM 2004}, due 12:00 AM EDT: April 05, 2004.}}}}
+
+\begin{document}
+
+\begin{singlespace}
+\maketitle
+\end{singlespace}
+
+% PAPER SYNOPSIS
+% motivation: 
+% - online courses more popular
+% - limited support for distributed collaboration
+% - network resource disparity
+% -> thus, we give you ai2tv
+%
+% background:
+% - show trend in online courses and current state on collaborative support
+% - video, or any type of distributed collaborative synchronized work
+% - discuss briefly history of two ai2tv designs and imps
+%   1) describe motivations for sys 1 architectural design
+%   2) describe flaws of sys 1
+%   -> segue into ai2tv system 2
+% - describe kender's semantic compression
+% - summarize achievements
+% 
+% evaluation methods
+% - explain scoring system
+% - 
+% 
+% results
+% - give statistical results of sys 1
+% - showed ai2tv w/ and w/o workflow each compares: 
+%                : one graph for baseline comparison
+%                : one graph for penalties
+% 1) synchronization was successful
+% 2) using workflow, QoS could be significantly increased
+% 
+% conclusion
+% - our system can be used as an aid to support collaborative
+% video viewing for students groups.  
+% 
+
+% (does this need a name? SYCOVI (SYnchronized COllaborative Video?)
+\begin{abstract}\noindent
+The increasing popularity of distance learning and online courses has
+highlights the lack of support for collaborative tools available for
+student groups.  Participants in these groups usually have a disparity
+in network resources which can hamper productive dialog.  We design
+and implement a system that allows geographically dispersed
+participants to collaboratively view a video synchronously.  This
+system includes an autonomic workflow controller that responds to
+client feedback and adjusts the quality of the video according to the
+resources of each client.  Using this system we show that we can
+successfully synchronize video for distributed clients.  We also show
+that by using an autonomic workflow controller momentary increases in
+bandwidth can be exploited to raise the quality of video while
+transitory decreases in bandwidth can be buffered against to retain
+video integrity.
+\end{abstract}
+
+\textbf{keywords:} synchronized collaborative video, autonomic
+workflow,
+
+\section{Introduction} \label{sec:intro}
+
+A major shift in educational paradigms is the use of online courses,
+which have become increasingly more popular \cite{beller,doe}.  Due to
+the ease in scheduling alongside a work schedule, one of the common
+type of students of online courses are the non-traditional working
+student that is trying to further her or his career through higher
+certifications \cite{burgess:trends}.  This student population usually
+varies geographically because online courses allow students from any
+region to enroll.  The dispersed nature of the class prevents students
+from physically holding study sessions, which is a common and
+productive practice.  Support for collaboration is a major concern in
+courses where group work is encouraged \cite{wells:collab} yet there
+are few tools that support distributed collaboration
+\cite{burgess:trends}.
+
+The area of collaboration that our contributions apply to is
+collaborative video viewing.  In this scenario, students that are
+dispersed across different geographical regions can view lecture
+videos simultaneously.  One proposed use of this technology is to
+facilitate group study sessions to review lecture material.  While
+within a video viewing session, participants can play, pause, stop and
+goto certain frames synchronously as a group.
+
+Using video on the internet requires relatively high bandiwdth
+resources.  Network traffic is usually erratic, which can lead to lost
+video content.  The lost content can either be good or bad, depending
+on the redundancy of video material.  To eliminate this uncertainty,
+we use a semantic compression package \cite{tiecheng} developed in
+another lab to extract the semantically rich material.  Using a
+selected time window, the package summarizes the content over that
+time and extracts semantically rich keyframes.  We discuss this work
+more extensively in section \ref{background}.
+
+Though all our videos are semantically rich, the playback may seem
+unnatural because only keyframes are shown.  Whether the video plays
+more natural depends on the number of keyframes extracted, which is a
+function of the time window length.  In order to provide the best
+quality video to clients, we adjust the semantic compression algoritm
+to create more or less keyframes depending on the current
+bandwidth\footnote{for performance reasons, we actually precompute the
+keyframes for several bandwidth levels}.
+
+In this paper we present two designs and implementations.  The first
+approach, which we will call system 1, used a peer to peer
+synchronization scheme that is common in some gaming platforms
+\cite{findme}.  Due to some flaws in this system, it was unable to
+synchronize the video consistently, so we redesigned and implemented
+another system (system 2) that took into account the mistakes made in
+system 1.  System 1 uses a common event bus and an autonomic workflow
+controller to respond to feedback from each of the clients and fine
+tune them when possible.
+
+We will compare the two systems and discuss the key features of the
+system that successfully synchronized the video for multiple clients.
+We also show that using the workflow component allows clients to view
+a better quality video.
+
+\subsection{Background} 
+
+doing the p2p events thing?
+Also, why the keeping of time through sleep methods?  another
+main detractor from the system is that it was run within another
+processor and memory intensive system.  
+
+
+Background and context
+
+AI2TV stands for "Adaptive Internet Interactive Team Video". AI2TV is
+a project that aims at developing a collaborative virtual environment
+for distributed team work, which includes an infrastructure for the
+provision over geographic networks of multimedia content relevant to
+the work carried out by the team, such as audio/video recordings of
+group discussions and decisions, informational and educational events,
+etc. The application domain of election is that of long-distance
+education, for remotizing attendance and review of class lectures,
+group study, and the various phases of collaborative team assignments,
+such as software development projects. Notice how AI2TV differs from
+many existing infrastructures for providing educational content in a
+networked context because of its explicit focus on supporting the team
+work aspects of on-line education.
+
+A number of speculative, design and technological challenges underlie
+the main AI2TV ideas. The issues that are most relevant to the work
+presented in this document lie mainly in the area of
+Computer-Supported Collaborative Work (CSCW), and how dynamic software
+adaptation can aid computerized CSCW tools to meet their goal of
+efficiently and effectively supporting collaborative work practices.
+
+One of the most compelling requirements for the content provision
+system of AI2TV is the support for the synchronized watching of some
+streamed video clip by all members of a geographically distributed
+team across their different equipment and networking capabilities,
+including support for video operations like fast forward, rewind,
+seek, etc: imagine a scenario in which the team decides to review
+together a portion of a past lecture, in order to solve some
+difficulty in their project assignment or to clarify some notion.
+
+Given that team members can be dispersed over the Internet, and may
+enjoy very diverse connectivity, ranging for example from 28.8k modem,
+to DSL, to cable, to T1 lines, the multimedia content they must use
+for their review session is to be delivered over heterogeneous
+Internet links to heterogeneous platforms. Moreover, in such a setup
+the communication and computing resources available to each user may
+widely and quickly vary in the course the team work session. In
+contrast with those potential difficulties, the collaboration can be
+effective only in case the fruition of the streamed video clip remains
+well synchronized, so that users, who are enabled by their clients to
+discuss the material among each other as they see it, have a natural
+group experience (like they were co-located in class, or watching a
+tape together sitting in a study room) and do not incur in
+misunderstandings, waste of time, or other serious inconveniences
+during their review session.
+
+AI2TV addresses this problem on the one hand by providing multimedia
+content in multiple versions, with different levels of semantic
+compression (citation?), and on the other hand by using the process /
+workflow technology made available by Workflakes to dynamically adapt
+its content provision infrastructure. Dynamic adaptation in this case
+is directed at modifying a combination of server and client
+configurations, data caching strategies and video management schemes,
+to accommodate and harmonize varying latencies, throughputs, client
+processing power, and server work loads. All of that - as will become
+more evident as the implementation of the case study is described
+below - must be completed by Workflakes within narrow time boundaries
+(in the order of seconds or less), given the soft-real time nature of
+the application and the kind of adaptation that must be effected.
+
+That first application of process-based dynamic adaptation in the
+AI2TV system is termed the short-term or client synchronization
+workflow, to distinguish it from the other possible applications,
+which are introduced below.
+
+Another context in AI2TV, in which process / workflow technology plays
+a significant part is the organization of the work of the team as well
+as its individual members, in accord with an agenda containing a
+schedule of group events (e.g., virtual study "meetings") and work
+deadlines. In AI2TV, a workflow is used to model and guide the
+activities of the distributed team along that planned schedule. The
+typology of that workflow is in general that of a classic
+human-oriented process, whose stakeholders are persons and whose goal
+is to facilitate and guide the collaboration among those persons;
+furthermore, the workflow is likely to span its activities across a
+relatively long term, i.e. in terms of weeks, days, or hours in the
+most demanding cases.
+
+Given those characteristics that kind of workflow should not be
+seemingly concerned with any dynamic software adaptation
+issues. However, there are peculiarities intrinsic to the presence and
+use of multimedia content in the workflow that demand for the
+introduction of dynamic adaptation aspects, which become intertwined
+with the coordination of team activities.
+
+Multimedia content must be treated by the workflow as both a new type
+of artifact and an additional kind of resource, albeit an expensive
+one that must be carefully organized and managed. One thing that this
+workflow must do is to plan and orchestrate the distribution of copies
+of such multimedia artifacts to each individual team member in a
+timely fashion. Ideally, all artifacts would be entirely transferred
+to all clients in advance, before a planned event begins. That ideal
+situation would avoid the need for streaming any information on the
+fly, and would thus largely circumvent the problems that require the
+intervention of the synchronization workflow, at least for
+planned-ahead joint work events (for virtual meetings that are set up
+and initiated with no or little advance notice, the client
+synchronization workflow remains completely relevant).
+
+In the real world, the typical situation is likely to be somewhere in
+between the two extremes above. Given that, and also in the view of
+the high variability of the factors that may influence or hinder the
+ability to make available in advance the necessary artifacts, such as
+connectivity, servers, memory storage space in the clients, CPU load
+on clients, and more, there is a need for AI2TV to adapt on the fly
+even in the long-term context, in order to overcome connectivity and
+capability idiosyncrasies and maximize the amount of data prefetched
+and immediately available to clients at the beginning of a group
+event. That can be resolved with a combination of content pre-fetching
+and caching techniques that are orchestrated via a pre-fetching
+workflow, which kicks in as part of the long-term scheduling
+workflow. The pre-fetching workflow must also graciously turn control
+over to the synchronization workflow whenever a group event begins,
+for keeping in check and adapting the synchronized delivery and
+presentation of the material across clients.
+
+Besides the long- and the short- term, there is also a medium-term
+option for dynamically adapting the provision of multimedia content in
+AI2TV. That can occur whenever, during the synchronized fruition of
+some multimedia stream, the group decides to pause or interrupt the
+viewing. That opens a window of opportunity for loading additional
+material in clients' caches. The logic of this opportunistic
+pre-fetching workflow is akin to that of the long-term pre-fetching
+workflow, but it must operate within a time frame that is closer to
+that of the client synchronization workflow.
+
+
+\subsection{Design} \label{sec:contrib}
+
+\subsection{Implementation} \label{sec:contrib}
+
+\subsection{Experimental Setup} \label{sec:eval}
+
+We only focus on network bandwidth as the commodity resource.
+
+To evaluate our implementations, we devised a scoring scheme
+to determine the amount of synchronization.  
+
+- define baseline: (bandwidth, framerate)
+
+- explain scoring metric.  
+
+- explain missed frames
+
+\section{Results} \label{sec:results}
+
+We show that system 1 was unsuccesful in synchronizing
+the clients.  This failure stemmed from implementation 
+mistakes such as relying on the sleep method as a quantum
+for keeping time.  In addition, the overhead of the
+peer-to-peer messaging scheme weighed down the system.  The
+possible sources of error in this scheme is depending on
+propagation delays to be consistent across all clients.
+
+
+System 2 was able to overcome these failures by depending on
+NTP to synchronize clocks.  The sytem clock was then
+used as the base to which the cilents synchronized.  The 
+centralized event bus also reduced network traffic, which 
+may have also contributed to the failure of system 1.
+
+\section{Related Work} \label{sec:related}
+
+\section{Future Work} \label{sec:future}
+
+\section{Conclusion} \label{sec:con}
+
+\section{Acknowledgements} \label{sec:ack}
+
+\label{'LastPage'}
+\end{document}
