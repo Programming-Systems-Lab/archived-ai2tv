@@ -244,8 +244,8 @@ WISIWYS (what I see is what you see) when some of the users are
 relatively disadvantaged with respect to bandwidth (e.g., dial-up
 modems) and local computer resources (e.g., archaic graphics cards,
 small disks).  We have adopted technology (developed by others, Liu
-and Kender \cite{TIECHENG}) for ``semantically compressing'' MPEG2
-videos into sequences of still JPEG images.  This technology
+and Kender \cite{TIECHENG}) for ``semantically compressing'' standard
+MPEG videos into sequences of still JPEG images.  This technology
 automatically selects the most semantically meaningful frames to show
 for each time epoch, and can generate different sequences of JPEG
 images for a range of different compression (bandwidth) levels.  This
@@ -334,7 +334,7 @@ conferencing, has affected distance education. These technologies have
 enabled universities to offer certification and degree tracks using
 live or pre-taped audio and/or video of regular on-campus classroom
 lectures.  The report states that the recent use of Internet
-Technologies, especially the Web, has ``allowed both synchronous and
+technologies, especially the Web, has ``allowed both synchronous and
 asynchronous communication among students and between faculty and
 students'' and has ``stimulated renewed interest in distance
 education''. It also mentions that ``stimulating interaction among
@@ -368,20 +368,24 @@ viewing.
 Our $\mathrm{AI}^2$TV project aims to contribute to the area of
 synchronous collaboration support for distance education, specifically
 in the context of collaborative video viewing over the Internet.
-However, viewing video on the Internet usually requires relatively
-high bandwidth resources and lossy network connections can lead to
-lost video content.  This is particularly a problem for group review
-of lecture videos, if different members of the group miss different
-portions of the video or fall behind to different degrees due to
-extensive buffering.  Furthermore, the differences in network and
-computing resources available to dispersed users in the same
-collaboration group can prevent some students from participating.
-Collaborative video sharing poses a twofold problem: on the one hand,
-it is mandatory to keep all users synchronized with respect to the
-content they are supposed to see at any moment during play time; on
-the other hand, it is important to provide each individual user with a
-frame rate that is optimized with respect to the user's available
-resources, which may vary during the course of the video.
+
+Viewing video on the Internet usually requires relatively high
+bandwidth resources, and low-bandwidth or lossy network connections
+can lead to lost video content.  This is particularly a problem for
+group review of lecture videos, if different members of the group miss
+different portions of the video or fall behind to different degrees
+due to extensive buffering.  Furthermore, the differences in network
+and computing resources available to dispersed users may make it
+difficult -- with current video technology -- for some students to
+participate in collaborative video viewing at all.  
+
+Technically, collaborative video sharing poses a twofold problem: on
+the one hand, it is mandatory to keep all users synchronized with
+respect to the content they are supposed to see at any moment during
+play time; on the other hand, it is important to provide each
+individual user with a frame rate that is optimized with respect to
+the user's available resources, which may vary during the course of
+the video.
 
 One solution to the problem of balancing the group synchronization
 requirement with the optimization of individual viewing experiences is
@@ -392,19 +396,23 @@ hierarchy of several different encodings or frame rates for that
 video. Thus a client could receive an appropriate quality of video
 content while staying in sync with the other members of the group.
 
+% so why isn't the above approach good enough, do we do better?
+
 % - describe overview of semantic compression tool used
-In $\mathrm{AI}^2$TV, we use semantic summarization to produce a video
-with cumulative layering.  The semantic summarization package
-developed at Columbia University by Liu and Kender \cite{TIECHENG}
-reduces a video to a set of semantically significant key frames.  That
-tool operates on MPEG format videos and outputs sequences of JPG
-frames, some of which are displayed in figure \ref{sem_video}.  Its
-semantic compression algorithm profiles video frames within a sliding
+
+In $\mathrm{AI}^2$TV, we use {\em semantic summarization} to produce a
+video with cumulative layering.  A semantic summarization algorithm
+and corresponding software package developed here at Columbia by Liu
+and Kender \cite{TIECHENG} reduces a video to a set of semantically
+significant key frames.  That tool operates on conventional MPEG
+format videos and outputs sequences of JEPG frames, some of which are
+displayed in figure \ref{sem_video}.  The semantic summarization (or
+semantic compression) algorithm profiles video frames within a sliding
 time window and selects key frames that have the most semantic
-information.  By increasing the size of the window, a key frame will
-represent a larger time slice, which means that a larger window size
-will produce less key frames as compared to a smaller window size
-setting.  
+information with respect to that window.  By increasing the size of
+the window, a key frame will represent a larger time slice, which
+means that a larger window size will produce less key frames as
+compared to a smaller window size setting.
 
 \begin{figure}
   \centering
@@ -413,17 +421,15 @@ setting.
   \label{sem_video}
 \end{figure} 
 
-A conceptual diagram of a layered video produced from semantic
+A conceptual diagram of a layered video produced from this semantic
 compression is shown in figure \ref{sem_video}.  Note that the
-semantic compression algorithm produces a random distribution of key
-frames, hence the video produced by the package plays back at a
-variable frame rate.  The variability in the frame rate implies that
-there are pockets of relatively high frequency semantic change that
-result in sections in the video that demand a higher frame rate.  The
-variable frame rate video adds complexity to the bandwidth demands of
-the client yet its semantic focus ensures that relevant content is
-unlikely to get lost, which is a significant property in the context
-of an educational application.
+semantic compression algorithm produces an effectively random
+distribution of key frames, hence the video produced by the package
+plays back at a {\em variable} frame rate.  The variability in the
+frame rate is most significant when there are pockets of relatively
+high frequency semantic change, which result in sections in the video
+that demand a higher frame rate.  The variable frame rate video adds
+substantial complexity to the bandwidth demands of the client.
 
 Also, in figure \ref{sem_video}, the bottom-left in-set shows the
 juxtaposition of individual frames from two different quality levels.
@@ -431,44 +437,43 @@ Each frame has a representative time interval \texttt{[start:end]}.
 For the higher level, Frame 1a represents the interval from 1:00 to
 1:03, and Frame 1b represents the interval from 1:04 to 1:10.  For the
 lower level, Frame 2 represents the entire interval from 1:00 to 1:10.
-In this diagram, Frame 2 is semantically equivalent to Frame 1a and
-1b, though in reality, the start and end times would not match up as
-ideally as our example.
+In this diagram, Frame 2 is semantically equivalent to Frame 1a and 1b
+together.  However, in real JPEG frame sequences produced from the
+same MPEG video for different quality levels, the start and end times
+of frame sets rarely match up as ideally as in our example.
 
-Through the use of the $\mathrm{AI}^2$TV video, we can provide
-semantically equivalent content to several clients with diverse
-resources by adjusting the compression level assigned to each client
-while the user is watching the video.  Thus for our purposes,
-synchronization of video boils down to showing semantically equivalent
-frames for a given time.
+Through the use of the Liu/Kender video compression algorithm, we can
+potentially provide semantically equivalent content to a group of user
+clients with diverse resources by adjusting the compression level
+assigned to each client while the users are watching the video.  Thus
+for our purposes, synchronization of collaborative video boils down to
+showing semantically equivalent frames.
 
 To adjust the clients in response to the changing environment, we use
-an autonomic controller to maintain the synchronization of the group
-of video clients while fine tuning the video quality for each client.
-The term \textit{autonomic} is borrowed from IBM to mean a
-self-managing system that uses a (software) feedback control
-loop.  Their terminology applies to the self-management of
-data centers whereas our application applies to the novel domain of
-multi-user video synchronization.  In \cite{RAVAGES}, we proposed the
-idea of using an autonomic controller to support group video
-synchronization and other multimedia applications.
+an ``autonomic'' controller to maintain the synchronization of the
+group of video clients while simultaneously fine tuning the video
+quality for each client.  The term \textit{autonomic} is borrowed from
+IBM to mean a self-managing system that uses a (software) feedback
+control loop \cite{IBM}.  Their terminology was invented for the
+self-management of data center operations, whereas our application
+applies to the relatively novel domain of multi-user video
+synchronization.  
 
-The autonomic controller remains conceptually separate from the
-controlled $\mathrm{AI}^2$TV video system and employs a software based
-workflow engine, named Workflakes \cite{ICSE}.  Note that the workflow
-used here coordinates the behavior of software entities, as opposed to
-human-oriented workflow systems.  The use of software based workflow
-for the specification and enactment of the plan that coordinates
-actuators is taken from Wise at al. \cite{OSTERWEIL} among others.
-The Workflakes engine has been developed for and used in a variety of
-domains \cite{AMS,ICSE}, in which it orchestrates the work of software
-entities to achieve the fully automated dynamic adaptation of
-distributed applications.  The design of the autonomic controller is a
-part of an externalized autonomic computing platform proposed by
-Kaiser \cite{REFARCH}.  In the context of $\mathrm{AI}^2$TV,
-Workflakes coordinates the adjustment of the compression level
-assigned to each client along the hierarchy of the $\mathrm{AI}^2$TV
-video.
+Our autonomic controller remains conceptually separate from the
+controlled $\mathrm{AI}^2$TV video system, employing our decentralized
+workflow engine, named Workflakes \cite{ValettoThesis}, to achieve the
+control capabilities.  Said workflow coordinates the behavior of
+software entities, as opposed to conventional human-oriented workflow
+systems; the use of workflow technology for the specification and
+enactment of the processes coordinating software entities was
+previously suggested by Wise at al. \cite{OSTERWEIL}.  Workflakes has
+previously been used in a variety of more conventional ``autonomic
+computing'' domains, where it orchestrates the work of software
+actuators to achieve the fully automated dynamic adaptation of
+distributed applications \cite{ICSE,AMS,AMSJournal}.  In the context
+of $\mathrm{AI}^2$TV, Workflakes monitors the video clients and
+consequently coordinates the dynamic adjustment of the compression
+(quality) level currently assigned to each client.
 
 % (FIGURE: semantic compression )
 % (FIGURE: key frames hierarchy )
