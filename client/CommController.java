@@ -165,17 +165,19 @@ class CommController implements Notifiable{
 		       + Calendar.getInstance().getTime());
     
     String name = event.toString().substring(7).split("=")[0];
-    AttributeValue attrib = event.getAttribute(name);
+    String attrib = event.getAttribute(name).stringValue();
     Client.out.println("handle notification: name: " + name);
     Client.out.println("handle notification: attrib: " + attrib);
     if (name.equals(SienaConstants.AI2TV_VIDEO_ACTION)){
-      if (attrib.toString().equals("\""+SienaConstants.PLAY+"\"")){
+      if (attrib.equals(SienaConstants.PLAY)){
 	_client.commPlay(); 
-      } else if (attrib.toString().equals("\""+SienaConstants.STOP+"\"")){
+      } else if (attrib.equals(SienaConstants.STOP)){
 	_client.commStop(); 
-      } else if (attrib.toString().equals("\""+SienaConstants.PAUSE+"\"")){
+
+      } else if (attrib.equals(SienaConstants.PAUSE)){
 	_client.commPause(); 
-      } else if (attrib.toString().startsWith("\""+SienaConstants.GOTO+"\"")){
+
+      } else if (attrib.equals(SienaConstants.GOTO)){
 	_client.commGoto(event.getAttribute(SienaConstants.NEWTIME).intValue());
       } else {
 	Client.err.println("AI2TV_VIDEO_ACTION: Notification Error, received unknown attribute: " + attrib);
@@ -239,6 +241,7 @@ class CommController implements Notifiable{
   private void publishNotification(Notification event){
     try{
       Client.out.println("publishing event: " + Calendar.getInstance().getTime());
+      event.putAttribute(SienaConstants.CLIENT_ID, _client.getID());
       _mySiena.publish(event);
     } catch (siena.SienaException e){
       Client.err.println("CommController publishing sienaException: " + e);
