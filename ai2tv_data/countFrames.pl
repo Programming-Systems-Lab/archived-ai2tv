@@ -1,15 +1,9 @@
 #!/usr/bin/perl
 
-# CVS version control block - do not edit manually
-#  $RCSfile$
-#  $Revision$
-#  $Date$
-#  $Source$
-#
 # Author: Dan Phung (phung@cs.columbia.edu)
 # little script I hacked up to get the proportional
 # difference between the wf frames and the nowf frames
-#
+
 # should be ran in the directory:
 # c:/pslroot/psl/ai2tv/ai2tv_data/goodness_logs/optimal_start/
 
@@ -23,31 +17,57 @@ opendir(DIR, "$nowfLogDir") or die "error, could not open dir: $nowfLogDir\n";;
  @nowfFiles = grep(/\.log$/,readdir(DIR));
 closedir(DIR);
 
-$wfTotalFrameCount = 0;
-$nowfTotalFrameCount = 0;
+
+# -------------------
+# for stdev calculation for intertrial average
 $count = 0;
-$sumProps = 0;
+$sumPropDiff = 0;
+$sumSquaredPropDiff = 0;
+# -------------------
+
+$wfTotalFrames = 0;
+$nowfTotalFrames = 0;
 foreach $wfFile (@wfFiles) {
     $nowfFile = shift(nowfFiles);
     # print "comparing $wfFile and $nowfFile\n";
     
     # print "processing file: $file: ";
-    $wfFrameCount = &CountFrames("$wfLogDir/$wfFile");
-    $nowfFrameCount = &CountFrames("$nowfLogDir/$nowfFile");
-    $propDiff = ($wfFrameCount - $nowfFrameCount) / $nowfFrameCount;
-    $sumProps += $propDiff;
+    $wfFrames = &CountFrames("$wfLogDir/$wfFile");
+    $nowfFrames = &CountFrames("$nowfLogDir/$nowfFile");
+    $propDiff = ($wfFrames - $nowfFrames) / $nowfFrames;
+    $sumPropDiff += $propDiff;
+    $sumSquaredPropDiff += ($propDiff * $propDiff);
     $count++;
-    # print "WF: $wfFrameCount noWF: $nowfFrameCount = $propDiff\n";
+    print "WF: $wfFrames noWF: $nowfFrames = $propDiff\n";
 
-    $wfTotalFrameCount += $wfFrameCount;
-    $nowfTotalFrameCount += $nowfFrameCount;
-    # if ($count++ == 2){ exit;}
+    $wfTotalFrames += $wfFrames;
+    $nowfTotalFrames += $nowfFrames;
 }
 
-$propDiff = ($wfTotalFrameCount - $nowfTotalFrameCount) / $nowfTotalFrameCount;
-print "WF: $wfTotalFrameCount noWF: $nowfTotalFrameCount = $propDiff\n";
-print "intertrial average: " . $sumProps / $count. "\n";
+# -----------------------------------------------------------------
+# across all trials
+# $propDiff = ($wfTotalFrames - $nowfTotalFrames) / $nowfTotalFrames;
+# print "WF: $wfTotalFrames noWF: $nowfTotalFrames = $propDiff\n";
 
+
+# -----------------------------------------------------------------
+# intertrial
+
+$avg = $sumPropDiff / $count;
+$avgSquared = $sumSquaredPropDiff / $count;
+$variance = ($avgSquared - (($avg *$avg)/$count)) / ($count- 1);
+$stdev = sqrt $variance;
+print "intertrial average: $avg +\/- $stdev\n";
+
+exit;
+# -----------------------------------------------------------------
+# / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / /
+# / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / /
+# / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / /
+# / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / /
+# -----------------------------------------------------------------
+# Subroutines
+# -----------------------------------------------------------------
 sub CountFrames(){
     my $file = shift;
     # print "counting frames for $file: ";
@@ -61,6 +81,10 @@ sub CountFrames(){
 
 	my @line = split (/\t/, $_);	
 	$currentFrame = $line[5];
+	if ($currentFrame =~ m/missed/){
+	    # print "found a missed frame: $currentFrame\n";
+	    next;
+	}
 	if ($currentFrame != $lastFrame){
 	    # print "$currentFrame";
 	    $frameCount++;
