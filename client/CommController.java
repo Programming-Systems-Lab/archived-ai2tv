@@ -39,9 +39,6 @@ class CommController implements Notifiable{
 
   public static final int DEBUG = 0;
 
-  public static PrintStream out = System.out;
-  public static PrintStream err = System.err;
-
   private boolean _isActive = false;
 
   private ThinClient _mySiena;
@@ -97,15 +94,15 @@ class CommController implements Notifiable{
       _mySiena = new ThinClient("ka:localhost:4444");
 
       setupFilter();
-      // System.out.println("subscribing for " + filter.toString());
+      // Client.out.println("subscribing for " + filter.toString());
 
     } catch (siena.comm.PacketSenderException e) {
       // what is this?
-      System.out.println ("Caught exception in setting up the Siena server: "  + e);
+      Client.out.println ("Caught exception in setting up the Siena server: "  + e);
     } catch (SienaException e) {
       // ; // WTF?
       // } catch (siena.comm.InvalidSenderException e) {
-      System.out.println ("Cannot connect to Siena bus: "  + e);
+      Client.out.println ("Cannot connect to Siena bus: "  + e);
       // mySiena = null;
       loopAlways = false;
       _isActive = false;
@@ -114,14 +111,14 @@ class CommController implements Notifiable{
   }
 
   void shutdown(){
-    System.out.println("Shutting down CommController");
-    System.out.println("Unsubscribing to Siena server");
+    Client.out.println("Shutting down CommController");
+    Client.out.println("Unsubscribing to Siena server");
     try {
       _mySiena.unsubscribe(filter, this);
     } catch (siena.SienaException e) {
-      System.out.println("error:" + e);
+      Client.out.println("error:" + e);
     }
-    System.out.println("Shutting down Siena server");
+    Client.out.println("Shutting down Siena server");
     _mySiena.shutdown();
   }
   
@@ -132,13 +129,13 @@ class CommController implements Notifiable{
   public void notify(Notification [] s) { }
 
   private void handleNotification(Notification event){
-    System.out.println("handleNotification(): I just got this event:" + event + ": at : " 
+    Client.out.println("handleNotification(): I just got this event:" + event + ": at : " 
 		       + Calendar.getInstance().getTime());
     
     String name = event.toString().substring(7).split("=")[0];
     AttributeValue attrib = event.getAttribute(name);
-    System.out.println("handle notification: name: " + name);
-    System.out.println("handle notification: attrib: " + attrib);
+    Client.out.println("handle notification: name: " + name);
+    Client.out.println("handle notification: attrib: " + attrib);
     if (name.equals("AI2TV_VIDEO_ACTION")){
       if (attrib.toString().equals("\"PLAY\"")){
 	_client.commPlay(); 
@@ -149,23 +146,23 @@ class CommController implements Notifiable{
       } else if (attrib.toString().startsWith("\"GOTO")){
 	_client.commGoto(event.getAttribute("NEWTIME").intValue());
       } else {
-	System.err.println("AI2TV_VIDEO_ACTION: Notification Error, received unknown attribute: " + attrib);
+	Client.err.println("AI2TV_VIDEO_ACTION: Notification Error, received unknown attribute: " + attrib);
       }
 
     } else if (name.equals("AI2TV_FRAME_UPDATE") && 
 	       event.getAttribute("CLIENT_ID").longValue() == _client.getID()){
-      System.out.println("found a WF commmand to do something, directed to ME!");
-      System.out.println("");
+      Client.out.println("found a WF commmand to do something, directed to ME!");
+      Client.out.println("");
       if (event.getAttribute("CHANGE_LEVEL") != null){
 	_client.changeLevel(event.getAttribute("CHANGE_LEVEL").toString());
       } else if (event.getAttribute("GOTO_FRAME") != null){
 	_client.setNextFrame(event.getAttribute("GOTO_FRAME").intValue());
       } else {
-	System.err.println("AI2TV_FRAME_UDPATE: Notification Error, received unknown attribute: " + attrib);
+	Client.err.println("AI2TV_FRAME_UDPATE: Notification Error, received unknown attribute: " + attrib);
       }
 
     } else {
-      System.err.println("Notification Error, received unknown name: " + name);
+      Client.err.println("Notification Error, received unknown name: " + name);
     }
   }
 
@@ -177,7 +174,7 @@ class CommController implements Notifiable{
     // need to publish the notification that we are need to start playing.
     Notification event = new Notification();
     event.putAttribute("AI2TV_VIDEO_ACTION", "PLAY");
-    System.out.println("CommController publishing event: " + event);
+    Client.out.println("CommController publishing event: " + event);
     publishNotification(event);
   }
 
@@ -185,14 +182,14 @@ class CommController implements Notifiable{
     // need to publish the notification that we are need to start playing.
     Notification event = new Notification();
     event.putAttribute("AI2TV_VIDEO_ACTION", "PAUSE");
-    System.out.println("CommController publishing event: " + event);
+    Client.out.println("CommController publishing event: " + event);
     publishNotification(event);
   }
 
   void stopPressed(){
     Notification event = new Notification();
     event.putAttribute("AI2TV_VIDEO_ACTION", "STOP");
-    System.out.println("CommController publishing event: " + event);
+    Client.out.println("CommController publishing event: " + event);
     publishNotification(event);
   }
 
@@ -200,16 +197,16 @@ class CommController implements Notifiable{
     Notification event = new Notification();
     event.putAttribute("AI2TV_VIDEO_ACTION", "GOTO");
     event.putAttribute("NEWTIME", gotoTime);
-    System.out.println("CommController publishing event: " + event);
+    Client.out.println("CommController publishing event: " + event);
     publishNotification(event);
   }
   
   private void publishNotification(Notification event){
     try{
-      System.out.println("publishing event: " + Calendar.getInstance().getTime());
+      Client.out.println("publishing event: " + Calendar.getInstance().getTime());
       _mySiena.publish(event);
     } catch (siena.SienaException e){
-      System.err.println("CommController publishing sienaException: " + e);
+      Client.err.println("CommController publishing sienaException: " + e);
     }  
   }
 
