@@ -80,9 +80,9 @@ public class CacheController extends Thread {
   }
 
   void interruptDownload() {
+    _interrupt = true;
     if (_downloadThread != null)
       _downloadThread.interrupt();
-    // _interrupt = true;
   }
 
   boolean download(String fileURL) {
@@ -186,13 +186,11 @@ public class CacheController extends Thread {
       
       while (((c=input.read())!=-1) && (--i > 0)){
 	if (!append || i < resumeIndex){
-	  downloadFile.write(c);
-	  /*
-	    if (_interrupt) {
+	  if (_interrupt) {
 	    _interrupt = false;
 	    return false;
-	    }
-	  */
+	  }
+	  downloadFile.write(c);
 	}
       }
       currentTime = Calendar.getInstance().getTimeInMillis() - currentTime;
