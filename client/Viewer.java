@@ -141,6 +141,7 @@ class Viewer extends JFrame {
     }
       
     if (_newFrame){
+      _client.setCurrentFrameTimeShown(_client.currentTime());
       if (Client.probe.getTimeProbe(0) >= 0)
 	Client.probe.endTimeProbe(0, _client.currentTime(), SienaConstants.TIME_OFFSET);
       _newFrame = false;
@@ -308,6 +309,7 @@ class Viewer extends JFrame {
       Client.err.println("Viewer error in loading image: " + e);
     }
   }
+
   // - - - - - - DONE: ENTRY FUNCTIONS USED BY CLIENT - - - - - - - //
 
   /**

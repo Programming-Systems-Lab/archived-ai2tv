@@ -37,7 +37,7 @@ public class FrameDesc {
 	private int timeOffset;
   
         /** video clock time when the frame was shown  */
-	private int timeShown;
+	private long timeShown;
 	
 	/** Vector containing the FrameDesc of all the equivalent frames to this frame */
 	private Vector equivalents;
@@ -89,8 +89,8 @@ public class FrameDesc {
 	public void setLevel(int l) { level = l; }
 	public int getSize() { return level; }
 	public void setSize(int s) { size = s; }
-	public int getTimeShown() {return timeShown; }
-	public void setTimeShown(int t) { timeShown = t; }
+	public long getTimeShown() {return timeShown; }
+	public void setTimeShown(long t) { timeShown = t; }
 	public int getTimeOffset() {return timeOffset; }
 	public void setTimeOffset(int t) { timeOffset = t; }
 	public void setEquivalents(Vector v) { equivalents = v; }

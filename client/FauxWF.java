@@ -30,7 +30,7 @@ import psl.ai2tv.SienaConstants;
 class FauxWF extends Thread implements Notifiable {
   public static PrintStream _log;
   private boolean _isActive;
-  private ThinClient _mySiena;
+  private ThinClient _siena;
   private String _sienaServer;
   private Filter filter;
   private int _earlyThreshold;
@@ -50,7 +50,7 @@ class FauxWF extends Thread implements Notifiable {
     }
 
     _isActive = false;
-    _mySiena = null;
+    _siena = null;
     _sienaServer = sienaServer;
 
     _earlyThreshold = 0;  // threshold for max ms of being early
@@ -164,12 +164,12 @@ class FauxWF extends Thread implements Notifiable {
     filter = new Filter();
     filter.addConstraint(SienaConstants.AI2TV_FRAME, "");
     // filter.addConstraint(SienaConstants.AI2TV_VIDEO_PREFETCH, "");
-    _mySiena.subscribe(filter, this);
+    _siena.subscribe(filter, this);
   }
 
   private void publishNotification(Notification event){
     try{
-      _mySiena.publish(event);
+      _siena.publish(event);
     } catch (siena.SienaException e){
       System.err.println("CommController publishing sienaException: " + e);
     }  
@@ -177,7 +177,7 @@ class FauxWF extends Thread implements Notifiable {
 
   private void setupSienaListener(){
     try {
-      _mySiena = new ThinClient(_sienaServer);
+      _siena = new ThinClient(_sienaServer);
       setupFilter();
 
     } catch (siena.comm.PacketSenderException e) {

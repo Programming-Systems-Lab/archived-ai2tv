@@ -56,9 +56,6 @@ class CommController implements Notifiable{
     _siena = null;
     _sienaServer = server;
     setupSienaListener();
-
-    // send out a registration packet to the WF
-    sendRegistrationToWF();
   }
 
   /**
@@ -69,10 +66,6 @@ class CommController implements Notifiable{
     Filter filter = new Filter();
     // the string "FOO" doesn't mean anything (the string is ignored)
     filter.addConstraint(SienaConstants.AI2TV_VIDEO_ACTION, Op.ANY, "FOO");
-    _siena.subscribe(filter, this);
-
-    filter = new Filter();
-    filter.addConstraint(SienaConstants.AI2TV_WF_UPDATE_REQUEST, Op.ANY, "FOO");
     _siena.subscribe(filter, this);
   }
 
@@ -95,24 +88,11 @@ class CommController implements Notifiable{
       // ; // WTF?
       // } catch (siena.comm.InvalidSenderException e) {
       Client.out.println ("Cannot connect to Siena bus: "  + e);
-      // mySiena = null;
+      // _siena = null;
       // e.printStackTrace();
     }
   }
   
-  private void sendRegistrationToWF(){
-    Notification event = new Notification();
-    try{
-      Client.out.println("Registering client: " + _client.getID());
-      event.putAttribute(SienaConstants.AI2TV_WF_REG, "");
-
-      Client.out.println("publishing event: " + Calendar.getInstance().getTime());
-      event.putAttribute(SienaConstants.CLIENT_ID, _client.getID());
-      _siena.publish(event);
-    } catch (siena.SienaException e){
-      Client.err.println("CommController publishing sienaException: " + e);
-    }      
-  }
 
 
   /**
@@ -123,7 +103,7 @@ class CommController implements Notifiable{
     Client.out.println("Unsubscribing to Siena server");
     try {
       Notification shutdownEvent = new Notification();
-      shutdownEvent.putAttribute(SienaConstants.AI2TV_CLIENT_SHUTDWON, "");
+      shutdownEvent.putAttribute(SienaConstants.AI2TV_CLIENT_SHUTDOWN, "");
       publishNotification(shutdownEvent);
 
       Filter filter = new Filter();
@@ -161,32 +141,21 @@ class CommController implements Notifiable{
    * @param event: Notification sent by the Siena server
    */
   private void handleNotification(Notification event){
-    long now = System.currentTimeMillis();
     Client.out.println("handleNotification(): I just got this event:" + event + ": at : " 
 		       + Calendar.getInstance().getTime());
-    
-    // get the propagation delay
-    AttributeValue absAttrib = event.getAttribute(SienaConstants.ABS_TIME_SENT);
-    long absTimeSent = -1;
-    long ppd = -1; // ppd: previous propagation delay
-    if (absAttrib != null){
-      // here we calculate the difference between when the request was
-      // sent and when it was received/handled .  Note that this
-      // difference includes some overhead of some attrib checking so
-      // it is not entirely accurate
-      absTimeSent = absAttrib.longValue();
-      ppd = now - absTimeSent;
-    }
 
     String name = event.toString().substring(7).split("=")[0];
     String attrib = event.getAttribute(name).stringValue();
+    AttributeValue absAttrib = event.getAttribute(SienaConstants.ABS_TIME_SENT);
+    long absTimeSent = -1;
+    if (absAttrib != null){
+      absTimeSent = absAttrib.longValue();
+    }
 
     Client.out.println("handle notification: name: " + name);
     Client.out.println("handle notification: attrib: " + attrib);
-    if (name.equals(SienaConstants.AI2TV_WF_UPDATE_REQUEST)){
-      publishUpdate(ppd);
-      
-    } else if (name.equals(SienaConstants.AI2TV_VIDEO_ACTION)){
+
+    if (name.equals(SienaConstants.AI2TV_VIDEO_ACTION)){
       
       if (attrib.equals(SienaConstants.PLAY)){
 	_client.commPlay(absTimeSent); 
@@ -251,19 +220,7 @@ class CommController implements Notifiable{
     Client.out.println("CommController publishing event: " + event);
     publishNotification(event);
   }
-  
-  /**
-   * publish the current client status
-   *
-   * @param ppd: previous propagation delay
-   */
-  void publishUpdate(long ppd){
-    Notification event = new Notification();
-    event.putAttribute(SienaConstants.AI2TV_WF_UPDATE_REPLY, "");
-    event.putAttribute(SienaConstants.PREV_PROP_DELAY, ppd);
-    publishNotification(event);      
-  }
-    
+   
   /**
    * handle the actual publishing to the Siena server
    *

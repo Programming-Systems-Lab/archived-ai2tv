@@ -11,7 +11,12 @@ import java.util.*;
 
 import org.apache.log4j.Logger;
 
+/**
+ *
+ * NOTE, to see what we're subscribing to, see psl/ai2tv/gauge/GroupGauge.java
+ */
 class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
+
 
   private static final Logger logger = Logger.getLogger(WFSubscriber.class);
 
@@ -24,7 +29,7 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
   public WFSubscriber(WFGauge wfg)
     throws SienaException, IOException {
 
-    _id = System.currentTimeMillis(); // don't know why it was this: -1 * System.currentTimeMillis();
+    _id = System.currentTimeMillis();
     myGauge = wfg;
     _isActive = false;
     setup();
@@ -134,6 +139,15 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
       // " +/- " + currentClient.getStddevDistClient2WF());
 
       currentClient.addDistWF2Client(e.getAttribute(SienaConstants.PREV_PROP_DELAY).longValue());
+      currentClient.setFrame(e.getAttribute(SienaConstants.LEFTBOUND).intValue(),
+			     e.getAttribute(SienaConstants.MOMENT).intValue(),
+			     e.getAttribute(SienaConstants.RIGHTBOUND).intValue(),
+			     e.getAttribute(SienaConstants.LEVEL).intValue(),
+			     e.getAttribute(SienaConstants.SIZE).intValue(),
+			     e.getAttribute(SienaConstants.TIME_SHOWN).intValue(),
+			     e.getAttribute(SienaConstants.TIME_OFFSET).intValue(),
+			     e.getAttribute(SienaConstants.TIME_DOWNLOADED).longValue()
+			     );
       // logger.debug("WF -> client avg is: " + 
       // currentClient.getAvgDistWF2Client() + 
       // " +/- " + currentClient.getStddevDistWF2Client());
@@ -170,7 +184,7 @@ class WFSubscriber extends SimpleGaugeSubscriber implements Runnable{
 	// should throw an unknown error, or something
 	logger.debug("Received AI2TV VIDEO ACTION event: " + e);
       }
-    } else if (e.getAttribute(SienaConstants.AI2TV_CLIENT_SHUTDWON) != null){
+    } else if (e.getAttribute(SienaConstants.AI2TV_CLIENT_SHUTDOWN) != null){
       // need to remove client from the WF system
 
     } else {

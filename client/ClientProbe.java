@@ -37,7 +37,7 @@ import psl.ai2tv.SienaConstants;
  */
 class ClientProbe {
   /** interval between probe events in ms.' */
-  ThinClient _mySiena;
+  ThinClient _siena;
   private Notification _frameEvent;
   private Client _client;
   String _sienaServer;
@@ -58,7 +58,7 @@ class ClientProbe {
    */
   ClientProbe (Client c, String sienaServer, int numProbes) {
     _client = c;
-    _mySiena = null;
+    _siena = null;
     _sienaServer = sienaServer;
     setupSiena();
 
@@ -67,6 +67,9 @@ class ClientProbe {
     _probeStatus = new boolean[numProbes];
     for (int i=0; i<_probeTimes.length; i++)
       _probeTimes[i] = 0;
+
+    // send out a registration packet to the WF
+    sendRegistrationToWF();
   }
 
   /**
@@ -74,10 +77,10 @@ class ClientProbe {
    */
   private void setupSiena() {
     try {
-      _mySiena = new ThinClient(_sienaServer);
+      _siena = new ThinClient(_sienaServer);
     } catch (InvalidSenderException ise) {
       Client.out.println ("Cannot connect to Siena bus");
-      _mySiena = null;
+      _siena = null;
       ise.printStackTrace();
     }
     // trying to optimize by calling constructors for events only once
@@ -92,31 +95,15 @@ class ClientProbe {
     _frameEvent.putAttribute(SienaConstants.CLIENT_ID, _client.getID());
     _frameEvent.putAttribute(SienaConstants.BANDWIDTH, _client.getBandwidth());
 
-
     // this element must be the last one added, as we are doing a
     // timing measurement to find the distance to the WF.
     // _frameEvent.putAttribute(SienaConstants.PROBE_TIME, System.currentTimeMillis());
     // _frameEvent.putAttribute(SienaConstants.PROBE_TIME, _client.currentTime());
     // _frameEvent.putAttribute(SienaConstants.CLIENT_CURRENT_TIME, _client.currentTime());
     try {
-      _mySiena.publish(_frameEvent);
+      _siena.publish(_frameEvent);
     } catch (SienaException se) {
       se.printStackTrace();
-    }
-  }
-
-  private void addFrameInfo(){
-    FrameDesc fd = _client.getCurrFrame();
-    if (fd != null) {
-      _frameEvent.putAttribute(SienaConstants.LEFTBOUND, fd.getStart());
-      _frameEvent.putAttribute(SienaConstants.RIGHTBOUND, fd.getEnd());
-      _frameEvent.putAttribute(SienaConstants.MOMENT, fd.getNum());
-      _frameEvent.putAttribute(SienaConstants.LEVEL, fd.getLevel());
-      _frameEvent.putAttribute(SienaConstants.SIZE, fd.getSize());
-      _frameEvent.putAttribute(SienaConstants.TIME_SHOWN, _client.currentTime());
-      _frameEvent.putAttribute(SienaConstants.TIME_DOWNLOADED, fd.getTimeDownloaded());
-      // 000
-      // _frameEvent.putAttribute(SienaConstants.PROBE_TIME, fd.currentTime());
     }
   }
 
@@ -145,7 +132,6 @@ class ClientProbe {
     }
   }
 
-
   /**
    * unsetting the probe causes a message to be sent.
    *
@@ -159,20 +145,38 @@ class ClientProbe {
     if (ID >= 0 && ID < _probeTimes.length){
       unsetProbe(ID);
       Client.probeOutput.println("sending an update: time diff: " + (time - _probeTimes[ID]));
-      // this is where TIME_SHOWN is put in
-      _frameEvent.putAttribute(natureOfMessage, (time - _probeTimes[ID]));
-      _frameEvent.putAttribute(SienaConstants.PROBE_TIME, (time - _probeTimes[ID]));
+      int diff = (int)(time - _probeTimes[ID]);
+      _frameEvent.putAttribute(natureOfMessage, diff);
+      _frameEvent.putAttribute(SienaConstants.PROBE_TIME, diff);
 
       if (natureOfMessage.equals(SienaConstants.TIME_OFFSET))
-	addFrameInfo();
+	addFrameInfo(diff);
       sendUpdate();
 
-      Client.probeOutput.println("image: " + _client.getCurrFrame().getNum() +
+      Client.probeOutput.println("image: " + _client.getCurrentFrame().getNum() +
 				 " shown at: " + _probeTimes[ID] +
 				 " late: " + (time - _probeTimes[ID]) + " (ms)");
     }
   }
 
+  /**
+   * add the FrameDesc information
+   */
+  private void addFrameInfo(int timeOffset){
+    FrameDesc fd = _client.getCurrentFrame();
+
+    if (fd != null) {
+      fd.setTimeOffset(timeOffset);
+      _frameEvent.putAttribute(SienaConstants.LEFTBOUND, fd.getStart());
+      _frameEvent.putAttribute(SienaConstants.RIGHTBOUND, fd.getEnd());
+      _frameEvent.putAttribute(SienaConstants.MOMENT, fd.getNum());
+      _frameEvent.putAttribute(SienaConstants.LEVEL, fd.getLevel());
+      _frameEvent.putAttribute(SienaConstants.SIZE, fd.getSize());
+      _frameEvent.putAttribute(SienaConstants.TIME_SHOWN, fd.getTimeShown());
+      _frameEvent.putAttribute(SienaConstants.TIME_OFFSET, timeOffset);
+      _frameEvent.putAttribute(SienaConstants.TIME_DOWNLOADED, fd.getTimeDownloaded());
+    }
+  }
 
   /**
    * 
@@ -190,6 +194,18 @@ class ClientProbe {
 
   boolean getProbeStatus(int ID){
     return _probeStatus[ID];
+  }
+
+  private void sendRegistrationToWF(){
+    Notification event = new Notification();
+    try{
+      Client.out.println("Registering client: " + _client.getID());
+      event.putAttribute(SienaConstants.AI2TV_WF_REG, "");
+      event.putAttribute(SienaConstants.CLIENT_ID, _client.getID());
+      _siena.publish(event);
+    } catch (siena.SienaException e){
+      Client.err.println("CommController publishing sienaException: " + e);
+    }      
   }
 }
 

@@ -27,7 +27,7 @@ avgDistWF2Client.doc=the average propagation delay measured from the WF to the c
 
 [FramePG]
 doc=representation of a downloaded video frame
-slots=int level, int num, int start, int end, int timeShown, int timeOffset, long timeDownloaded
+slots=int level, int num, int start, int end, long timeShown, int timeOffset, long timeDownloaded
 level.doc=hierarchy level
 num.doc=frame number
 start.doc=start of the represented frame interval

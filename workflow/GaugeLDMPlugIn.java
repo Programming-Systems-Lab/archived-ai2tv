@@ -239,7 +239,7 @@ public class GaugeLDMPlugIn
   }
 		
   private FramePG makeFramePG(int hl, int fid, int s, int e, 
-			      int timeShown, int timeOffset, long timeDownloaded) {
+			      long timeShown, int timeOffset, long timeDownloaded) {
     NewFramePG fPG = (NewFramePG)factory.createPropertyGroup("FramePG");
     fPG.setLevel(hl);
     fPG.setNum(fid);

@@ -87,7 +87,7 @@ public class ClientDesc {
   }
 		
   public void setFrame(int l, int m, int r, int level, int s, 
-		       int timeShown, int timeOffset, long timeDownloaded) {
+		       long timeShown, int timeOffset, long timeDownloaded) {
     fd.setStart (l);
     fd.setNum (m);
     fd.setEnd (r);

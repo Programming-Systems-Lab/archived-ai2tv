@@ -7,8 +7,8 @@ package psl.ai2tv;
 public class SienaConstants {
 
   // these represent the typical client probe frame updates
-  public static final String AI2TV_FRAME = "AI2TV_FRAME";
-  public static final String CLIENT_ID = "CLIENT_ID";
+  public static final String AI2TV_FRAME = "AI2TVFrame";
+  public static final String CLIENT_ID = "ClientID";
   public static final String BANDWIDTH = "bandwidth";
   public static final String PROBE_TIME = "probeTime";
   public static final String ABS_TIME_SENT = "absoluteTimeSentStamp";
@@ -26,26 +26,26 @@ public class SienaConstants {
   // these represent the actions of the clients, and are typically sent
   // between peers
   public static final String AI2TV_CLIENT_SHUTDOWN = "clientShutdown";
-  public static final String AI2TV_VIDEO_ACTION = "AI2TV_VIDEO_ACTION";
-  public static final String PLAY = "PLAY";
-  public static final String STOP = "STOP";
-  public static final String PAUSE = "PAUSE";
-  public static final String GOTO = "GOTO";
-  public static final String NEWTIME = "NEWTIME";
+  public static final String AI2TV_VIDEO_ACTION = "AI2TVVideoAction";
+  public static final String PLAY = "play";
+  public static final String STOP = "stop";
+  public static final String PAUSE = "pause";
+  public static final String GOTO = "goto";
+  public static final String NEWTIME = "newtime";
 
   // these are from the WF to adjust certain clients
-  public static final String AI2TV_CLIENT_ADJUST = "AI2TV_CLIENT_ADJUST";
-  public static final String CHANGE_LEVEL = "CHANGE_LEVEL";
-  public static final String CHANGE_LEVEL_UP = "UP";
-  public static final String CHANGE_LEVEL_DOWN = "DOWN";
-  public static final String PLAN_FOR = "PLAN_FOR";
+  public static final String AI2TV_CLIENT_ADJUST = "AI2TVClientAdjust";
+  public static final String CHANGE_LEVEL = "changeLevel";
+  public static final String CHANGE_LEVEL_UP = "up";
+  public static final String CHANGE_LEVEL_DOWN = "down";
+  public static final String JUMP_TO = "jumpTo";
 
   // these are for the WF to gather certain timing stats
-  public static final String AI2TV_WF_REG = "AI2TV_WF_REG";
-  public static final String AI2TV_WF_UPDATE_REQUEST = "AI2TV_WF_UPDATE_REQUEST";
-  public static final String AI2TV_WF_UPDATE_REPLY = "AI2TV_WF_UPDATE_REPLY";
-  public static final String AI2TV_UPDATE_TIME_SENT = "TIME_SENT";
-  public static final String AI2TV_UPDATE_TIME_RCVD = "TIME_RECEIVED";
+  public static final String AI2TV_WF_REG = "AI2TVWFReg";
+  public static final String AI2TV_WF_UPDATE_REQUEST = "AI2TVWFUpdateRequest";
+  public static final String AI2TV_WF_UPDATE_REPLY = "AI2TVWFUpdateReply";
+  public static final String AI2TV_UPDATE_TIME_SENT = "timeSent";
+  public static final String AI2TV_UPDATE_TIME_RCVD = "timeReceived";
 
   public static final String AI2TV_VIDEO_PREFETCH = "";
 

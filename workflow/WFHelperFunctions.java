@@ -29,7 +29,7 @@ import psl.ai2tv.gauge.SimpleGaugeSubscriber;
 /**
  * Implemented interface that can be used by Little-JIL tasks via the
  * TaskExecutorInternalPlugin.  The "method" paramter in the execute
- * method holds the method that this class will execute
+ * method holds the method that this class will execute.
  *
  * each function has access to:
  *
@@ -63,8 +63,7 @@ public class WFHelperFunctions implements ExecutableTask {
   Siena siena;
 
   /**
-   *
-   *
+   * 
    */
   public WFHelperFunctions(){
     baseCA = null;

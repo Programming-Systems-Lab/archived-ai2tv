@@ -18,6 +18,7 @@ package psl.ai2tv.client;
 import siena.*;
 import siena.comm.*;
 import psl.ai2tv.SienaConstants;
+import psl.ai2tv.gauge.FrameDesc;
 
 /**
  * The Client Effector that listens to WF
@@ -27,7 +28,7 @@ import psl.ai2tv.SienaConstants;
  */
 class ClientEffector implements Notifiable {
   /** interval between probe events in ms.' */
-  ThinClient _mySiena;
+  ThinClient _siena;
   private Notification _frameEvent;
   private Client _client;
   String _sienaServer;
@@ -40,7 +41,7 @@ class ClientEffector implements Notifiable {
    */
   ClientEffector (Client c, String sienaServer) {
     _client = c;
-    _mySiena = null;
+    _siena = null;
     _sienaServer = sienaServer;
     setupSiena();
   }
@@ -53,7 +54,11 @@ class ClientEffector implements Notifiable {
     // WF related actions
     Filter filter = new Filter();
     filter.addConstraint(SienaConstants.AI2TV_CLIENT_ADJUST, "");
-    _mySiena.subscribe(filter, this);
+    _siena.subscribe(filter, this);
+
+    filter = new Filter();
+    filter.addConstraint(SienaConstants.AI2TV_WF_UPDATE_REQUEST, Op.ANY, "FOO");
+    _siena.subscribe(filter, this);
   }
 
 
@@ -62,12 +67,12 @@ class ClientEffector implements Notifiable {
    */
   private void setupSiena() {
     try {
-      _mySiena = new ThinClient(_sienaServer);
+      _siena = new ThinClient(_sienaServer);
       setupFilter();
     } catch (SienaException ise) {
       // } catch (InvalidSenderException ise) {
       Client.out.println ("Cannot connect to Siena bus");
-      _mySiena = null;
+      _siena = null;
       ise.printStackTrace();	
     }
     _frameEvent = new Notification();
@@ -98,40 +103,110 @@ class ClientEffector implements Notifiable {
    * @param event: Notification sent by the Siena server
    */
   private void handleNotification(Notification event){
+    long now = System.currentTimeMillis();
+
+    // get the propagation delay
+    AttributeValue absAttrib = event.getAttribute(SienaConstants.ABS_TIME_SENT);
+    long absTimeSent = -1;
+    long ppd = -1; // ppd: previous propagation delay
+    if (absAttrib != null){
+      // here we calculate the difference between when the request was
+      // sent and when it was received/handled .  Note that this
+      // difference includes some overhead of some attrib checking so
+      // it is not entirely accurate
+      absTimeSent = absAttrib.longValue();
+      ppd = now - absTimeSent;
+    }
+
     Client.out.println("ClientEffector handleNotification(): I just got this event:" + event);
     String name = event.toString().substring(7).split("=")[0];
     AttributeValue attrib = event.getAttribute(name);
     Client.out.println("ClientEffector handle notification: name: " + name);
     Client.out.println("ClientEffector handle notification: attrib: " + attrib);
-    if (name.equals(SienaConstants.AI2TV_CLIENT_ADJUST) && 
+
+    if (name.equals(SienaConstants.AI2TV_WF_UPDATE_REQUEST)){
+      publishUpdate(ppd);
+
+    } else if (name.equals(SienaConstants.AI2TV_CLIENT_ADJUST) && 
 	event.getAttribute(SienaConstants.CLIENT_ID).longValue() == _client.getID()){
       Client.out.println("found a WF commmand to do something, directed to ME!");
       Client.out.println("");
       if (event.getAttribute(SienaConstants.CHANGE_LEVEL) != null){
 	Client.out.println("ClientEffector found command to change levels: " + event.getAttribute(SienaConstants.CHANGE_LEVEL).toString());
 	_client.changeLevel(event.getAttribute(SienaConstants.CHANGE_LEVEL).toString());
-      } else if (event.getAttribute(SienaConstants.PLAN_FOR) != null){
-	Client.out.println("ClientEffector found command to plan for frame: " + event.getAttribute(SienaConstants.PLAN_FOR).intValue());
-	_client.planFor(event.getAttribute(SienaConstants.PLAN_FOR).stringValue());
+      } else if (event.getAttribute(SienaConstants.JUMP_TO) != null){
+	Client.out.println("ClientEffector found command to jump to a certain frame: " + event.getAttribute(SienaConstants.JUMP_TO).stringValue());
+	_client.jumpTo(event.getAttribute(SienaConstants.JUMP_TO).stringValue());
       } else {
 	Client.err.println("AI2TV_FRAME_UDPATE: Notification Error, received unknown attribute: " + attrib);
       }
-
     } else {
       Client.err.println("Notification Error, received unknown name: " + name);
     }
   }
 
+  /**
+   * publish the periodic current client status
+   *
+   * @param ppd: previous propagation delay
+   */
+  void publishUpdate(long ppd){
+    Notification event = new Notification();
+    event.putAttribute(SienaConstants.AI2TV_WF_UPDATE_REPLY, "");
+    event.putAttribute(SienaConstants.PREV_PROP_DELAY, ppd);
+    addFrameInfo(event);
+    publishNotification(event);      
+  }
+
+  /**
+   * handle the actual publishing to the Siena server
+   *
+   * @param event: Notification to publish
+   */
+  private void publishNotification(Notification event){
+    try{
+      event.putAttribute(SienaConstants.ABS_TIME_SENT, System.currentTimeMillis());
+      event.putAttribute(SienaConstants.CLIENT_ID, _client.getID());
+      _siena.publish(event);
+    } catch (siena.SienaException e){
+      Client.err.println("CommController publishing sienaException: " + e);
+    }  
+  }
+
+  /**
+   * add the information about the current frame into the notification
+   */
+  private void addFrameInfo(Notification update){
+    FrameDesc fd = _client.getCurrentFrame();
+    if (fd != null) {
+      update.putAttribute(SienaConstants.LEFTBOUND, fd.getStart());
+      update.putAttribute(SienaConstants.RIGHTBOUND, fd.getEnd());
+      update.putAttribute(SienaConstants.MOMENT, fd.getNum());
+      update.putAttribute(SienaConstants.LEVEL, fd.getLevel());
+      update.putAttribute(SienaConstants.SIZE, fd.getSize());
+      update.putAttribute(SienaConstants.TIME_SHOWN, fd.getTimeShown());
+      update.putAttribute(SienaConstants.TIME_OFFSET, fd.getTimeOffset());
+      update.putAttribute(SienaConstants.TIME_DOWNLOADED, fd.getTimeDownloaded());
+    }
+  }
+
+  /**
+   * shutdown the effector
+   */
   void shutdown(){
     try {
       Filter filter = new Filter();
       filter.addConstraint(SienaConstants.AI2TV_CLIENT_ADJUST, "");
-      _mySiena.unsubscribe(filter, this);
+      _siena.unsubscribe(filter, this);
+
+      filter = new Filter();
+      filter.addConstraint(SienaConstants.AI2TV_WF_UPDATE_REQUEST, "");
+      _siena.unsubscribe(filter, this);
     } catch (siena.SienaException e) {
       Client.err.println("error:" + e);
     }
     Client.out.println("Shutting down Siena server");
-    _mySiena.shutdown();
+    _siena.shutdown();
 
   }
 }
