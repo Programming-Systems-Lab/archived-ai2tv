@@ -211,24 +211,31 @@ FACTORS}
 
 % -------------------------------------------------- %
 
-
 % tech report number CUCS-009-04
 \section{Introduction}
 
-Distance learning programs such as the Columbia Video Network have
-evolved from fedexing lecture video tapes to their off-campus students
-to instead streaming the videos over the Internet, which is also done
-by the Stanford Center for Professional Development.  The lectures are
-sometimes delivered ``live'', while in progress on campus, but
-frequently are post-processed and packaged for students to watch (and
-re-watch) at their convenience.  This introduces the possibility of
-forming ``study groups'' among off-campus students who view the
-lecture videos together, and pause the video for discussion when
-desired, thus approximating the pedagogically valuable discussions of
-on-campus students.  Although the instructor is probably not available
-for these discussions, this may be an advantage, since on-campus
-students are rarely afforded the opportunity to pause, rewind and
-fast-forward their instructors' lectures.
+% The wording was awkward here, so I pretend that Stanford also
+% once fedexed, even tho we don't know that.  
+
+% Dan - you didn't insert any of the original cites into the new
+% Introduction, weren't any of them relevant?
+
+Distance learning programs such as the Columbia Video Network and the
+Stanford Center for Professional Development have evolved from
+fedexing lecture video tapes to their off-campus students to instead
+streaming the videos over the Internet.  The lectures might be
+delivered ``live'', while in progress on campus, but are frequently
+post-processed and packaged for students to watch (and re-watch) at
+their convenience.  This introduces the possibility of forming ``study
+groups'' among off-campus students who view the lecture videos
+together, and pause the video for discussion when desired, thus
+approximating the pedagogically valuable discussions of on-campus
+students.  Although the instructor is probably not available for these
+discussions, this may be an advantage, since on-campus students are
+rarely afforded the opportunity to pause, rewind and fast-forward
+their instructors' lectures.
+
+% should it be JPG or JPEG?
 
 However, what we call {\em collaborative video viewing} by multiple
 geographically dispersed users is not yet supported by conventional
@@ -238,9 +245,9 @@ relatively disadvantaged with respect to bandwidth (e.g., dial-up
 modems) and local computer resources (e.g., archaic graphics cards,
 small disks).  We have adopted technology (developed by others, Liu
 and Kender \cite{TIECHENG}) for ``semantically compressing'' MPEG2
-videos into sequences of still JPG images.  This technology
+videos into sequences of still JPEG images.  This technology
 automatically selects the most semantically meaningful frames to show
-for each time epoch, and can generate different sequences of JPG
+for each time epoch, and can generate different sequences of JPEG
 images for a range of different compression (bandwidth) levels.  This
 approach works very well for typical lecture videos, where it is
 important, for instance, to see what the instructor has written on the
@@ -256,6 +263,8 @@ indeed sometimes pause the videos, or rewind to a point already
 available in local buffers (caches), it is desirable to take advantage
 of the then-idle network connection to prefetch future images at a
 higher quality level.
+
+% cite for NTP?
 
 We have developed an approach to achieving this, using three
 mechanisms working in tandem.  First, the software clocks of the video
@@ -303,57 +312,76 @@ course. We compare to related work, and then summarize our
 contributions.
 
 \section{Motivation and Background} \label{background}
-% - discuss other projects on multiple client synchronization
-The increasing popularity of online universities has prompted many
-universities to begin providing online certification tracks that use
-pre-taped on-campus lectures.  Traditionally, online courses are
-provided through a Web portal interface, such as those at the
-University of Phoenix or Capella University, which are designed for
-individual students with a self-motivated learning style.
-Contrastly, in many on-campus courses, students are encouraged to
-study in groups in order to better learn the material.  For off-campus
-students viewing the pre-taped lecture, this practice is difficult
-because of their separation by geographic distance.  Support of
-synchronous collaboration remains a major concern in courses where
-group work is encouraged \cite{WELLS}, yet there are few educational
-tools that allow synchronous collaboration across a group of online
-students \cite{BURGESS}.
 
-There are some available tools that will allow online collaboration,
-though they may not be geared specifically for educational purposes.
-Some of these tools use asynchronous forms of communication, such as
-bulletin boards and discussion groups.  Others tools, such as instant
-messaging, application and desktop sharing \cite{WEBEX, VNC}, and
-co-browsing \cite{CAPPS, LIEBERMAN, SIDLER} facilitate the
-communicative aspects of synchronous collaboration but are not
-designed specifically for educational purposes thus can be cumbersome
-when used as such.
+% - discuss other projects on multiple client synchronization 
+% shouldn't that go in the related work section?
+
+Correspondence courses have been available to working adult and/or
+geographically remote learners for over a century, e.g., the American
+School in Illinois has offered high school courses since 1897
+\cite{AmericanSchool}, and the University of Wyoming began offering
+extension courses in 1892, launching a full-fledged college distance
+learning program in 1906 \cite{UWyoming}.  Correspondence courses have
+traditionally been designed for individual students with a
+self-motivated learning style, studying primarily from reading
+materials and possibly text ``lectures''.
+
+% would be good if a cite could be found for last sentence above
+
+An NSF Report \cite{NSFReport} discusses how technology, from radio to
+television, to audio and video cassettes, to audio and video
+conferencing, has affected distance education. These technologies have
+enabled universities to offer certification and degree tracks using
+live or pre-taped audio and/or video of regular on-campus classroom
+lectures.  The report states that the recent use of Internet
+Technologies, especially the Web, has ``allowed both synchronous and
+asynchronous communication among students and between faculty and
+students'' and has ``stimulated renewed interest in distance
+education''. It also mentions that ``stimulating interaction among
+students'' can help reduce dropout rates, which may be higher in
+distance education than in traditional courses. Finally, it cites some
+studies that ``suggest the Web is superior to earlier distance
+education technologies because it allows teachers to build
+collaborative and team-oriented communities rather than either the
+passive classes of the conventional academy or the individual study of
+traditional correspondence courses''.
+
+Today's equivalent of correspondence courses are often offered online
+through a Web portal interface, with some for-profit schools like
+University of Phoenix \cite{UPhoenix} and Capella University
+\cite{Capella} primarily online.  Tools such as instant messaging,
+application and desktop sharing \cite{WEBEX, VNC}, and co-browsing
+\cite{CAPPS, LIEBERMAN, SIDLER} facilitate the communicative aspects
+of synchronous collaboration but are not designed specifically for
+educational purposes.  Support for synchronous collaboration remains a
+major concern in courses where group work is encouraged \cite{WELLS},
+yet there are few educational tools that allow synchronous
+collaboration across a group of online students \cite{BURGESS}.
+However, it seems that Web-based video streaming should enable
+synchronous collaboration ``situated'' by collaborative lecture video
+viewing.
+
+% would be good to find a cite for the last sentence above
 
 % - ai2tv project goals
-$\mathrm{AI}^2$TV contributes to the area of synchronous collaboration
-support, and more specifically, to collaborative video sharing.  The
-work presented in this paper is a part of a larger effort to provide a
-collaborative virtual environment for distributed team study.  That
-project's goal is to provide support for the collaborative use of
-multimedia content relevant to the work carried out by a team of users
-involved in the same project, such as audio/video recordings of
-lectures, meetings, workshops and other informational and educational
-events.  In this paper, we focus on the aspect of video sharing for
-synchronous collaboration.
 
-Viewing video on the Internet usually requires relatively high
-bandwidth resources and lossy network connections can lead to lost
-video content.  For group review of lecture videos, the lost content
-may severely disrupt the progression of the group.  Furthermore, the
-differences in network and computing resources available to dispersed
-users in the same collaboration group can prevent some students from
-participating.  Collaborative video sharing poses a twofold problem:
-on the one hand, it is mandatory to keep all users synchronized with
-respect to the content they are supposed to see at any moment during
-play time; on the other hand, it is important to provide each
-individual user with a frame rate that is optimized with respect to
-the user's available resources, which may vary during the course of
-the video.
+Our $\mathrm{AI}^2$TV project aims to contribute to the area of
+synchronous collaboration support for distance education, specifically
+in the context of collaborative video viewing over the Internet.
+However, viewing video on the Internet usually requires relatively
+high bandwidth resources and lossy network connections can lead to
+lost video content.  This is particularly a problem for group review
+of lecture videos, if different members of the group miss different
+portions of the video or fall behind to different degrees due to
+extensive buffering.  Furthermore, the differences in network and
+computing resources available to dispersed users in the same
+collaboration group can prevent some students from participating.
+Collaborative video sharing poses a twofold problem: on the one hand,
+it is mandatory to keep all users synchronized with respect to the
+content they are supposed to see at any moment during play time; on
+the other hand, it is important to provide each individual user with a
+frame rate that is optimized with respect to the user's available
+resources, which may vary during the course of the video.
 
 One solution to the problem of balancing the group synchronization
 requirement with the optimization of individual viewing experiences is
